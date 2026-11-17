@@ -1,0 +1,93 @@
+-- EvolsDumper Summary  2026-11-15 21:36:05
+-- PlaceId: 75942174630781  Game: Map
+
+-- ===== REMOTES (32) =====
+[1] BindableFunction  PlayEmote  TheDucky_Dave.Animate.PlayEmote
+[2] BindableFunction  PlayEmote  WaterOfDoom1307.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  JTjustME34.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.INSANEMONKEY_18.Animate.PlayEmote
+[5] BindableFunction  PlayEmote  Workspace.BiGBlackMonkeyN3g.Animate.PlayEmote
+[6] BindableFunction  PlayEmote  KarumuBlox.Animate.PlayEmote
+[7] RemoteEvent  Action  ReplicatedStorage.TPS.Remotes.Action
+[8] UnreliableRemoteEvent  Aim  ReplicatedStorage.TPS.Remotes.Aim
+[9] RemoteEvent  State  ReplicatedStorage.TPS.Remotes.State
+[10] RemoteEvent  Shot  ReplicatedStorage.TPS.Remotes.Shot
+[11] RemoteEvent  Impact  ReplicatedStorage.TPS.Remotes.Impact
+[12] RemoteEvent  Hit  ReplicatedStorage.TPS.Remotes.Hit
+[13] RemoteEvent  Notice  ReplicatedStorage.TPS.Remotes.Notice
+[14] RemoteEvent  KillFeed  ReplicatedStorage.TPS.Remotes.KillFeed
+[15] RemoteEvent  Hurt  ReplicatedStorage.TPS.Remotes.Hurt
+[16] RemoteEvent  Duel  ReplicatedStorage.TPS.Remotes.Duel
+[17] RemoteEvent  Reboot  ReplicatedStorage.TPS.Remotes.Reboot
+[18] RemoteEvent  Airdrop  ReplicatedStorage.TPS.Remotes.Airdrop
+[19] RemoteEvent  GasHit  ReplicatedStorage.TPS.Remotes.GasHit
+[20] RemoteEvent  Match  ReplicatedStorage.TPS.Remotes.Match
+[21] RemoteEvent  Device  ReplicatedStorage.TPS.Remotes.Device
+[22] RemoteEvent  Chaos  ReplicatedStorage.TPS.Remotes.Chaos
+[23] RemoteEvent  Breakables  ReplicatedStorage.TPS.Remotes.Breakables
+[24] RemoteEvent  R1_CarEnter  ReplicatedStorage.TPS.Remotes.R1_CarEnter
+[25] RemoteEvent  Ping  ReplicatedStorage.TPS.Remotes.Ping
+[26] RemoteEvent  ProfileSync  ReplicatedStorage.R1Remotes.ProfileSync
+[27] RemoteFunction  ProfileRequest  ReplicatedStorage.R1Remotes.ProfileRequest
+[28] RemoteEvent  WeaponChallengeCompleted  ReplicatedStorage.R1Remotes.WeaponChallengeCompleted
+[29] RemoteFunction  R1Admin  ReplicatedStorage.R1Admin
+[30] RemoteEvent  R1AdminGhost  ReplicatedStorage.R1AdminGhost
+[31] UnreliableRemoteEvent  R1Sync  ReplicatedStorage.R1Sync
+[32] RemoteEvent  R1SyncReport  ReplicatedStorage.R1SyncReport
+
+-- ===== TOP CLASSES =====
+Part = 47633
+Model = 12466
+WeldConstraint = 7343
+MeshPart = 6371
+Attachment = 5008
+WedgePart = 4917
+Vector3Value = 2853
+UnionOperation = 2439
+TextLabel = 2058
+Frame = 2009
+SurfaceAppearance = 1101
+ProximityPrompt = 980
+NoCollisionConstraint = 760
+WrapTarget = 615
+BallSocketConstraint = 560
+AnimationConstraint = 540
+Folder = 413
+SpecialMesh = 410
+Weld = 344
+PointLight = 328
+NumberValue = 282
+Sound = 275
+ParticleEmitter = 231
+Beam = 192
+SurfaceGui = 167
+StringValue = 166
+Animation = 162
+VectorForce = 140
+Motor6D = 139
+UITextSizeConstraint = 130
+ModuleScript = 115
+UIPadding = 87
+Accessory = 76
+InputBinding = 74
+Fire = 67
+AlignOrientation = 57
+Texture = 57
+SpotLight = 54
+Humanoid = 41
+Pants = 40
+
+-- ===== STATS =====
+Flat = 102155
+Values = 3313
+Tags = 140
+Properties = 110222
+BytesWritten = 9968124
+Objects = 102155
+DumpMode = FULL
+Attributes = 28914
+Scripts = 45
+ElapsedSeconds = 64.74033904075623
+Remotes = 32
+Errors = 0
+Modules = 115

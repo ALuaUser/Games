@@ -1,0 +1,101 @@
+-- EvolsDumper Summary  2026-11-15 21:48:57
+-- PlaceId: 103044262594219  Game: Game Of Life Main
+
+-- ===== REMOTES (40) =====
+[1] RemoteEvent  ReturnToLobby  ReplicatedStorage.GameOfLifeTravel.ReturnToLobby
+[2] RemoteEvent  BoardReady  ReplicatedStorage.GameOfLifeTravel.BoardReady
+[3] RemoteEvent  GameplayPresentationIntent  ReplicatedStorage.GameOfLifeNetwork.GameplayPresentationIntent
+[4] RemoteEvent  WinnerAnnouncementChanged  ReplicatedStorage.GameOfLifeNetwork.WinnerAnnouncementChanged
+[5] RemoteFunction  GetWinnerAnnouncementSnapshot  ReplicatedStorage.GameOfLifeNetwork.GetWinnerAnnouncementSnapshot
+[6] RemoteEvent  SpinnerSlotStateChanged  ReplicatedStorage.GameOfLifeNetwork.SpinnerSlotStateChanged
+[7] RemoteFunction  GetSpinnerSlotSnapshot  ReplicatedStorage.GameOfLifeNetwork.GetSpinnerSlotSnapshot
+[8] RemoteEvent  CashTransferPresented  ReplicatedStorage.GameOfLifeNetwork.CashTransferPresented
+[9] RemoteEvent  BankPaymentPresented  ReplicatedStorage.GameOfLifeNetwork.BankPaymentPresented
+[10] RemoteEvent  SpinSequenceChanged  ReplicatedStorage.GameOfLifeNetwork.SpinSequenceChanged
+[11] RemoteFunction  GetSpinSequenceSnapshot  ReplicatedStorage.GameOfLifeNetwork.GetSpinSequenceSnapshot
+[12] RemoteEvent  RequestSequenceSpin  ReplicatedStorage.GameOfLifeNetwork.RequestSequenceSpin
+[13] RemoteEvent  BombChipStateChanged  ReplicatedStorage.GameOfLifeNetwork.BombChipStateChanged
+[14] RemoteFunction  GetBombChipSnapshot  ReplicatedStorage.GameOfLifeNetwork.GetBombChipSnapshot
+[15] RemoteEvent  SubmitBombChipIntent  ReplicatedStorage.GameOfLifeNetwork.SubmitBombChipIntent
+[16] RemoteFunction  SubmitSplitOrSteal  ReplicatedStorage.GameOfLifeNetwork.SubmitSplitOrSteal
+[17] RemoteFunction  RequestTroll  ReplicatedStorage.GameOfLifeNetwork.RequestTroll
+[18] RemoteEvent  TrollNudge  ReplicatedStorage.GameOfLifeNetwork.TrollNudge
+[19] RemoteEvent  MatchStateChanged  ReplicatedStorage.GameOfLifeNetwork.MatchStateChanged
+[20] RemoteFunction  GetMatchSnapshot  ReplicatedStorage.GameOfLifeNetwork.GetMatchSnapshot
+[21] RemoteEvent  SpinnerStateChanged  ReplicatedStorage.GameOfLifeNetwork.SpinnerStateChanged
+[22] RemoteFunction  GetSpinnerSnapshot  ReplicatedStorage.GameOfLifeNetwork.GetSpinnerSnapshot
+[23] RemoteEvent  TutorialCompleted  ReplicatedStorage.GameOfLifeNetwork.TutorialCompleted
+[24] RemoteEvent  SubmitInteractionChoice  ReplicatedStorage.GameOfLifeNetwork.SubmitInteractionChoice
+[25] RemoteEvent  RequestSpin  ReplicatedStorage.GameOfLifeNetwork.RequestSpin
+[26] RemoteEvent  RequestMove  ReplicatedStorage.GameOfLifeNetwork.RequestMove
+[27] RemoteFunction  RequestInvestment  ReplicatedStorage.GameOfLifeNetwork.RequestInvestment
+[28] RemoteEvent  RequestEndTurn  ReplicatedStorage.GameOfLifeNetwork.RequestEndTurn
+[29] RemoteEvent  SubmitLoanPayment  ReplicatedStorage.GameOfLifeNetwork.SubmitLoanPayment
+[30] RemoteEvent  SubmitLoanPayAll  ReplicatedStorage.GameOfLifeNetwork.SubmitLoanPayAll
+[31] RemoteFunction  RequestBorrow  ReplicatedStorage.GameOfLifeNetwork.RequestBorrow
+[32] RemoteEvent  WeddingPickHover  ReplicatedStorage.GameOfLifeNetwork.WeddingPickHover
+[33] RemoteEvent  HouseSaleHover  ReplicatedStorage.GameOfLifeNetwork.HouseSaleHover
+[34] RemoteEvent  RiskyBigBreakHover  ReplicatedStorage.GameOfLifeNetwork.RiskyBigBreakHover
+[35] RemoteEvent  PromptHover  ReplicatedStorage.GameOfLifeNetwork.PromptHover
+[36] RemoteEvent  RequestRiskyBigBreakSpin  ReplicatedStorage.GameOfLifeNetwork.RequestRiskyBigBreakSpin
+[37] RemoteEvent  RequestFateWheelSpin  ReplicatedStorage.GameOfLifeNetwork.RequestFateWheelSpin
+[38] RemoteEvent  SubmitAdminCommand  ReplicatedStorage.GameOfLifeNetwork.SubmitAdminCommand
+[39] RemoteFunction  GetAdminAccess  ReplicatedStorage.GameOfLifeNetwork.GetAdminAccess
+[40] RemoteEvent  SetMusicEnabled  ReplicatedStorage.GameOfLifeNetwork.SetMusicEnabled
+
+-- ===== TOP CLASSES =====
+MeshPart = 6252
+Model = 5545
+Part = 1729
+CFrameValue = 336
+Weld = 311
+ModuleScript = 256
+Attachment = 184
+SurfaceAppearance = 159
+SurfaceGui = 146
+ImageLabel = 146
+Motor6D = 123
+WeldConstraint = 121
+InputBinding = 74
+Bone = 38
+Folder = 38
+AnimationController = 31
+InputAction = 30
+RemoteEvent = 29
+Animator = 29
+RemoteFunction = 11
+ParticleEmitter = 9
+Beam = 8
+UICorner = 6
+Frame = 6
+LocalScript = 5
+UIStroke = 5
+InputContext = 4
+ObjectValue = 4
+Script = 4
+BillboardGui = 3
+PointLight = 2
+StarterCharacterScripts = 1
+UnionOperation = 1
+ReplicatedStorage = 1
+UITextSizeConstraint = 1
+ColorCorrectionEffect = 1
+StarterPlayer = 1
+Sound = 1
+Highlight = 1
+UIScale = 1
+
+-- ===== STATS =====
+Flat = 15669
+Values = 341
+Tags = 1670
+Properties = 16008
+BytesWritten = 1845572
+Objects = 15669
+DumpMode = FULL
+Attributes = 6365
+Scripts = 9
+ElapsedSeconds = 10.480709314346313
+Remotes = 40
+Errors = 0
+Modules = 256

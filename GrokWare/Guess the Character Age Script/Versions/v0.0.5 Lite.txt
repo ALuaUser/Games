@@ -1,0 +1,490 @@
+--[[
+    Guess the Character Age!  |  Answer HUD Lite
+    v0.0.4 (UI refresh)  •  Made by Evol
+    Reads name from PlayerGui.GameGui.Heading + CharacterConfig ages
+]]
+
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+----------------------------------------------------------------
+-- Load CharacterConfig
+----------------------------------------------------------------
+local CharacterConfig
+
+local function tryRequire(parts)
+    local n = RS
+    for _, p in ipairs(parts) do
+        n = n and n:FindFirstChild(p)
+    end
+    if n and n:IsA("ModuleScript") then
+        local ok, mod = pcall(require, n)
+        if ok and type(mod) == "table" then
+            return mod
+        end
+    end
+end
+
+for _, path in ipairs({
+    { "CharacterConfig" },
+    { "Modules", "CharacterConfig" },
+    { "Shared", "CharacterConfig" },
+    { "Configs", "CharacterConfig" },
+    { "Config", "CharacterConfig" },
+    { "Data", "CharacterConfig" },
+}) do
+    CharacterConfig = tryRequire(path)
+    if CharacterConfig then
+        break
+    end
+end
+
+if not CharacterConfig then
+    for _, d in ipairs(RS:GetDescendants()) do
+        if d:IsA("ModuleScript") and d.Name:lower():find("character") then
+            local ok, mod = pcall(require, d)
+            if ok and type(mod) == "table" then
+                local k = next(mod)
+                if k and type(mod[k]) == "table" and mod[k].Age ~= nil then
+                    CharacterConfig = mod
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function lookup(name)
+    if not CharacterConfig or not name then
+        return
+    end
+    name = tostring(name):gsub("^%s+", ""):gsub("%s+$", "")
+    if CharacterConfig[name] then
+        return CharacterConfig[name], name
+    end
+    local lower = name:lower()
+    for n, data in pairs(CharacterConfig) do
+        if n:lower() == lower then
+            return data, n
+        end
+    end
+    for n, data in pairs(CharacterConfig) do
+        if n:lower():find(lower, 1, true) or lower:find(n:lower(), 1, true) then
+            return data, n
+        end
+    end
+end
+
+----------------------------------------------------------------
+-- Heading text
+----------------------------------------------------------------
+local function headingText()
+    local gui = PG:FindFirstChild("GameGui")
+    local h = gui and gui:FindFirstChild("Heading")
+    if not h then
+        return
+    end
+    if h:IsA("TextLabel") or h:IsA("TextButton") or h:IsA("TextBox") then
+        return h.Text
+    end
+    local lab = h:FindFirstChildWhichIsA("TextLabel", true)
+        or h:FindFirstChildWhichIsA("TextButton", true)
+    return lab and lab.Text
+end
+
+----------------------------------------------------------------
+-- Theme
+----------------------------------------------------------------
+local THEME = {
+    bgTop = Color3.fromRGB(24, 28, 42),
+    bgBottom = Color3.fromRGB(12, 14, 22),
+    panel = Color3.fromRGB(8, 10, 16),
+    textMain = Color3.fromRGB(240, 244, 252),
+    textDim = Color3.fromRGB(128, 142, 168),
+    btn = Color3.fromRGB(32, 37, 52),
+    btnHover = Color3.fromRGB(48, 55, 76),
+}
+
+local STATE = {
+    waiting = Color3.fromRGB(90, 190, 255),
+    found = Color3.fromRGB(80, 255, 170),
+    missing = Color3.fromRGB(255, 170, 70),
+}
+
+local FULL_H, MINI_H = 128, 38
+
+local function tween(obj, props, t, style, dir)
+    local tw = TweenService:Create(
+        obj,
+        TweenInfo.new(t or 0.25, style or Enum.EasingStyle.Quad, dir or Enum.EasingDirection.Out),
+        props
+    )
+    tw:Play()
+    return tw
+end
+
+local function make(class, props, parent)
+    local o = Instance.new(class)
+    for k, v in pairs(props) do
+        o[k] = v
+    end
+    o.Parent = parent
+    return o
+end
+
+----------------------------------------------------------------
+-- HUD UI
+----------------------------------------------------------------
+local old = PG:FindFirstChild("AgeAnswerHUD_Lite")
+if old then
+    old:Destroy()
+end
+
+local gui = make("ScreenGui", {
+    Name = "AgeAnswerHUD_Lite",
+    ResetOnSpawn = false,
+    DisplayOrder = 100,
+    IgnoreGuiInset = true,
+}, PG)
+
+local card = make("Frame", {
+    Name = "Card",
+    Size = UDim2.fromOffset(330, FULL_H),
+    Position = UDim2.new(0, 18, 0, 120),
+    BackgroundColor3 = Color3.new(1, 1, 1),
+    BorderSizePixel = 0,
+    Active = true,
+    ClipsDescendants = true,
+}, gui)
+
+make("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
+make("UIGradient", {
+    Rotation = 90,
+    Color = ColorSequence.new(THEME.bgTop, THEME.bgBottom),
+}, card)
+
+-- scale down on small screens (phones)
+local scale = make("UIScale", {}, card)
+local function updateScale()
+    local cam = workspace.CurrentCamera
+    if cam then
+        scale.Scale = math.clamp(cam.ViewportSize.X / 900, 0.75, 1)
+    end
+end
+updateScale()
+if workspace.CurrentCamera then
+    workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScale)
+end
+
+-- glowing gradient border
+local stroke = make("UIStroke", {
+    Color = Color3.new(1, 1, 1),
+    Thickness = 1.6,
+    Transparency = 0.25,
+    ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+}, card)
+local strokeGrad = make("UIGradient", {
+    Rotation = 45,
+    Color = ColorSequence.new(STATE.waiting, Color3.fromRGB(60, 70, 110)),
+}, stroke)
+
+local function setStrokeColor(c)
+    strokeGrad.Color = ColorSequence.new(c, Color3.fromRGB(60, 70, 110))
+end
+
+-- header --------------------------------------------------------
+local dot = make("Frame", {
+    Size = UDim2.fromOffset(8, 8),
+    Position = UDim2.fromOffset(16, 15),
+    BackgroundColor3 = STATE.waiting,
+    BorderSizePixel = 0,
+}, card)
+make("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
+
+local dotGlow = make("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    Size = UDim2.fromOffset(8, 8),
+    BackgroundColor3 = STATE.waiting,
+    BackgroundTransparency = 0.5,
+    BorderSizePixel = 0,
+    ZIndex = 0,
+}, dot)
+make("UICorner", { CornerRadius = UDim.new(1, 0) }, dotGlow)
+
+-- pulsing ring around the dot
+TweenService:Create(
+    dotGlow,
+    TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, -1, false),
+    { Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1 }
+):Play()
+
+make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(32, 9),
+    Size = UDim2.fromOffset(120, 20),
+    Font = Enum.Font.GothamBold,
+    TextSize = 11,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextColor3 = THEME.textDim,
+    Text = "ANSWER HUD",
+}, card)
+
+local function headerButton(text, xOffset)
+    local b = make("TextButton", {
+        Size = UDim2.fromOffset(22, 22),
+        Position = UDim2.new(1, xOffset, 0, 8),
+        BackgroundColor3 = THEME.btn,
+        Text = text,
+        TextColor3 = Color3.fromRGB(200, 210, 225),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        AutoButtonColor = false,
+    }, card)
+    make("UICorner", { CornerRadius = UDim.new(0, 7) }, b)
+    b.MouseEnter:Connect(function()
+        tween(b, { BackgroundColor3 = THEME.btnHover }, 0.15)
+    end)
+    b.MouseLeave:Connect(function()
+        tween(b, { BackgroundColor3 = THEME.btn }, 0.15)
+    end)
+    return b
+end
+
+local closeBtn = headerButton("×", -30)
+local miniBtn = headerButton("–", -56)
+
+-- divider
+make("Frame", {
+    Position = UDim2.fromOffset(16, 36),
+    Size = UDim2.new(1, -32, 0, 1),
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 0.92,
+    BorderSizePixel = 0,
+}, card)
+
+-- body ----------------------------------------------------------
+local nameLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(16, 46),
+    Size = UDim2.new(1, -140, 0, 24),
+    Font = Enum.Font.GothamBold,
+    TextSize = 17,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextTruncate = Enum.TextTruncate.AtEnd,
+    TextColor3 = THEME.textMain,
+    Text = "Waiting for character…",
+}, card)
+
+local workLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(16, 70),
+    Size = UDim2.new(1, -140, 0, 16),
+    Font = Enum.Font.Gotham,
+    TextSize = 12,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextTruncate = Enum.TextTruncate.AtEnd,
+    TextColor3 = THEME.textDim,
+    Text = "",
+}, card)
+
+-- status pill
+local pill = make("Frame", {
+    Position = UDim2.fromOffset(16, 96),
+    Size = UDim2.fromOffset(96, 20),
+    BackgroundColor3 = STATE.waiting,
+    BackgroundTransparency = 0.82,
+    BorderSizePixel = 0,
+}, card)
+make("UICorner", { CornerRadius = UDim.new(1, 0) }, pill)
+
+local pillLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Size = UDim2.fromScale(1, 1),
+    Font = Enum.Font.GothamMedium,
+    TextSize = 10,
+    TextColor3 = STATE.waiting,
+    Text = "SEARCHING",
+}, pill)
+
+-- age badge
+local badge = make("Frame", {
+    Position = UDim2.new(1, -104, 0, 46),
+    Size = UDim2.fromOffset(88, 70),
+    BackgroundColor3 = THEME.panel,
+    BackgroundTransparency = 0.2,
+    BorderSizePixel = 0,
+}, card)
+make("UICorner", { CornerRadius = UDim.new(0, 12) }, badge)
+local badgeStroke = make("UIStroke", {
+    Color = STATE.waiting,
+    Thickness = 1,
+    Transparency = 0.55,
+}, badge)
+
+make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(0, 6),
+    Size = UDim2.new(1, 0, 0, 14),
+    Font = Enum.Font.GothamMedium,
+    TextSize = 10,
+    TextColor3 = THEME.textDim,
+    Text = "AGE",
+}, badge)
+
+local ageLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(0, 18),
+    Size = UDim2.new(1, 0, 1, -22),
+    Font = Enum.Font.GothamBlack,
+    TextSize = 38,
+    TextColor3 = STATE.waiting,
+    Text = "—",
+}, badge)
+
+-- state painter -------------------------------------------------
+local function paint(color, pillText)
+    tween(dot, { BackgroundColor3 = color }, 0.3)
+    tween(dotGlow, { BackgroundColor3 = color }, 0.3)
+    tween(ageLbl, { TextColor3 = color }, 0.3)
+    tween(badgeStroke, { Color = color }, 0.3)
+    tween(pill, { BackgroundColor3 = color }, 0.3)
+    tween(pillLbl, { TextColor3 = color }, 0.3)
+    setStrokeColor(color)
+    pillLbl.Text = pillText
+end
+
+-- intro pop-in
+card.Position = card.Position + UDim2.fromOffset(-12, 0)
+local finalPos = card.Position + UDim2.fromOffset(12, 0)
+scale.Scale = scale.Scale * 0.94
+do
+    local target = math.clamp((workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.X or 900) / 900, 0.75, 1)
+    tween(card, { Position = finalPos }, 0.4, Enum.EasingStyle.Back)
+    tween(scale, { Scale = target }, 0.4, Enum.EasingStyle.Back)
+end
+
+----------------------------------------------------------------
+-- Buttons
+----------------------------------------------------------------
+closeBtn.MouseButton1Click:Connect(function()
+    tween(card, { BackgroundTransparency = 1 }, 0.2)
+    task.delay(0.2, function()
+        gui:Destroy()
+    end)
+end)
+
+local minimized = false
+miniBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    miniBtn.Text = minimized and "+" or "–"
+    tween(card, {
+        Size = UDim2.fromOffset(330, minimized and MINI_H or FULL_H),
+    }, 0.3, Enum.EasingStyle.Quint)
+end)
+
+----------------------------------------------------------------
+-- Drag (header area, clamped to screen)
+----------------------------------------------------------------
+do
+    local dragging, start, startPos
+    card.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            start = input.Position
+            startPos = card.Position
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            local d = input.Position - start
+            local cam = workspace.CurrentCamera
+            local vp = cam and cam.ViewportSize or Vector2.new(1920, 1080)
+            local x = math.clamp(startPos.X.Offset + d.X, 0, vp.X - card.AbsoluteSize.X)
+            local y = math.clamp(startPos.Y.Offset + d.Y, 0, vp.Y - card.AbsoluteSize.Y)
+            card.Position = UDim2.fromOffset(x, y)
+        end
+    end)
+end
+
+----------------------------------------------------------------
+-- Update logic
+----------------------------------------------------------------
+local lastName
+
+local function setAnswer(realName, data)
+    if not data then
+        nameLbl.Text = "Waiting for character…"
+        workLbl.Text = CharacterConfig and "Config loaded" or "CharacterConfig missing"
+        ageLbl.Text = "—"
+        paint(STATE.waiting, "SEARCHING")
+        return
+    end
+
+    nameLbl.Text = realName
+    workLbl.Text = data.Work or ""
+    ageLbl.Text = tostring(data.Age)
+    paint(STATE.found, "MATCHED")
+
+    if realName ~= lastName then
+        lastName = realName
+        ageLbl.TextTransparency = 1
+        ageLbl.Position = UDim2.fromOffset(0, 26)
+        tween(ageLbl, { TextTransparency = 0, Position = UDim2.fromOffset(0, 18) }, 0.35, Enum.EasingStyle.Back)
+    end
+end
+
+local function refresh()
+    local text = headingText()
+    if not text or #text < 2 then
+        setAnswer(nil, nil)
+        return
+    end
+    local data, real = lookup(text)
+    if data then
+        setAnswer(real, data)
+    else
+        nameLbl.Text = text
+        workLbl.Text = "Not in CharacterConfig"
+        ageLbl.Text = "?"
+        paint(STATE.missing, "NOT FOUND")
+    end
+end
+
+-- poll + hook Heading when it appears
+task.spawn(function()
+    while gui.Parent do
+        refresh()
+        local g = PG:FindFirstChild("GameGui")
+        local h = g and g:FindFirstChild("Heading")
+        if h and not h:GetAttribute("LiteHooked") then
+            h:SetAttribute("LiteHooked", true)
+            local function hook(obj)
+                if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                    obj:GetPropertyChangedSignal("Text"):Connect(refresh)
+                end
+            end
+            hook(h)
+            for _, d in ipairs(h:GetDescendants()) do
+                hook(d)
+            end
+            h.DescendantAdded:Connect(hook)
+        end
+        task.wait(0.3)
+    end
+end)
+
+print("[Age HUD Lite] ready")

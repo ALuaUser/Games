@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "Infinite Games..",
+    CreatorType = "Group",
+    CurrentPlayers = 3,
+    Description = "",
+    GameId = 10599505531,
+    GeneratedAt = "2026-11-15 21:48:47",
+    IsStudio = false,
+    JobId = "e9d6325e-82e6-453b-ab2d-70bb4f3ff13f",
+    MaxPlayers = 50,
+    Name = "Game Of Life Main",
+    PlaceId = 103044262594219,
+    PlaceVersion = 67,
+}

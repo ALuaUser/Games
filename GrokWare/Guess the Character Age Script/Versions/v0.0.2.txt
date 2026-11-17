@@ -1,0 +1,609 @@
+--[[
+    Guess the Character Age!  |  Fluent UI
+    v0.0.1  •  Made by Evol
+
+    Uses CharacterConfig ages for:
+    - Live answer HUD
+    - Auto-fill / auto-submit guess
+    - Character browser
+    - Skin helpers
+]]
+
+local Library = loadstring(game:HttpGet("https://github.com/1dontgiveaf/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/InterfaceManager.lua"))()
+
+local Window = Library:CreateWindow({
+    Title = "Guess the Character Age!",
+    SubTitle = "Made By Evol • v0.0.1",
+    TabWidth = 155,
+    Size = UDim2.fromOffset(560, 520),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl,
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "crosshair" }),
+    Browser = Window:AddTab({ Title = "Browser", Icon = "book-open" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    Skins = Window:AddTab({ Title = "Skins", Icon = "shirt" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+}
+
+----------------------------------------------------------------
+-- Services
+----------------------------------------------------------------
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local VirtualUser = game:GetService("VirtualUser")
+
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+----------------------------------------------------------------
+-- Config
+----------------------------------------------------------------
+local CFG = {
+    AutoGuess = false,
+    ShowHUD = true,
+    AutoSubmit = false,
+    SubmitDelay = 0.35,
+    WalkSpeed = 16,
+    JumpPower = 50,
+    Fullbright = false,
+    AntiAFK = true,
+}
+
+local CharacterConfig = nil
+local CharSkins = nil
+local Events = RS:FindFirstChild("Events")
+
+----------------------------------------------------------------
+-- Load game modules
+----------------------------------------------------------------
+local function tryRequire(pathParts)
+    local node = RS
+    for _, name in ipairs(pathParts) do
+        node = node and node:FindFirstChild(name)
+    end
+    if node and node:IsA("ModuleScript") then
+        local ok, mod = pcall(require, node)
+        if ok and type(mod) == "table" then
+            return mod
+        end
+    end
+    return nil
+end
+
+local function loadConfigs()
+    local charPaths = {
+        { "CharacterConfig" },
+        { "Modules", "CharacterConfig" },
+        { "Shared", "CharacterConfig" },
+        { "Configs", "CharacterConfig" },
+        { "Config", "CharacterConfig" },
+        { "Data", "CharacterConfig" },
+    }
+    local skinPaths = {
+        { "CharSkins" },
+        { "Modules", "CharSkins" },
+        { "Shared", "CharSkins" },
+        { "Configs", "CharSkins" },
+        { "Config", "CharSkins" },
+        { "Data", "CharSkins" },
+    }
+
+    for _, p in ipairs(charPaths) do
+        CharacterConfig = tryRequire(p)
+        if CharacterConfig then
+            break
+        end
+    end
+    for _, p in ipairs(skinPaths) do
+        CharSkins = tryRequire(p)
+        if CharSkins then
+            break
+        end
+    end
+
+    if not CharacterConfig then
+        for _, desc in ipairs(RS:GetDescendants()) do
+            if desc:IsA("ModuleScript") and string.lower(desc.Name):find("character") then
+                local ok, mod = pcall(require, desc)
+                if ok and type(mod) == "table" then
+                    local sample = next(mod)
+                    if sample and type(mod[sample]) == "table" and mod[sample].Age ~= nil then
+                        CharacterConfig = mod
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+loadConfigs()
+
+local nameList = {}
+if CharacterConfig then
+    for name in pairs(CharacterConfig) do
+        table.insert(nameList, name)
+    end
+    table.sort(nameList)
+end
+
+----------------------------------------------------------------
+-- Helpers
+----------------------------------------------------------------
+local function notify(title, content, dur)
+    Library:Notify({
+        Title = title or "Age Guess",
+        Content = content or "",
+        Duration = dur or 4,
+    })
+end
+
+local function getChar(name)
+    if not CharacterConfig or not name then
+        return nil
+    end
+    if CharacterConfig[name] then
+        return CharacterConfig[name], name
+    end
+    local lower = string.lower(name)
+    for n, data in pairs(CharacterConfig) do
+        if string.lower(n) == lower then
+            return data, n
+        end
+    end
+    for n, data in pairs(CharacterConfig) do
+        if string.find(string.lower(n), lower, 1, true) then
+            return data, n
+        end
+    end
+    return nil
+end
+
+local function fireEvent(name, ...)
+    if not Events then
+        return false
+    end
+    local ev = Events:FindFirstChild(name)
+    if not (ev and ev:IsA("RemoteEvent")) then
+        return false
+    end
+    local args = table.pack(...)
+    local ok = pcall(function()
+        ev:FireServer(table.unpack(args, 1, args.n))
+    end)
+    return ok
+end
+
+----------------------------------------------------------------
+-- Detect current character from UI
+----------------------------------------------------------------
+local currentName = nil
+local currentAge = nil
+
+local function scrapeCharacterName()
+    if not CharacterConfig then
+        return nil
+    end
+    for _, gui in ipairs(PG:GetDescendants()) do
+        if gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox") then
+            local text = gui.Text
+            if type(text) == "string" and #text > 2 and #text < 64 then
+                local data, real = getChar(text)
+                if data then
+                    return real, data
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function findGuessBox()
+    for _, gui in ipairs(PG:GetDescendants()) do
+        if gui:IsA("TextBox") then
+            local n = string.lower(gui.Name .. tostring(gui.PlaceholderText or ""))
+            if n:find("age") or n:find("guess") or n:find("answer") or n:find("input") then
+                return gui
+            end
+        end
+    end
+    for _, gui in ipairs(PG:GetDescendants()) do
+        if gui:IsA("TextBox") and gui.Visible then
+            return gui
+        end
+    end
+    return nil
+end
+
+local function findSubmitButton()
+    for _, gui in ipairs(PG:GetDescendants()) do
+        if gui:IsA("TextButton") or gui:IsA("ImageButton") then
+            local t = string.lower(tostring(gui.Text or "") .. gui.Name)
+            if t:find("submit") or t:find("guess") or t:find("confirm") or t:find("send") or t:find("enter") then
+                return gui
+            end
+        end
+    end
+    return nil
+end
+
+local function applyGuess(age, submit)
+    local box = findGuessBox()
+    if box then
+        box.Text = tostring(age)
+    end
+    if submit then
+        task.wait(CFG.SubmitDelay)
+        local btn = findSubmitButton()
+        if btn then
+            pcall(function()
+                firesignal(btn.MouseButton1Click)
+            end)
+            pcall(function()
+                btn:Activate()
+            end)
+        end
+        fireEvent("RemoteEvent", age)
+        fireEvent("Purchase", age)
+        fireEvent("Purchase2", age)
+    end
+end
+
+----------------------------------------------------------------
+-- HUD
+----------------------------------------------------------------
+local hudGui = Instance.new("ScreenGui")
+hudGui.Name = "AgeGuessHUD"
+hudGui.ResetOnSpawn = false
+hudGui.DisplayOrder = 80
+hudGui.Parent = PG
+
+local hud = Instance.new("Frame")
+hud.Size = UDim2.fromOffset(280, 86)
+hud.Position = UDim2.fromOffset(16, 120)
+hud.BackgroundColor3 = Color3.fromRGB(18, 22, 28)
+hud.BorderSizePixel = 0
+hud.Visible = CFG.ShowHUD
+hud.Parent = hudGui
+Instance.new("UICorner", hud).CornerRadius = UDim.new(0, 10)
+
+local hudTitle = Instance.new("TextLabel")
+hudTitle.Size = UDim2.new(1, -16, 0, 22)
+hudTitle.Position = UDim2.fromOffset(10, 8)
+hudTitle.BackgroundTransparency = 1
+hudTitle.Font = Enum.Font.GothamBold
+hudTitle.TextSize = 13
+hudTitle.TextXAlignment = Enum.TextXAlignment.Left
+hudTitle.TextColor3 = Color3.fromRGB(230, 235, 245)
+hudTitle.Text = "Character: —"
+hudTitle.Parent = hud
+
+local hudAge = Instance.new("TextLabel")
+hudAge.Size = UDim2.new(1, -16, 0, 40)
+hudAge.Position = UDim2.fromOffset(10, 34)
+hudAge.BackgroundTransparency = 1
+hudAge.Font = Enum.Font.GothamBold
+hudAge.TextSize = 28
+hudAge.TextXAlignment = Enum.TextXAlignment.Left
+hudAge.TextColor3 = Color3.fromRGB(80, 255, 160)
+hudAge.Text = "Age: ?"
+hudAge.Parent = hud
+
+local function updateHUD(name, data)
+    currentName = name
+    currentAge = data and data.Age or nil
+    if name and data then
+        hudTitle.Text = data.Work and (name .. "  ·  " .. data.Work) or name
+        hudAge.Text = "Age: " .. tostring(data.Age)
+    else
+        hudTitle.Text = "Character: —"
+        hudAge.Text = "Age: ?"
+    end
+end
+
+----------------------------------------------------------------
+-- Detect + auto guess loop
+----------------------------------------------------------------
+task.spawn(function()
+    local lastApplied = nil
+    while task.wait(0.35) do
+        hud.Visible = CFG.ShowHUD
+        local name, data = scrapeCharacterName()
+        if name and data then
+            updateHUD(name, data)
+            if CFG.AutoGuess and lastApplied ~= name then
+                lastApplied = name
+                applyGuess(data.Age, CFG.AutoSubmit)
+                notify("Auto Guess", name .. " → " .. tostring(data.Age), 3)
+            end
+        end
+    end
+end)
+
+----------------------------------------------------------------
+-- Main tab
+----------------------------------------------------------------
+local main = Tabs.Main:AddSection("Guess")
+
+main:AddParagraph({
+    Title = "Config status",
+    Content = CharacterConfig and ("Loaded " .. tostring(#nameList) .. " characters")
+        or "CharacterConfig not found — check module path",
+})
+
+main:AddToggle("ShowHUD", {
+    Title = "Answer HUD",
+    Default = true,
+}):OnChanged(function(v)
+    CFG.ShowHUD = v
+    hud.Visible = v
+end)
+
+main:AddToggle("AutoGuess", {
+    Title = "Auto Fill Age",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.AutoGuess = v
+end)
+
+main:AddToggle("AutoSubmit", {
+    Title = "Auto Submit (with fill)",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.AutoSubmit = v
+end)
+
+main:AddSlider("SubmitDelay", {
+    Title = "Submit Delay (s)",
+    Default = 0.35,
+    Min = 0,
+    Max = 2,
+    Rounding = 2,
+}):OnChanged(function(v)
+    CFG.SubmitDelay = v
+end)
+
+main:AddButton({
+    Title = "Fill Current Answer",
+    Callback = function()
+        local name, data = scrapeCharacterName()
+        if not data then
+            notify("Guess", "No character detected on screen")
+            return
+        end
+        applyGuess(data.Age, false)
+        notify("Filled", name .. " = " .. tostring(data.Age))
+    end,
+})
+
+main:AddButton({
+    Title = "Fill + Submit Current",
+    Callback = function()
+        local name, data = scrapeCharacterName()
+        if not data then
+            notify("Guess", "No character detected on screen")
+            return
+        end
+        applyGuess(data.Age, true)
+        notify("Submitted", name .. " = " .. tostring(data.Age))
+    end,
+})
+
+main:AddButton({
+    Title = "Copy Current Age",
+    Callback = function()
+        if not currentAge then
+            notify("Copy", "Nothing detected")
+            return
+        end
+        if setclipboard then
+            setclipboard(tostring(currentAge))
+        end
+        notify("Copied", tostring(currentName) .. " → " .. tostring(currentAge))
+    end,
+})
+
+----------------------------------------------------------------
+-- Browser
+----------------------------------------------------------------
+local browser = Tabs.Browser:AddSection("Characters")
+
+browser:AddParagraph({
+    Title = "Lookup",
+    Content = "Type a name (or part of it) to see the age.",
+})
+
+browser:AddInput("SearchChar", {
+    Title = "Search name",
+    Default = "",
+    Placeholder = "e.g. Gojo",
+    Callback = function(val)
+        local data, real = getChar(val)
+        if data then
+            notify(real, "Age " .. tostring(data.Age) .. " · " .. tostring(data.Work or "?"))
+            updateHUD(real, data)
+        else
+            notify("Search", "No match for: " .. tostring(val))
+        end
+    end,
+})
+
+browser:AddButton({
+    Title = "Print All Ages (console)",
+    Callback = function()
+        if not CharacterConfig then
+            warn("No CharacterConfig")
+            return
+        end
+        print("===== Character Ages =====")
+        for _, n in ipairs(nameList) do
+            local d = CharacterConfig[n]
+            print(string.format("%s | %s | %s", n, tostring(d.Age), tostring(d.Work)))
+        end
+        notify("Browser", "Printed " .. #nameList .. " entries to console")
+    end,
+})
+
+local quick = Tabs.Browser:AddSection("Quick")
+for _, n in ipairs({
+    "Satoru Gojo",
+    "Yuji Itadori",
+    "Frieren",
+    "Anya Forger",
+    "Tanjiro Kamado",
+    "Nezuko Kamado",
+    "Sung Jinwoo",
+    "Rimuru Tempest",
+}) do
+    if CharacterConfig and CharacterConfig[n] then
+        quick:AddButton({
+            Title = n .. " (" .. CharacterConfig[n].Age .. ")",
+            Callback = function()
+                applyGuess(CharacterConfig[n].Age, CFG.AutoSubmit)
+                updateHUD(n, CharacterConfig[n])
+                notify(n, "Age " .. CharacterConfig[n].Age)
+            end,
+        })
+    end
+end
+
+----------------------------------------------------------------
+-- Player
+----------------------------------------------------------------
+local plr = Tabs.Player:AddSection("Movement")
+
+plr:AddSlider("WS", {
+    Title = "WalkSpeed",
+    Default = 16,
+    Min = 16,
+    Max = 100,
+    Rounding = 0,
+}):OnChanged(function(v)
+    CFG.WalkSpeed = v
+    local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if h then
+        h.WalkSpeed = v
+    end
+end)
+
+plr:AddSlider("JP", {
+    Title = "JumpPower",
+    Default = 50,
+    Min = 50,
+    Max = 150,
+    Rounding = 0,
+}):OnChanged(function(v)
+    CFG.JumpPower = v
+    local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if h then
+        h.JumpPower = v
+        pcall(function()
+            h.JumpHeight = v / 7.5
+        end)
+    end
+end)
+
+plr:AddToggle("FB", {
+    Title = "Fullbright",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.Fullbright = v
+end)
+
+plr:AddToggle("AntiAFK", {
+    Title = "Anti AFK",
+    Default = true,
+}):OnChanged(function(v)
+    CFG.AntiAFK = v
+end)
+
+RunService.Heartbeat:Connect(function()
+    local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if h and h.WalkSpeed ~= CFG.WalkSpeed then
+        h.WalkSpeed = CFG.WalkSpeed
+    end
+    if CFG.Fullbright then
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 1e6
+        Lighting.GlobalShadows = false
+    end
+end)
+
+LP.Idled:Connect(function()
+    if CFG.AntiAFK then
+        pcall(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    end
+end)
+
+----------------------------------------------------------------
+-- Skins
+----------------------------------------------------------------
+local skinSec = Tabs.Skins:AddSection("Char Skins")
+
+if CharSkins then
+    local lines = {}
+    for name, price in pairs(CharSkins) do
+        table.insert(lines, string.format("%s = %s", name, tostring(price)))
+    end
+    table.sort(lines)
+    skinSec:AddParagraph({
+        Title = "Prices",
+        Content = table.concat(lines, "\n"),
+    })
+
+    for name, price in pairs(CharSkins) do
+        skinSec:AddButton({
+            Title = "Buy " .. name .. " (" .. tostring(price) .. ")",
+            Callback = function()
+                local ok = fireEvent("BuySkin", name)
+                if not ok then
+                    fireEvent("Purchase", name)
+                    fireEvent("Purchase2", name)
+                end
+                notify("Skin", "Fired buy for " .. name)
+            end,
+        })
+    end
+else
+    skinSec:AddParagraph({
+        Title = "Skins",
+        Content = "CharSkins module not found in ReplicatedStorage",
+    })
+end
+
+----------------------------------------------------------------
+-- Settings
+----------------------------------------------------------------
+Tabs.Settings:AddSection("Credits"):AddParagraph({
+    Title = "Credits",
+    Content = "Made by Evol\nGuess the Character Age! v0.0.1\nAges from CharacterConfig module",
+})
+
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+InterfaceManager:SetFolder("GuessCharacterAge")
+SaveManager:SetFolder("GuessCharacterAge/Config")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+notify(
+    "Loaded",
+    CharacterConfig and ("v0.0.1 · " .. #nameList .. " characters") or "v0.0.1 · config missing",
+    5
+)
+SaveManager:LoadAutoloadConfig()

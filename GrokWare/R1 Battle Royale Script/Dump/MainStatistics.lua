@@ -1,0 +1,15 @@
+return {
+    Attributes = 28914,
+    BytesWritten = 9968124,
+    DumpMode = "FULL",
+    ElapsedSeconds = 64.74033904075623,
+    Errors = 0,
+    Flat = 102155,
+    Modules = 115,
+    Objects = 102155,
+    Properties = 110222,
+    Remotes = 32,
+    Scripts = 45,
+    Tags = 140,
+    Values = 3313,
+}

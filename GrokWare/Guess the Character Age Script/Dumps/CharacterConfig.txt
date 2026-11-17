@@ -1,0 +1,1354 @@
+-- Decompiled with Potassium's decompiler.
+
+return {
+    ["Roxy Migurdia"] = {
+        Age = 37,
+        Work = "Mushoku Tensei: Jobless Reincarnation",
+        Image = "81632169708031"
+    },
+    ["Ruby Hoshino"] = {
+        Age = 12,
+        Work = "Oshi no Ko",
+        Image = "104545188926066"
+    },
+    ["Satoru Gojo"] = {
+        Age = 28,
+        Work = "Jujutsu Kaisen",
+        Image = "78412931833253"
+    },
+    ["Seiko Ayase"] = {
+        Age = 70,
+        Work = "Dandadan",
+        Image = "93081049723139"
+    },
+    Sesshomaru = {
+        Age = 900,
+        Work = "Inuyasha",
+        Image = "85856613404177"
+    },
+    ["Shinobu Oshino"] = {
+        Age = 598,
+        Work = "Monogatari",
+        Image = "107477467020084"
+    },
+    Shippou = {
+        Age = 50,
+        Work = "Inuyasha",
+        Image = "133017512758249"
+    },
+    ["Shoto Todoroki"] = {
+        Age = 15,
+        Work = "My Hero Academia",
+        Image = "93979736018330"
+    },
+    ["Taiga Aisaka"] = {
+        Age = 15,
+        Work = "Toradora!",
+        Image = "87940823141063"
+    },
+    ["Takina Inoue"] = {
+        Age = 16,
+        Work = "Lycoris Recoil",
+        Image = "81670205323287"
+    },
+    ["Tanjiro Kamado"] = {
+        Age = 13,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "122043018814493"
+    },
+    Tatsumaki = {
+        Age = 28,
+        Work = "One-Punch Man",
+        Image = "131103834294954"
+    },
+    Tomoe = {
+        Age = 600,
+        Work = "Kamisama Kiss",
+        Image = "96689141752752"
+    },
+    Tsunade = {
+        Age = 51,
+        Work = "Naruto",
+        Image = "73297987227054"
+    },
+    ["Vash the Stampede"] = {
+        Age = 131,
+        Work = "Trigun",
+        Image = "106770896609083"
+    },
+    ["Wakana Gojo"] = {
+        Age = 15,
+        Work = "My Dress-Up Darling",
+        Image = "127574264418122"
+    },
+    ["Yor Forger"] = {
+        Age = 27,
+        Work = "Spy × Family",
+        Image = "99515666550664"
+    },
+    ["Yuji Itadori"] = {
+        Age = 15,
+        Work = "Jujutsu Kaisen",
+        Image = "78382613471730"
+    },
+    ["Zenitsu Agatsuma"] = {
+        Age = 16,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "97907289276965"
+    },
+    ["Ai Hoshino"] = {
+        Age = 16,
+        Work = "Oshi no Ko",
+        Image = "139847005666188"
+    },
+    ["Akane Kurokawa"] = {
+        Age = 17,
+        Work = "Oshi no Ko",
+        Image = "100347324344794"
+    },
+    ["Aki Hayakawa"] = {
+        Age = 19,
+        Work = "Chainsaw Man",
+        Image = "116663006085811"
+    },
+    ["Riri Hitotsuyanagi"] = {
+        Age = 15,
+        Work = "Assault Lily: Bouquet",
+        Image = "114812115348331"
+    },
+    ["Anya Forger"] = {
+        Age = 5,
+        Work = "Spy × Family",
+        Image = "96326663524558"
+    },
+    ["Aquamarine Hoshino"] = {
+        Age = 16,
+        Work = "Oshi no Ko",
+        Image = "84668166219594"
+    },
+    ["Armin Arlert"] = {
+        Age = 15,
+        Work = "Attack on Titan",
+        Image = "85213631850731"
+    },
+    ["Biscuit Krueger"] = {
+        Age = 57,
+        Work = "Hunter × Hunter",
+        Image = "93630971274981"
+    },
+    ["Chisato Nishikigi"] = {
+        Age = 17,
+        Work = "Lycoris Recoil",
+        Image = "70466798281490"
+    },
+    Denji = {
+        Age = 16,
+        Work = "Chainsaw Man",
+        Image = "73662659847598"
+    },
+    ["Dio Brando"] = {
+        Age = 121,
+        Work = "JoJo\'s Bizarre Adventure",
+        Image = "71490717996683"
+    },
+    Emilia = {
+        Age = 115,
+        Work = "Re:Zero − Starting Life in Another World",
+        Image = "116770849961194"
+    },
+    ["Enma Ai"] = {
+        Age = 13,
+        Work = "Hell Girl",
+        Image = "136183173856030"
+    },
+    ["Eren Yeager"] = {
+        Age = 15,
+        Work = "Attack on Titan",
+        Image = "84684009745130"
+    },
+    Frieren = {
+        Age = 1000,
+        Work = "Frieren: Beyond Journey\'s End",
+        Image = "83999571346528"
+    },
+    ["Hitori Gotoh"] = {
+        Age = 15,
+        Work = "Bocchi the Rock!",
+        Image = "88435434583814"
+    },
+    ["Ichigo Kurosaki"] = {
+        Age = 15,
+        Work = "Bleach",
+        Image = "121654458903183"
+    },
+    ["Inosuke Hashibira"] = {
+        Age = 15,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "83013215154166"
+    },
+    Inuyasha = {
+        Age = 200,
+        Work = "Inuyasha",
+        Image = "128605357866562"
+    },
+    ["Izuku Midoriya"] = {
+        Age = 14,
+        Work = "My Hero Academia",
+        Image = "88875348326624"
+    },
+    ["Kana Arima"] = {
+        Age = 16,
+        Work = "Oshi no Ko",
+        Image = "108961860329029"
+    },
+    ["Katarina Claes"] = {
+        Age = 15,
+        Work = "My Next Life as a Villainess: All Routes Lead to Doom!",
+        Image = "76703409658383"
+    },
+    ["Katsuki Bakugo"] = {
+        Age = 14,
+        Work = "My Hero Academia",
+        Image = "128072592612131"
+    },
+    ["Killua Zoldyck"] = {
+        Age = 12,
+        Work = "Hunter × Hunter",
+        Image = "113312756372702"
+    },
+    ["Kiyotaka Ayanokoji"] = {
+        Age = 16,
+        Work = "Classroom of the Elite",
+        Image = "133940623706112"
+    },
+    ["Kobeni Higashiyama"] = {
+        Age = 20,
+        Work = "Chainsaw Man",
+        Image = "138635872564304"
+    },
+    ["Leorio Paradinight"] = {
+        Age = 19,
+        Work = "Hunter × Hunter",
+        Image = "128031402698523"
+    },
+    ["Lisa Lisa"] = {
+        Age = 50,
+        Work = "JoJo\'s Bizarre Adventure",
+        Image = "138532062251254"
+    },
+    ["Loid Forger"] = {
+        Age = 27,
+        Work = "Spy × Family",
+        Image = "75276665687366"
+    },
+    ["Marin Kitagawa"] = {
+        Age = 15,
+        Work = "My Dress-Up Darling",
+        Image = "91736402936625"
+    },
+    ["Megumi Fushiguro"] = {
+        Age = 15,
+        Work = "Jujutsu Kaisen",
+        Image = "77721827064748"
+    },
+    ["MEM-cho"] = {
+        Age = 25,
+        Work = "Oshi no Ko",
+        Image = "114201175299931"
+    },
+    ["Mikasa Ackerman"] = {
+        Age = 15,
+        Work = "Attack on Titan",
+        Image = "123099414921910"
+    },
+    ["Minori Hanasato"] = {
+        Age = 15,
+        Work = "Hatsune Miku: Colorful Stage!",
+        Image = "124534952662218"
+    },
+    ["Mitsukuni Haninozuka"] = {
+        Age = 17,
+        Work = "Ouran High School Host Club",
+        Image = "98271012057673"
+    },
+    ["Miyako Saitou"] = {
+        Age = 30,
+        Work = "Oshi no Ko",
+        Image = "133784383848867"
+    },
+    ["Muzan Kibutsuji"] = {
+        Age = 1000,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "71594036083843"
+    },
+    Naraku = {
+        Age = 50,
+        Work = "Inuyasha",
+        Image = "118066314172055"
+    },
+    Natsuki = {
+        Age = 18,
+        Work = "Doki Doki",
+        Image = "121856917914286"
+    },
+    Near = {
+        Age = 17,
+        Work = "Death Note",
+        Image = "88109278709148"
+    },
+    ["Nezuko Kamado"] = {
+        Age = 12,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "72033413338259"
+    },
+    ["Nobara Kugisaki"] = {
+        Age = 16,
+        Work = "Jujutsu Kaisen",
+        Image = "71510796016963"
+    },
+    Qiqi = {
+        Age = 100,
+        Work = "Genshin Impact",
+        Image = "101827638245479"
+    },
+    ["Naruto Uzumaki"] = {
+        Age = 32,
+        Work = "Naruto / Boruto",
+        Image = "110287870749655"
+    },
+    ["Momo Ayase"] = {
+        Age = 16,
+        Work = "Dandadan",
+        Image = "113297986192350"
+    },
+    Okarun = {
+        Age = 16,
+        Work = "Dandadan",
+        Image = "78589880366790"
+    },
+    Holo = {
+        Age = 600,
+        Work = "Spice and Wolf",
+        Image = "89659613947188"
+    },
+    Beatrice = {
+        Age = 400,
+        Work = "Re:Zero − Starting Life in Another World",
+        Image = "96041922478971"
+    },
+    ["Anos Voldigoad"] = {
+        Age = 2000,
+        Work = "The Misfit of Demon King Academy",
+        Image = "106295179081224"
+    },
+    Maomao = {
+        Age = 17,
+        Work = "The Apothecary Diaries",
+        Image = "106937030826280"
+    },
+    Fern = {
+        Age = 16,
+        Work = "Frieren: Beyond Journey\'s End",
+        Image = "81280600261023"
+    },
+    Alucard = {
+        Age = 567,
+        Work = "Hellsing",
+        Image = "111223564454420"
+    },
+    ["Ciel Phantomhive"] = {
+        Age = 13,
+        Work = "Black Butler",
+        Image = "101427956185089"
+    },
+    ["Madoka Kaname"] = {
+        Age = 14,
+        Work = "Puella Magi Madoka Magica",
+        Image = "133098241506600"
+    },
+    ["Homura Akemi"] = {
+        Age = 14,
+        Work = "Puella Magi Madoka Magica",
+        Image = "109941713607399"
+    },
+    ["Edward Elric"] = {
+        Age = 15,
+        Work = "Fullmetal Alchemist: Brotherhood",
+        Image = "105881906060883"
+    },
+    ["Winry Rockbell"] = {
+        Age = 15,
+        Work = "Fullmetal Alchemist: Brotherhood",
+        Image = "82099961322944"
+    },
+    ["Artoria Pendragon"] = {
+        Age = 35,
+        Work = "Fate/stay night",
+        Image = "110881849943949"
+    },
+    ["Rin Tohsaka"] = {
+        Age = 17,
+        Work = "Fate/stay night",
+        Image = "134869956866061"
+    },
+    ["Kaguya Shinomiya"] = {
+        Age = 17,
+        Work = "Kaguya-sama: Love Is War",
+        Image = "93947701112610"
+    },
+    ["Chika Fujiwara"] = {
+        Age = 17,
+        Work = "Kaguya-sama: Love Is War",
+        Image = "101090115203277"
+    },
+    ["Rimuru Tempest"] = {
+        Age = 3,
+        Work = "That Time I Got Reincarnated as a Slime",
+        Image = "118557140281433"
+    },
+    ["Rudeus Greyrat"] = {
+        Age = 34,
+        Work = "Mushoku Tensei: Jobless Reincarnation",
+        Image = "74733417728281"
+    },
+    ["Eris Boreas Greyrat"] = {
+        Age = 15,
+        Work = "Mushoku Tensei: Jobless Reincarnation",
+        Image = "125774031308360"
+    },
+    Guts = {
+        Age = 24,
+        Work = "Berserk",
+        Image = "88587627541966"
+    },
+    Griffith = {
+        Age = 24,
+        Work = "Berserk",
+        Image = "83066293792919"
+    },
+    Asta = {
+        Age = 15,
+        Work = "Black Clover",
+        Image = "113648101132613"
+    },
+    Yuno = {
+        Age = 15,
+        Work = "Black Clover",
+        Image = "137566808783707"
+    },
+    ["Maki Zenin"] = {
+        Age = 16,
+        Work = "Jujutsu Kaisen",
+        Image = "103192157461126"
+    },
+    ["Toji Fushiguro"] = {
+        Age = 30,
+        Work = "Jujutsu Kaisen",
+        Image = "103378061881010"
+    },
+    ["Boa Hancock"] = {
+        Age = 31,
+        Work = "One Piece",
+        Image = "85452560052167"
+    },
+    ["Trafalgar D. Water Law"] = {
+        Age = 26,
+        Work = "One Piece",
+        Image = "111206565380695"
+    },
+    Nahida = {
+        Age = 500,
+        Work = "Genshin Impact",
+        Image = "87724271035079"
+    },
+    Zhongli = {
+        Age = 6000,
+        Work = "Genshin Impact",
+        Image = "73347483066687"
+    },
+    Aloy = {
+        Age = 19,
+        Work = "Horizon",
+        Image = "118419518227657"
+    },
+    Link = {
+        Age = 17,
+        Work = "The Legend of Zelda: Breath of the Wild",
+        Image = "103629684045483"
+    },
+    ["Princess Zelda"] = {
+        Age = 17,
+        Work = "The Legend of Zelda: Breath of the Wild",
+        Image = "115454039517806"
+    },
+    ["Cloud Strife"] = {
+        Age = 21,
+        Work = "Final Fantasy VII",
+        Image = "81073783512380"
+    },
+    ["Tifa Lockhart"] = {
+        Age = 20,
+        Work = "Final Fantasy VII",
+        Image = "136487515093854"
+    },
+    ["Leon S. Kennedy"] = {
+        Age = 21,
+        Work = "Resident Evil 2",
+        Image = "82695377774604"
+    },
+    ["Jill Valentine"] = {
+        Age = 23,
+        Work = "Resident Evil 3",
+        Image = "102987565025911"
+    },
+    Raven = {
+        Age = 18,
+        Work = "Teen Titans",
+        Image = "122205011064276"
+    },
+    ["Beast Boy"] = {
+        Age = 14,
+        Work = "Teen Titans",
+        Image = "118796173274365"
+    },
+    Marceline = {
+        Age = 1003,
+        Work = "Adventure Time",
+        Image = "120901640955524"
+    },
+    ["Princess Bubblegum"] = {
+        Age = 827,
+        Work = "Adventure Time",
+        Image = "79980741376471"
+    },
+    ["Finn the Human"] = {
+        Age = 17,
+        Work = "Adventure Time",
+        Image = "112310738096086"
+    },
+    ["Morty Smith"] = {
+        Age = 14,
+        Work = "Rick and Morty",
+        Image = "118634270272706"
+    },
+    ["Hiccup Horrendous Haddock III"] = {
+        Age = 15,
+        Work = "How to Train Your Dragon",
+        Image = "120946144736422"
+    },
+    ["Astrid Hofferson"] = {
+        Age = 15,
+        Work = "How to Train Your Dragon",
+        Image = "95830313881919"
+    },
+    ["Violet Evergarden"] = {
+        Age = 18,
+        Work = "Violet Evergarden",
+        Image = "81226250417735"
+    },
+    ["Chise Hatori"] = {
+        Age = 15,
+        Work = "The Ancient Magus\' Bride",
+        Image = "127210079876283"
+    },
+    Shiro = {
+        Age = 11,
+        Work = "No Game No Life",
+        Image = "122696018515583"
+    },
+    Sora = {
+        Age = 18,
+        Work = "No Game No Life",
+        Image = "135336434433302"
+    },
+    ["Mai Sakurajima"] = {
+        Age = 17,
+        Work = "Rascal Does Not Dream Series",
+        Image = "119428891342491"
+    },
+    ["Zero Two"] = {
+        Age = 16,
+        Work = "DARLING in the FRANXX",
+        Image = "79874376882313"
+    },
+    ["Yumeko Jabami"] = {
+        Age = 16,
+        Work = "Kakegurui",
+        Image = "128286428030274"
+    },
+    ["Miku Nakano"] = {
+        Age = 17,
+        Work = "The Quintessential Quintuplets",
+        Image = "139237539956176"
+    },
+    ["Nino Nakano"] = {
+        Age = 17,
+        Work = "The Quintessential Quintuplets",
+        Image = "87869985649917"
+    },
+    ["Shinobu Kocho"] = {
+        Age = 18,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "113452247360364"
+    },
+    ["Mitsuri Kanroji"] = {
+        Age = 19,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "77635631336624"
+    },
+    ["Kanao Tsuyuri"] = {
+        Age = 16,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "138900012546796"
+    },
+    ["Lucy Heartfilia"] = {
+        Age = 17,
+        Work = "Fairy Tail",
+        Image = "74092842948485"
+    },
+    ["Erza Scarlet"] = {
+        Age = 19,
+        Work = "Fairy Tail",
+        Image = "116343112794086"
+    },
+    ["Orihime Inoue"] = {
+        Age = 15,
+        Work = "Bleach",
+        Image = "80492564032526"
+    },
+    ["Kurisu Makise"] = {
+        Age = 18,
+        Work = "Steins;Gate",
+        Image = "137666559420712"
+    },
+    ["Haruhi Suzumiya"] = {
+        Age = 16,
+        Work = "The Melancholy of Haruhi Suzumiya",
+        Image = "105830383006119"
+    },
+    ["Chitoge Kirisaki"] = {
+        Age = 17,
+        Work = "Nisekoi",
+        Image = "83756864963922"
+    },
+    Akame = {
+        Age = 15,
+        Work = "Akame ga Kill!",
+        Image = "72665886780618"
+    },
+    ["Satsuki Kiryuin"] = {
+        Age = 18,
+        Work = "Kill la Kill",
+        Image = "129123084444723"
+    },
+    ["Kallen Stadtfeld"] = {
+        Age = 17,
+        Work = "Code Geass",
+        Image = "137959437406424"
+    },
+    ["Shoko Komi"] = {
+        Age = 15,
+        Work = "Komi Can\'t Communicate",
+        Image = "100230364707348"
+    },
+    ["Kyouko Hori"] = {
+        Age = 17,
+        Work = "Horimiya",
+        Image = "97110809408061"
+    },
+    Revy = {
+        Age = 25,
+        Work = "Black Lagoon",
+        Image = "76397145944074"
+    },
+    ["Faye Valentine"] = {
+        Age = 74,
+        Work = "Cowboy Bebop",
+        Image = "140555902230806"
+    },
+    Esdeath = {
+        Age = 20,
+        Work = "Akame ga Kill!",
+        Image = "87217934185802"
+    },
+    Fubuki = {
+        Age = 23,
+        Work = "One-Punch Man",
+        Image = "104732951111052"
+    },
+    ["Yoruichi Shihouin"] = {
+        Age = 150,
+        Work = "Bleach",
+        Image = "129946592301343"
+    },
+    ["Hange Zoë"] = {
+        Age = 29,
+        Work = "Attack on Titan",
+        Image = "122746551482105"
+    },
+    ["Mikoto Misaka"] = {
+        Age = 14,
+        Work = "A Certain Magical Index",
+        Image = "86299686309588"
+    },
+    Megumin = {
+        Age = 14,
+        Work = "KonoSuba: God\'s Blessing on This Wonderful World!",
+        Image = "73706212900982"
+    },
+    Darkness = {
+        Age = 18,
+        Work = "KonoSuba: God\'s Blessing on This Wonderful World!",
+        Image = "138246050802819"
+    },
+    ["Ai Hayasaka"] = {
+        Age = 17,
+        Work = "Kaguya-sama: Love Is War",
+        Image = "91956870872996"
+    },
+    Thorfinn = {
+        Age = 17,
+        Work = "Vinland Saga",
+        Image = "100797141394644"
+    },
+    ["Kiritsugu Emiya"] = {
+        Age = 29,
+        Work = "Fate/Zero",
+        Image = "114183003546433"
+    },
+    ["Osamu Dazai"] = {
+        Age = 22,
+        Work = "Bungo Stray Dogs",
+        Image = "131994931403806"
+    },
+    ["Chuya Nakahara"] = {
+        Age = 22,
+        Work = "Bungo Stray Dogs",
+        Image = "123930855121570"
+    },
+    Escanor = {
+        Age = 40,
+        Work = "The Seven Deadly Sins",
+        Image = "105891363325680"
+    },
+    ["Shota Aizawa"] = {
+        Age = 30,
+        Work = "My Hero Academia",
+        Image = "97404881984162"
+    },
+    ["All Might"] = {
+        Age = 49,
+        Work = "My Hero Academia",
+        Image = "113305998431876"
+    },
+    ["Spike Spiegel"] = {
+        Age = 27,
+        Work = "Cowboy Bebop",
+        Image = "75421000787028"
+    },
+    ["Reigen Arataka"] = {
+        Age = 28,
+        Work = "Mob Psycho 100",
+        Image = "107800264350047"
+    },
+    ["Baki Hanma"] = {
+        Age = 17,
+        Work = "Baki the Grappler",
+        Image = "102447615331412"
+    },
+    ["Kaede Kayano"] = {
+        Age = 15,
+        Work = "Assassination Classroom",
+        Image = "112518260260615"
+    },
+    ["Rio Nakamura"] = {
+        Age = 15,
+        Work = "Assassination Classroom",
+        Image = "122773430882795"
+    },
+    ["Kikoru Shinomiya"] = {
+        Age = 18,
+        Work = "Kaiju No. 8",
+        Image = "84489079698848"
+    },
+    Alya = {
+        Age = 16,
+        Work = "Alya Sometimes Hides Her Feelings in Russian",
+        Image = "85139613387156"
+    },
+    ["Yuki Suou"] = {
+        Age = 16,
+        Work = "Alya Sometimes Hides Her Feelings in Russian",
+        Image = "123850279583323"
+    },
+    ["Anna Yanami"] = {
+        Age = 16,
+        Work = "Too Many Losing Heroines!",
+        Image = "130359090960717"
+    },
+    ["Anisphia Wynn Palettia"] = {
+        Age = 17,
+        Work = "The Magical Revolution of the Reincarnated Princess and the Genius Young Lady",
+        Image = "75952237992037"
+    },
+    ["Euphyllia Magenta"] = {
+        Age = 17,
+        Work = "The Magical Revolution of the Reincarnated Princess and the Genius Young Lady",
+        Image = "84276633020583"
+    },
+    Shikimori = {
+        Age = 16,
+        Work = "Shikimori\'s Not Just a Cutie",
+        Image = "94002758304505"
+    },
+    Nagatoro = {
+        Age = 15,
+        Work = "Don\'t Toy with Me, Miss Nagatoro",
+        Image = "115353280903434"
+    },
+    ["Nene Yashiro"] = {
+        Age = 15,
+        Work = "Toilet-Bound Hanako-kun",
+        Image = "82985330529961"
+    },
+    ["Asa Mitaka"] = {
+        Age = 17,
+        Work = "Chainsaw Man",
+        Image = "85494674315372"
+    },
+    Riko = {
+        Age = 12,
+        Work = "Made in Abyss",
+        Image = "94384696142720"
+    },
+    ["Miyo Saimori"] = {
+        Age = 19,
+        Work = "My Happy Marriage",
+        Image = "85336962376737"
+    },
+    Himeno = {
+        Age = 20,
+        Work = "Chainsaw Man",
+        Image = "121366321259240"
+    },
+    ["Nagisa Shiota"] = {
+        Age = 15,
+        Work = "Assassination Classroom",
+        Image = "134524973900217"
+    },
+    ["Aira Shiratori"] = {
+        Age = 16,
+        Work = "Dandadan",
+        Image = "135251904094621"
+    },
+    ["Mina Ashiro"] = {
+        Age = 27,
+        Work = "Kaiju No. 8",
+        Image = "73491781944420"
+    },
+    ["Fuuko Izumo"] = {
+        Age = 18,
+        Work = "Undead Unluck",
+        Image = "92068136306316"
+    },
+    ["Yuki Itose"] = {
+        Age = 19,
+        Work = "A Sign of Affection",
+        Image = "123638054685829"
+    },
+    ["Mahiru Shiina"] = {
+        Age = 16,
+        Work = "The Angel Next Door Spoils Me Rotten",
+        Image = "97398539105011"
+    },
+    ["Anna Yamada"] = {
+        Age = 14,
+        Work = "The Dangers in My Heart",
+        Image = "118015289336542"
+    },
+    ["Rishe Irmgard Weitzner"] = {
+        Age = 19,
+        Work = "7th Time Loop",
+        Image = "89834674193283"
+    },
+    ["Yumiella Dolkness"] = {
+        Age = 15,
+        Work = "Villainess Level 99",
+        Image = "139748686617064"
+    },
+    ["Nazuna Nanakusa"] = {
+        Age = 40,
+        Work = "Call of the Night",
+        Image = "132601991054193"
+    },
+    ["Akira Asai"] = {
+        Age = 14,
+        Work = "Call of the Night",
+        Image = "131133430003580"
+    },
+    ["Miorine Rembran"] = {
+        Age = 17,
+        Work = "Mobile Suit Gundam: The Witch from Mercury",
+        Image = "76443346361900"
+    },
+    ["Suletta Mercury"] = {
+        Age = 17,
+        Work = "Mobile Suit Gundam: The Witch from Mercury",
+        Image = "129854988408079"
+    },
+    ["Hina Chono"] = {
+        Age = 16,
+        Work = "Blue Box",
+        Image = "115977911085930"
+    },
+    ["Rin Nanakura"] = {
+        Age = 15,
+        Work = "Pseudo Harem",
+        Image = "77366672267596"
+    },
+    ["Kikuri Hiroi"] = {
+        Age = 25,
+        Work = "Bocchi the Rock!",
+        Image = "77245763565877"
+    },
+    ["Sei Takanashi"] = {
+        Age = 20,
+        Work = "The Saint\'s Magic Power Is Omnipotent",
+        Image = "132076225663630"
+    },
+    ["Hakari Hanazono"] = {
+        Age = 15,
+        Work = "The 100 Girlfriends",
+        Image = "99200077220956"
+    },
+    ["Karane Inda"] = {
+        Age = 15,
+        Work = "The 100 Girlfriends",
+        Image = "71385031354881"
+    },
+    ["Ririsa Amano"] = {
+        Age = 15,
+        Work = "2.5 Dimensional Seduction",
+        Image = "90673604058485"
+    },
+    ["Noko Shikanoko"] = {
+        Age = 16,
+        Work = "My Deer Friend Nokotan",
+        Image = "79766836438681"
+    },
+    ["Torako Koshi"] = {
+        Age = 16,
+        Work = "My Deer Friend Nokotan",
+        Image = "122948079229119"
+    },
+    ["Kaoruko Waguri"] = {
+        Age = 16,
+        Work = "The Fragrant Flower Blooms with Dignity",
+        Image = "94263277093235"
+    },
+    ["Uka Ishimori"] = {
+        Age = 16,
+        Work = "Honey Lemon Soda",
+        Image = "111100311900735"
+    },
+    ["Yuzuki Shizuka"] = {
+        Age = 17,
+        Work = "The Too-Perfect Saint: Tossed Aside by My Fiancé and Sold to Another Kingdom",
+        Image = "120618588985397"
+    },
+    ["Saki Hananoi"] = {
+        Age = 16,
+        Work = "A Condition Called Love",
+        Image = "95269690744767"
+    },
+    ["Sung Jinwoo"] = {
+        Age = 24,
+        Work = "Solo Leveling",
+        Image = "111883579799094"
+    },
+    ["Cha Hae-In"] = {
+        Age = 22,
+        Work = "Solo Leveling",
+        Image = "97778551874035"
+    },
+    ["Yoichi Isagi"] = {
+        Age = 17,
+        Work = "Blue Lock",
+        Image = "122896732173395"
+    },
+    ["Meguru Bachira"] = {
+        Age = 17,
+        Work = "Blue Lock",
+        Image = "109095440466461"
+    },
+    ["Seishiro Nagi"] = {
+        Age = 17,
+        Work = "Blue Lock",
+        Image = "107802042163850"
+    },
+    ["Rin Itoshi"] = {
+        Age = 16,
+        Work = "Blue Lock",
+        Image = "92817859105522"
+    },
+    ["Hyoma Chigiri"] = {
+        Age = 16,
+        Work = "Blue Lock",
+        Image = "79172493476905"
+    },
+    ["Kafka Hibino"] = {
+        Age = 32,
+        Work = "Kaiju No. 8",
+        Image = "83217402967964"
+    },
+    ["Reno Ichikawa"] = {
+        Age = 18,
+        Work = "Kaiju No. 8",
+        Image = "89674714622543"
+    },
+    ["Haruka Sakura"] = {
+        Age = 16,
+        Work = "Wind Breaker",
+        Image = "127952590039189"
+    },
+    ["Hayato Suo"] = {
+        Age = 16,
+        Work = "Wind Breaker",
+        Image = "125290196573670"
+    },
+    ["Hajime Umemiya"] = {
+        Age = 18,
+        Work = "Wind Breaker",
+        Image = "77852420993182"
+    },
+    ["Laios Touden"] = {
+        Age = 26,
+        Work = "Delicious in Dungeon",
+        Image = "76645471749459"
+    },
+    Stark = {
+        Age = 18,
+        Work = "Frieren: Beyond Journey\'s End",
+        Image = "130677415300606"
+    },
+    ["Mash Burnedead"] = {
+        Age = 15,
+        Work = "Mashle: Magic and Muscles",
+        Image = "94509277749687"
+    },
+    ["Rayne Ames"] = {
+        Age = 16,
+        Work = "Mashle: Magic and Muscles",
+        Image = "135133123965966"
+    },
+    ["Kiyoka Kudo"] = {
+        Age = 27,
+        Work = "My Happy Marriage",
+        Image = "112189405923172"
+    },
+    ["Itsuomi Nagi"] = {
+        Age = 22,
+        Work = "A Sign of Affection",
+        Image = "118970595839169"
+    },
+    ["Arnold Hein"] = {
+        Age = 19,
+        Work = "7th Time Loop",
+        Image = "100789846639492"
+    },
+    Gabimaru = {
+        Age = 20,
+        Work = "Hell\'s Paradise: Jigokuraku",
+        Image = "100660547963943"
+    },
+    ["David Martinez"] = {
+        Age = 17,
+        Work = "Cyberpunk: Edgerunners",
+        Image = "82027377870863"
+    },
+    Andy = {
+        Age = 200,
+        Work = "Undead Unluck",
+        Image = "123303977229479"
+    },
+    ["Kou Yamori"] = {
+        Age = 14,
+        Work = "Call of the Night",
+        Image = "87288547749201"
+    },
+    ["Shinra Kusakabe"] = {
+        Age = 17,
+        Work = "Fire Force",
+        Image = "75195105654893"
+    },
+    ["Arthur Boyle"] = {
+        Age = 17,
+        Work = "Fire Force",
+        Image = "127260915684923"
+    },
+    Power = {
+        Age = 17,
+        Work = "Chainsaw Man",
+        Image = "116687072716042"
+    },
+    Daki = {
+        Age = 113,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "137606604389609"
+    },
+    Tamayo = {
+        Age = 500,
+        Work = "Demon Slayer: Kimetsu no Yaiba",
+        Image = "128205141837009"
+    },
+    Albedo = {
+        Age = 250,
+        Work = "Overlord",
+        Image = "97897154387595"
+    },
+    ["Shalltear Bloodfallen"] = {
+        Age = 92,
+        Work = "Overlord",
+        Image = "136753545592516"
+    },
+    ["Aura Bella Fiora"] = {
+        Age = 76,
+        Work = "Overlord",
+        Image = "136753545592516"
+    },
+    ["Milim Nava"] = {
+        Age = 2000,
+        Work = "That Time I Got Reincarnated as a Slime",
+        Image = "124464973637705"
+    },
+    ["Ais Wallenstein"] = {
+        Age = 16,
+        Work = "Is It Wrong to Try to Pick Up Girls in a Dungeon?",
+        Image = "92265403873109"
+    },
+    ["Kurumi Tokisaki"] = {
+        Age = 17,
+        Work = "Date A Live",
+        Image = "81514684184477"
+    },
+    ["Sakura Matou"] = {
+        Age = 17,
+        Work = "Fate/stay night",
+        Image = "104918867407497"
+    },
+    ["Himiko Toga"] = {
+        Age = 17,
+        Work = "My Hero Academia",
+        Image = "71416718200367"
+    },
+    ["Momo Yaoyorozu"] = {
+        Age = 15,
+        Work = "My Hero Academia",
+        Image = "74440830069265"
+    },
+    ["Mei Mei"] = {
+        Age = 31,
+        Work = "Jujutsu Kaisen",
+        Image = "74182743368992"
+    },
+    ["Shoko Ieiri"] = {
+        Age = 28,
+        Work = "Jujutsu Kaisen",
+        Image = "93342326837483"
+    },
+    ["Marcille Donato"] = {
+        Age = 50,
+        Work = "Delicious in Dungeon",
+        Image = "118576772837954"
+    },
+    ["Falin Touden"] = {
+        Age = 23,
+        Work = "Delicious in Dungeon",
+        Image = "88471318923199"
+    },
+    ["Yoko Littner"] = {
+        Age = 22,
+        Work = "Gurren Lagann",
+        Image = "132982467096105"
+    },
+    Mirko = {
+        Age = 26,
+        Work = "My Hero Academia",
+        Image = "105091606865348"
+    },
+    ["Nejire Hado"] = {
+        Age = 17,
+        Work = "My Hero Academia",
+        Image = "92641465685320"
+    },
+    ["Kaori Miyazono"] = {
+        Age = 14,
+        Work = "Your Lie in April",
+        Image = "137574748965700"
+    },
+    ["Kousei Arima"] = {
+        Age = 14,
+        Work = "Your Lie in April",
+        Image = "74398398695435"
+    },
+    ["Izumi Miyamura"] = {
+        Age = 17,
+        Work = "Horimiya",
+        Image = "134487592943033"
+    },
+    ["Akane Kinoshita"] = {
+        Age = 20,
+        Work = "My Love Story with Yamada-kun at Lv999",
+        Image = "122956887605652"
+    },
+    ["Akito Yamada"] = {
+        Age = 17,
+        Work = "My Love Story with Yamada-kun at Lv999",
+        Image = "89500466919263"
+    },
+    ["Yukino Yukinoshita"] = {
+        Age = 16,
+        Work = "My Teen Romantic Comedy",
+        Image = "74970620266561"
+    },
+    ["Yui Yuigahama"] = {
+        Age = 16,
+        Work = "My Teen Romantic Comedy",
+        Image = "78451922141546"
+    },
+    ["Hachiman Hikigaya"] = {
+        Age = 16,
+        Work = "My Teen Romantic Comedy",
+        Image = "72969136566280"
+    },
+    ["Nagisa Furukawa"] = {
+        Age = 17,
+        Work = "Clannad",
+        Image = "72757475901213"
+    },
+    ["Tomoya Okazaki"] = {
+        Age = 18,
+        Work = "Clannad",
+        Image = "95461374406931"
+    },
+    ["Rikka Takanashi"] = {
+        Age = 16,
+        Work = "Love, Chunibyo & Other Delusions!",
+        Image = "123826235659482"
+    },
+    ["Yuuta Togashi"] = {
+        Age = 16,
+        Work = "Love, Chunibyo & Other Delusions!",
+        Image = "73948244035277"
+    },
+    ["Nagisa Kubo"] = {
+        Age = 14,
+        Work = "Kubo Won\'t Let Me Be Invisible",
+        Image = "83198875031491"
+    },
+    ["Junta Shiraishi"] = {
+        Age = 14,
+        Work = "Kubo Won\'t Let Me Be Invisible",
+        Image = "72914052783333"
+    },
+    ["Futaba Yoshioka"] = {
+        Age = 16,
+        Work = "Blue Spring Ride",
+        Image = "77230359564187"
+    },
+    ["Kou Mabuchi"] = {
+        Age = 16,
+        Work = "Blue Spring Ride",
+        Image = "96110194350592"
+    },
+    ["Rinko Yamato"] = {
+        Age = 15,
+        Work = "My Love Story!!",
+        Image = "81881154661339"
+    },
+    ["Takeo Gouda"] = {
+        Age = 15,
+        Work = "My Love Story!!",
+        Image = "102977930108361"
+    },
+    ["Aki Adagaki"] = {
+        Age = 16,
+        Work = "Masamune-kun\'s Revenge",
+        Image = "119088433658910"
+    },
+    ["Masamune Makabe"] = {
+        Age = 16,
+        Work = "Masamune-kun\'s Revenge",
+        Image = "121986788001133"
+    },
+    ["Yuu Koito"] = {
+        Age = 15,
+        Work = "Bloom Into You",
+        Image = "93307378089402"
+    },
+    ["Touko Nanami"] = {
+        Age = 15,
+        Work = "Bloom Into You",
+        Image = "124800053887531"
+    },
+    ["Elizabeth Liones"] = {
+        Age = 16,
+        Work = "The Seven Deadly Sins",
+        Image = "98616493480474"
+    },
+    Merlin = {
+        Age = 3000,
+        Work = "The Seven Deadly Sins",
+        Image = "103390205721138"
+    },
+    Diane = {
+        Age = 750,
+        Work = "The Seven Deadly Sins",
+        Image = "111273191779041"
+    },
+    Elaine = {
+        Age = 1000,
+        Work = "The Seven Deadly Sins",
+        Image = "108285777005385"
+    },
+    ["Tanya Degurechaff"] = {
+        Age = 9,
+        Work = "Saga of Tanya the Evil",
+        Image = "131179208871677"
+    },
+    Raphtalia = {
+        Age = 10,
+        Work = "The Rising of the Shield Hero",
+        Image = "110530175394290"
+    },
+    Filo = {
+        Age = 1,
+        Work = "The Rising of the Shield Hero",
+        Image = "83246156122745"
+    },
+    Chibiusa = {
+        Age = 900,
+        Work = "Sailor Moon",
+        Image = "87636762380938"
+    },
+    ["Mayoi Hachikuji"] = {
+        Age = 21,
+        Work = "Monogatari",
+        Image = "136127935858608"
+    },
+    Ozen = {
+        Age = 50,
+        Work = "Made in Abyss",
+        Image = "82462977958746"
+    },
+    ["Mavis Vermillion"] = {
+        Age = 24,
+        Work = "Fairy Tail",
+        Image = "133560673893553"
+    },
+    ["Rory Mercury"] = {
+        Age = 961,
+        Work = "GATE",
+        Image = "112065056899160"
+    }
+};

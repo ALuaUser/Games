@@ -1,0 +1,17 @@
+-- Decompiled with Potassium's decompiler.
+
+return {
+    Default = 0,
+    Dark = 250,
+    Metallic = 750,
+    Golden = 1250,
+    Frozen = 2000,
+    Lava = 3000,
+    ["VIP Throne"] = "VIP",
+    ["Dark Throne"] = 12000,
+    ["Pizza Throne"] = 4000,
+    ["Ice Throne"] = 6000,
+    ["Cute Throne"] = 10000,
+    ["Glitch Throne"] = 8000,
+    Autumn = "FREE"
+};

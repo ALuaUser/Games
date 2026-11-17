@@ -1,0 +1,951 @@
+--[[
+    Guess the Character Age!  |  Answer HUD Lite
+    v0.0.7  •  Made by Evol
+    Reads name from PlayerGui.GameGui.Heading + CharacterConfig ages
+
+    Hover the card for buttons:  ···  settings   ▾  history   –  minimize   ×  close
+    Click the age to pin / unpin it.   Default hotkey: RightShift (hide / show)
+]]
+
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+----------------------------------------------------------------
+-- Settings (saved to file if the executor supports it, otherwise
+-- kept on the player for this session)
+----------------------------------------------------------------
+local FILE = "AgeHUD_Lite_settings.json"
+local DEFAULTS = {
+    x = 18,
+    y = 120,
+    opacity = 0.96,
+    scale = 1,
+    theme = "dark",
+    key = "RightShift",
+    history = false,
+    mini = false,
+}
+
+local function loadSettings()
+    local raw
+    if type(isfile) == "function" and type(readfile) == "function" then
+        local ok, res = pcall(function()
+            if isfile(FILE) then
+                return readfile(FILE)
+            end
+        end)
+        if ok then
+            raw = res
+        end
+    end
+    if not raw then
+        raw = LP:GetAttribute("AgeHUDLiteSettings")
+    end
+
+    local out = table.clone(DEFAULTS)
+    if type(raw) == "string" then
+        local ok, data = pcall(HttpService.JSONDecode, HttpService, raw)
+        if ok and type(data) == "table" then
+            for k, def in pairs(DEFAULTS) do
+                if type(data[k]) == type(def) then
+                    out[k] = data[k]
+                end
+            end
+        end
+    end
+
+    out.opacity = math.clamp(out.opacity, 0.5, 1)
+    out.scale = math.clamp(out.scale, 0.8, 1.3)
+    if out.theme ~= "dark" and out.theme ~= "light" then
+        out.theme = "dark"
+    end
+    if not pcall(function()
+        return Enum.KeyCode[out.key]
+    end) then
+        out.key = DEFAULTS.key
+    end
+    return out
+end
+
+local S = loadSettings()
+
+local saveToken = 0
+local function saveSettings()
+    saveToken += 1
+    local mine = saveToken
+    task.delay(0.4, function()
+        if mine ~= saveToken then
+            return
+        end
+        local ok, raw = pcall(HttpService.JSONEncode, HttpService, S)
+        if not ok then
+            return
+        end
+        pcall(LP.SetAttribute, LP, "AgeHUDLiteSettings", raw)
+        if type(writefile) == "function" then
+            pcall(writefile, FILE, raw)
+        end
+    end)
+end
+
+----------------------------------------------------------------
+-- Load CharacterConfig
+----------------------------------------------------------------
+local CharacterConfig
+
+local function tryRequire(parts)
+    local n = RS
+    for _, p in ipairs(parts) do
+        n = n and n:FindFirstChild(p)
+    end
+    if n and n:IsA("ModuleScript") then
+        local ok, mod = pcall(require, n)
+        if ok and type(mod) == "table" then
+            return mod
+        end
+    end
+end
+
+for _, path in ipairs({
+    { "CharacterConfig" },
+    { "Modules", "CharacterConfig" },
+    { "Shared", "CharacterConfig" },
+    { "Configs", "CharacterConfig" },
+    { "Config", "CharacterConfig" },
+    { "Data", "CharacterConfig" },
+}) do
+    CharacterConfig = tryRequire(path)
+    if CharacterConfig then
+        break
+    end
+end
+
+if not CharacterConfig then
+    for _, d in ipairs(RS:GetDescendants()) do
+        if d:IsA("ModuleScript") and d.Name:lower():find("character") then
+            local ok, mod = pcall(require, d)
+            if ok and type(mod) == "table" then
+                local k = next(mod)
+                if k and type(mod[k]) == "table" and mod[k].Age ~= nil then
+                    CharacterConfig = mod
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function lookup(name)
+    if not CharacterConfig or not name then
+        return
+    end
+    name = tostring(name):gsub("^%s+", ""):gsub("%s+$", "")
+    if CharacterConfig[name] then
+        return CharacterConfig[name], name
+    end
+    local lower = name:lower()
+    for n, data in pairs(CharacterConfig) do
+        if n:lower() == lower then
+            return data, n
+        end
+    end
+    for n, data in pairs(CharacterConfig) do
+        if n:lower():find(lower, 1, true) or lower:find(n:lower(), 1, true) then
+            return data, n
+        end
+    end
+end
+
+----------------------------------------------------------------
+-- Heading text
+----------------------------------------------------------------
+local function headingText()
+    local g = PG:FindFirstChild("GameGui")
+    local h = g and g:FindFirstChild("Heading")
+    if not h then
+        return
+    end
+    if h:IsA("TextLabel") or h:IsA("TextButton") or h:IsA("TextBox") then
+        return h.Text
+    end
+    local lab = h:FindFirstChildWhichIsA("TextLabel", true)
+        or h:FindFirstChildWhichIsA("TextButton", true)
+    return lab and lab.Text
+end
+
+----------------------------------------------------------------
+-- Helpers / theme
+----------------------------------------------------------------
+local PAL = {
+    dark = {
+        bg = Color3.fromRGB(20, 21, 24),
+        line = Color3.fromRGB(255, 255, 255),
+        text = Color3.fromRGB(236, 237, 240),
+        sub = Color3.fromRGB(135, 139, 148),
+        accent = Color3.fromRGB(120, 200, 150),
+        warn = Color3.fromRGB(224, 175, 104),
+        track = Color3.fromRGB(46, 48, 55),
+    },
+    light = {
+        bg = Color3.fromRGB(248, 248, 250),
+        line = Color3.fromRGB(0, 0, 0),
+        text = Color3.fromRGB(28, 29, 33),
+        sub = Color3.fromRGB(112, 116, 126),
+        accent = Color3.fromRGB(38, 148, 92),
+        warn = Color3.fromRGB(190, 128, 40),
+        track = Color3.fromRGB(214, 216, 222),
+    },
+}
+
+local function P()
+    return PAL[S.theme]
+end
+
+local WIDTH, FULL_H, MINI_H = 264, 72, 36
+local ROW_H, MAX_HIST = 22, 5
+local HIST_PAD, SET_H = 16, 136
+local SNAP, MARGIN, TOP_M = 16, 12, 44
+
+local function tween(obj, props, t, style, dir)
+    t = t or 0.2
+    if t == 0 then
+        for k, v in pairs(props) do
+            obj[k] = v
+        end
+        return
+    end
+    TweenService:Create(
+        obj,
+        TweenInfo.new(t, style or Enum.EasingStyle.Quad, dir or Enum.EasingDirection.Out),
+        props
+    ):Play()
+end
+
+local function make(class, props, parent)
+    local o = Instance.new(class)
+    for k, v in pairs(props) do
+        o[k] = v
+    end
+    o.Parent = parent
+    return o
+end
+
+local function viewport()
+    local cam = workspace.CurrentCamera
+    return cam and cam.ViewportSize or Vector2.new(1920, 1080)
+end
+
+local registry = {}
+local function themed(obj, prop, key)
+    table.insert(registry, { obj, prop, key })
+    obj[prop] = P()[key]
+    return obj
+end
+
+local function isPress(input)
+    return input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch
+end
+
+local function isMove(input)
+    return input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+end
+
+----------------------------------------------------------------
+-- Root UI
+----------------------------------------------------------------
+local old = PG:FindFirstChild("AgeAnswerHUD_Lite")
+if old then
+    old:Destroy()
+end
+
+local gui = make("ScreenGui", {
+    Name = "AgeAnswerHUD_Lite",
+    ResetOnSpawn = false,
+    DisplayOrder = 100,
+    IgnoreGuiInset = true,
+}, PG)
+
+local conns = {}
+local function track(c)
+    table.insert(conns, c)
+    return c
+end
+gui.Destroying:Connect(function()
+    for _, c in ipairs(conns) do
+        c:Disconnect()
+    end
+end)
+
+do
+    local vp = viewport()
+    S.x = math.clamp(S.x, 0, math.max(vp.X - WIDTH, 0))
+    S.y = math.clamp(S.y, 0, math.max(vp.Y - FULL_H, 0))
+end
+local restPos = UDim2.fromOffset(S.x, S.y)
+
+-- CanvasGroup lets the whole HUD (card + panels) fade as one
+local root = make("CanvasGroup", {
+    Name = "Root",
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Size = UDim2.fromOffset(WIDTH, 0),
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Position = restPos,
+    GroupTransparency = 1,
+}, gui)
+local scaleObj = make("UIScale", { Scale = S.scale }, root)
+make("UIListLayout", {
+    Padding = UDim.new(0, 6),
+    SortOrder = Enum.SortOrder.LayoutOrder,
+}, root)
+
+local function bgT()
+    return 1 - S.opacity
+end
+
+local function makeBox(name, order, height)
+    local f = make("Frame", {
+        Name = name,
+        Size = UDim2.fromOffset(WIDTH, height),
+        BackgroundTransparency = bgT(),
+        BorderSizePixel = 0,
+        LayoutOrder = order,
+        ClipsDescendants = true,
+    }, root)
+    themed(f, "BackgroundColor3", "bg")
+    make("UICorner", { CornerRadius = UDim.new(0, 10) }, f)
+    local st = make("UIStroke", { Thickness = 1, Transparency = 0.9 }, f)
+    themed(st, "Color", "line")
+    return f
+end
+
+local card = makeBox("Card", 1, FULL_H)
+card.Active = true
+local histPanel = makeBox("History", 2, 0)
+histPanel.Visible = false
+local setPanel = makeBox("Settings", 3, 0)
+setPanel.Visible = false
+
+----------------------------------------------------------------
+-- Card contents
+----------------------------------------------------------------
+local nameLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(16, 14),
+    Size = UDim2.fromOffset(142, 20),
+    Font = Enum.Font.BuilderSansBold,
+    TextSize = 17,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextTruncate = Enum.TextTruncate.AtEnd,
+    Text = "Waiting…",
+}, card)
+themed(nameLbl, "TextColor3", "text")
+
+local workLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(16, 37),
+    Size = UDim2.fromOffset(142, 18),
+    Font = Enum.Font.BuilderSans,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextTruncate = Enum.TextTruncate.AtEnd,
+    Text = "",
+}, card)
+themed(workLbl, "TextColor3", "sub")
+
+local divider = make("Frame", {
+    AnchorPoint = Vector2.new(0, 0.5),
+    Position = UDim2.new(0, 170, 0.5, 0),
+    Size = UDim2.fromOffset(1, 40),
+    BackgroundTransparency = 0.9,
+    BorderSizePixel = 0,
+}, card)
+themed(divider, "BackgroundColor3", "line")
+
+local ageLbl = make("TextButton", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(178, 0),
+    Size = UDim2.fromOffset(76, FULL_H),
+    Font = Enum.Font.BuilderSansExtraBold,
+    TextSize = 34,
+    Text = "–",
+    AutoButtonColor = false,
+}, card)
+
+local ageKey = "sub"
+ageLbl.TextColor3 = P()[ageKey]
+local function setAgeColor(key, instant)
+    ageKey = key
+    tween(ageLbl, { TextColor3 = P()[key] }, instant and 0 or 0.2)
+end
+
+local pinLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(178, 53),
+    Size = UDim2.fromOffset(76, 12),
+    Font = Enum.Font.BuilderSansMedium,
+    TextSize = 11,
+    Text = "pinned",
+    TextTransparency = 1,
+}, card)
+themed(pinLbl, "TextColor3", "sub")
+
+----------------------------------------------------------------
+-- Header buttons (hover to reveal; always visible on touch-only)
+----------------------------------------------------------------
+local touchOnly = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+local headerButtons = {}
+
+local function headerButton(text, xOffset)
+    local b = make("TextButton", {
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, xOffset, 0, 3),
+        Size = UDim2.fromOffset(18, 18),
+        Font = Enum.Font.BuilderSansBold,
+        TextSize = 16,
+        Text = text,
+        TextTransparency = touchOnly and 0 or 1,
+        AutoButtonColor = false,
+        ZIndex = 5,
+    }, card)
+    themed(b, "TextColor3", "sub")
+    b.MouseEnter:Connect(function()
+        tween(b, { TextColor3 = P().text }, 0.12)
+    end)
+    b.MouseLeave:Connect(function()
+        tween(b, { TextColor3 = P().sub }, 0.12)
+    end)
+    table.insert(headerButtons, b)
+    return b
+end
+
+local closeBtn = headerButton("×", -22)
+local miniBtn = headerButton("–", -42)
+local histBtn = headerButton("▾", -62)
+local setBtn = headerButton("···", -82)
+
+if not touchOnly then
+    card.MouseEnter:Connect(function()
+        for _, b in ipairs(headerButtons) do
+            tween(b, { TextTransparency = 0 }, 0.15)
+        end
+    end)
+    card.MouseLeave:Connect(function()
+        for _, b in ipairs(headerButtons) do
+            tween(b, { TextTransparency = 1 }, 0.15)
+        end
+    end)
+end
+
+----------------------------------------------------------------
+-- History panel
+----------------------------------------------------------------
+local history = {}
+local histRows = {}
+local histOpen = S.history
+
+for i = 1, MAX_HIST do
+    local y = 8 + (i - 1) * ROW_H
+    local n = make("TextLabel", {
+        BackgroundTransparency = 1,
+        Position = UDim2.fromOffset(16, y),
+        Size = UDim2.fromOffset(170, ROW_H),
+        Font = Enum.Font.BuilderSans,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Text = "",
+        Visible = false,
+    }, histPanel)
+    themed(n, "TextColor3", "text")
+    local a = make("TextLabel", {
+        BackgroundTransparency = 1,
+        Position = UDim2.fromOffset(WIDTH - 16 - 50, y),
+        Size = UDim2.fromOffset(50, ROW_H),
+        Font = Enum.Font.BuilderSansBold,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        Text = "",
+        Visible = false,
+    }, histPanel)
+    themed(a, "TextColor3", "sub")
+    histRows[i] = { n, a }
+end
+
+local emptyLbl = make("TextLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(16, 8),
+    Size = UDim2.fromOffset(200, ROW_H),
+    Font = Enum.Font.BuilderSans,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Text = "Nothing yet",
+}, histPanel)
+themed(emptyLbl, "TextColor3", "sub")
+
+local function openPanel(panel, open, height, instant)
+    local d = instant and 0 or 0.3
+    if open then
+        panel.Visible = true
+        tween(panel, { Size = UDim2.fromOffset(WIDTH, height) }, d, Enum.EasingStyle.Quint)
+    else
+        tween(panel, { Size = UDim2.fromOffset(WIDTH, 0) }, d, Enum.EasingStyle.Quint)
+        if instant then
+            panel.Visible = false
+        else
+            task.delay(d + 0.02, function()
+                if panel.Size.Y.Offset <= 1 then
+                    panel.Visible = false
+                end
+            end)
+        end
+    end
+end
+
+local function histHeight()
+    return HIST_PAD + math.max(#history, 1) * ROW_H
+end
+
+local function renderHistory()
+    for i = 1, MAX_HIST do
+        local e, r = history[i], histRows[i]
+        r[1].Visible = e ~= nil
+        r[2].Visible = e ~= nil
+        if e then
+            r[1].Text = e.name
+            r[2].Text = tostring(e.age)
+        end
+    end
+    emptyLbl.Visible = #history == 0
+    if histOpen then
+        openPanel(histPanel, true, histHeight())
+    end
+end
+
+local function pushHistory(name, age)
+    for i, e in ipairs(history) do
+        if e.name == name then
+            table.remove(history, i)
+            break
+        end
+    end
+    table.insert(history, 1, { name = name, age = age })
+    while #history > MAX_HIST do
+        table.remove(history)
+    end
+    renderHistory()
+end
+
+histBtn.Text = histOpen and "▴" or "▾"
+histBtn.MouseButton1Click:Connect(function()
+    histOpen = not histOpen
+    S.history = histOpen
+    histBtn.Text = histOpen and "▴" or "▾"
+    openPanel(histPanel, histOpen, histHeight())
+    saveSettings()
+end)
+
+----------------------------------------------------------------
+-- Settings panel
+----------------------------------------------------------------
+local setOpen = false
+local activeSlider
+local rebinding = false
+local toggleKey = Enum.KeyCode[S.key]
+
+local function applyOpacity()
+    local t = bgT()
+    card.BackgroundTransparency = t
+    histPanel.BackgroundTransparency = t
+    setPanel.BackgroundTransparency = t
+end
+
+local function rowLabel(text, y)
+    local l = make("TextLabel", {
+        BackgroundTransparency = 1,
+        Position = UDim2.fromOffset(16, y),
+        Size = UDim2.fromOffset(80, 26),
+        Font = Enum.Font.BuilderSans,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Text = text,
+    }, setPanel)
+    themed(l, "TextColor3", "sub")
+end
+
+local function makeSlider(y, text, min, max, init, onChange)
+    rowLabel(text, y)
+    local hit = make("TextButton", {
+        BackgroundTransparency = 1,
+        Text = "",
+        Position = UDim2.fromOffset(104, y),
+        Size = UDim2.fromOffset(144, 26),
+        AutoButtonColor = false,
+    }, setPanel)
+    local track = make("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        Size = UDim2.new(1, 0, 0, 4),
+        BorderSizePixel = 0,
+    }, hit)
+    themed(track, "BackgroundColor3", "track")
+    make("UICorner", { CornerRadius = UDim.new(1, 0) }, track)
+    local fill = make("Frame", {
+        Size = UDim2.fromScale(0, 1),
+        BorderSizePixel = 0,
+    }, track)
+    themed(fill, "BackgroundColor3", "accent")
+    make("UICorner", { CornerRadius = UDim.new(1, 0) }, fill)
+    local knob = make("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.fromOffset(12, 12),
+        BorderSizePixel = 0,
+    }, hit)
+    themed(knob, "BackgroundColor3", "text")
+    make("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
+
+    local function setAlpha(a)
+        fill.Size = UDim2.fromScale(a, 1)
+        knob.Position = UDim2.new(a, 0, 0.5, 0)
+    end
+    setAlpha((init - min) / (max - min))
+
+    local function update(x)
+        local a = math.clamp((x - hit.AbsolutePosition.X) / hit.AbsoluteSize.X, 0, 1)
+        setAlpha(a)
+        onChange(min + a * (max - min))
+    end
+    hit.InputBegan:Connect(function(input)
+        if isPress(input) then
+            activeSlider = update
+            update(input.Position.X)
+        end
+    end)
+end
+
+local function smallButton(y, text)
+    local b = make("TextButton", {
+        Position = UDim2.fromOffset(104, y + 1),
+        Size = UDim2.fromOffset(86, 24),
+        BackgroundTransparency = 0,
+        BorderSizePixel = 0,
+        Font = Enum.Font.BuilderSansMedium,
+        TextSize = 13,
+        Text = text,
+        AutoButtonColor = false,
+    }, setPanel)
+    themed(b, "BackgroundColor3", "track")
+    themed(b, "TextColor3", "text")
+    make("UICorner", { CornerRadius = UDim.new(0, 6) }, b)
+    return b
+end
+
+makeSlider(10, "Opacity", 0.5, 1, S.opacity, function(v)
+    S.opacity = math.floor(v * 100 + 0.5) / 100
+    applyOpacity()
+end)
+
+makeSlider(40, "Size", 0.8, 1.3, S.scale, function(v)
+    S.scale = math.floor(v * 20 + 0.5) / 20
+    scaleObj.Scale = S.scale
+end)
+
+rowLabel("Theme", 70)
+local themeBtn = smallButton(70, S.theme == "dark" and "Dark" or "Light")
+
+rowLabel("Hotkey", 100)
+local keyBtn = smallButton(100, S.key)
+
+local function applyTheme(animate)
+    local p = P()
+    for _, r in ipairs(registry) do
+        if animate then
+            tween(r[1], { [r[2]] = p[r[3]] }, 0.25)
+        else
+            r[1][r[2]] = p[r[3]]
+        end
+    end
+    setAgeColor(ageKey, not animate)
+end
+
+themeBtn.MouseButton1Click:Connect(function()
+    S.theme = S.theme == "dark" and "light" or "dark"
+    themeBtn.Text = S.theme == "dark" and "Dark" or "Light"
+    applyTheme(true)
+    saveSettings()
+end)
+
+keyBtn.MouseButton1Click:Connect(function()
+    rebinding = true
+    keyBtn.Text = "Press a key…"
+end)
+
+setBtn.MouseButton1Click:Connect(function()
+    setOpen = not setOpen
+    openPanel(setPanel, setOpen, SET_H)
+end)
+
+----------------------------------------------------------------
+-- Show / hide
+----------------------------------------------------------------
+local shown = false
+
+local function setShown(on, onDone)
+    shown = on
+    local dur = on and 0.3 or 0.22
+    if on then
+        gui.Enabled = true
+        root.Position = restPos + UDim2.fromOffset(0, -8)
+    end
+    tween(root, {
+        GroupTransparency = on and 0 or 1,
+        Position = on and restPos or (restPos + UDim2.fromOffset(0, 8)),
+    }, dur, on and Enum.EasingStyle.Quad or Enum.EasingStyle.Quint)
+
+    task.delay(dur, function()
+        if not on and not shown then
+            gui.Enabled = false
+        end
+        if onDone then
+            onDone()
+        end
+    end)
+end
+
+closeBtn.MouseButton1Click:Connect(function()
+    setShown(false, function()
+        gui:Destroy()
+    end)
+end)
+
+track(UserInputService.InputBegan:Connect(function(input, processed)
+    if rebinding and input.UserInputType == Enum.UserInputType.Keyboard then
+        rebinding = false
+        if input.KeyCode ~= Enum.KeyCode.Escape and input.KeyCode ~= Enum.KeyCode.Unknown then
+            toggleKey = input.KeyCode
+            S.key = input.KeyCode.Name
+            saveSettings()
+        end
+        keyBtn.Text = S.key
+        return
+    end
+    if processed or input.KeyCode ~= toggleKey then
+        return
+    end
+    setShown(not shown)
+end))
+
+----------------------------------------------------------------
+-- Minimize + pin
+----------------------------------------------------------------
+local minimized = false
+local pinned = false
+local refresh -- forward declaration
+
+local function updatePin(instant)
+    tween(pinLbl, { TextTransparency = (pinned and not minimized) and 0 or 1 }, instant and 0 or 0.2)
+end
+
+local function setMinimized(m, instant)
+    minimized = m
+    S.mini = m
+    miniBtn.Text = m and "+" or "–"
+    local d = instant and 0 or 0.3
+    local st = Enum.EasingStyle.Quint
+
+    tween(card, { Size = UDim2.fromOffset(WIDTH, m and MINI_H or FULL_H) }, d, st)
+    tween(nameLbl, {
+        Position = UDim2.fromOffset(16, m and 8 or 14),
+        TextSize = m and 15 or 17,
+    }, d, st)
+    tween(workLbl, { TextTransparency = m and 1 or 0 }, instant and 0 or 0.2)
+    tween(divider, { Size = UDim2.fromOffset(1, m and 18 or 40) }, d, st)
+    tween(ageLbl, {
+        Size = UDim2.fromOffset(76, m and MINI_H or FULL_H),
+        TextSize = m and 20 or 34,
+    }, d, st)
+    updatePin(instant)
+end
+
+miniBtn.MouseButton1Click:Connect(function()
+    setMinimized(not minimized)
+    saveSettings()
+end)
+
+ageLbl.MouseButton1Click:Connect(function()
+    pinned = not pinned
+    updatePin()
+    if not pinned and refresh then
+        refresh()
+    end
+end)
+
+----------------------------------------------------------------
+-- Drag (with edge snapping) + slider dragging
+----------------------------------------------------------------
+do
+    local dragging, moved, start, startPos = false, false, nil, nil
+
+    local function snap(x, y)
+        local vp, sz = viewport(), root.AbsoluteSize
+        if x < SNAP + MARGIN then
+            x = MARGIN
+        elseif x + sz.X > vp.X - SNAP - MARGIN then
+            x = vp.X - sz.X - MARGIN
+        end
+        if y < SNAP + TOP_M then
+            y = TOP_M
+        elseif y + sz.Y > vp.Y - SNAP - MARGIN then
+            y = vp.Y - sz.Y - MARGIN
+        end
+        return x, y
+    end
+
+    track(card.InputBegan:Connect(function(input)
+        if isPress(input) then
+            dragging, moved = true, false
+            start = input.Position
+            startPos = root.Position
+        end
+    end))
+
+    track(UserInputService.InputChanged:Connect(function(input)
+        if not isMove(input) then
+            return
+        end
+        if activeSlider then
+            activeSlider(input.Position.X)
+            return
+        end
+        if not dragging then
+            return
+        end
+        local dx, dy = input.Position.X - start.X, input.Position.Y - start.Y
+        if not moved and (dx * dx + dy * dy) > 9 then
+            moved = true
+        end
+        if moved then
+            local vp, sz = viewport(), root.AbsoluteSize
+            restPos = UDim2.fromOffset(
+                math.clamp(startPos.X.Offset + dx, 0, math.max(vp.X - sz.X, 0)),
+                math.clamp(startPos.Y.Offset + dy, 0, math.max(vp.Y - sz.Y, 0))
+            )
+            root.Position = restPos
+        end
+    end))
+
+    track(UserInputService.InputEnded:Connect(function(input)
+        if not isPress(input) then
+            return
+        end
+        if activeSlider then
+            activeSlider = nil
+            saveSettings()
+        end
+        if dragging then
+            dragging = false
+            if moved then
+                local x, y = snap(restPos.X.Offset, restPos.Y.Offset)
+                restPos = UDim2.fromOffset(x, y)
+                tween(root, { Position = restPos }, 0.2, Enum.EasingStyle.Quint)
+                S.x, S.y = x, y
+                saveSettings()
+            end
+        end
+    end))
+end
+
+----------------------------------------------------------------
+-- Update logic
+----------------------------------------------------------------
+local lastName
+
+local function setAnswer(realName, data)
+    if not data then
+        nameLbl.Text = "Waiting…"
+        workLbl.Text = CharacterConfig and "" or "CharacterConfig missing"
+        ageLbl.Text = "–"
+        setAgeColor("sub")
+        return
+    end
+
+    nameLbl.Text = realName
+    workLbl.Text = data.Work or ""
+    ageLbl.Text = tostring(data.Age)
+    setAgeColor("accent")
+
+    if realName ~= lastName then
+        lastName = realName
+        pushHistory(realName, data.Age)
+        if shown then
+            ageLbl.TextTransparency = 1
+            tween(ageLbl, { TextTransparency = 0 }, 0.25)
+        end
+    end
+end
+
+refresh = function()
+    if pinned then
+        return
+    end
+    local text = headingText()
+    if not text or #text < 2 then
+        setAnswer(nil, nil)
+        return
+    end
+    local data, real = lookup(text)
+    if data then
+        setAnswer(real, data)
+    else
+        nameLbl.Text = text
+        workLbl.Text = "Not in CharacterConfig"
+        ageLbl.Text = "?"
+        setAgeColor("warn")
+    end
+end
+
+-- poll + hook Heading when it appears
+task.spawn(function()
+    while gui.Parent do
+        refresh()
+        local g = PG:FindFirstChild("GameGui")
+        local h = g and g:FindFirstChild("Heading")
+        if h and not h:GetAttribute("LiteHooked") then
+            h:SetAttribute("LiteHooked", true)
+            local function hook(obj)
+                if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                    obj:GetPropertyChangedSignal("Text"):Connect(refresh)
+                end
+            end
+            hook(h)
+            for _, d in ipairs(h:GetDescendants()) do
+                hook(d)
+            end
+            h.DescendantAdded:Connect(hook)
+        end
+        task.wait(0.3)
+    end
+end)
+
+----------------------------------------------------------------
+-- Start
+----------------------------------------------------------------
+applyOpacity()
+applyTheme(false)
+renderHistory()
+if histOpen then
+    openPanel(histPanel, true, histHeight(), true)
+end
+if S.mini then
+    setMinimized(true, true)
+end
+setShown(true)
+print("[Age HUD Lite] ready")

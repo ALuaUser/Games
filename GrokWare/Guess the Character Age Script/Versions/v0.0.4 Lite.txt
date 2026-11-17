@@ -1,0 +1,309 @@
+--[[
+    Guess the Character Age!  |  Answer HUD Lite
+    v0.0.3  •  Made by Evol
+    Reads name from PlayerGui.GameGui.Heading + CharacterConfig ages
+]]
+
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+----------------------------------------------------------------
+-- Load CharacterConfig
+----------------------------------------------------------------
+local CharacterConfig
+
+local function tryRequire(parts)
+    local n = RS
+    for _, p in ipairs(parts) do
+        n = n and n:FindFirstChild(p)
+    end
+    if n and n:IsA("ModuleScript") then
+        local ok, mod = pcall(require, n)
+        if ok and type(mod) == "table" then
+            return mod
+        end
+    end
+end
+
+for _, path in ipairs({
+    { "CharacterConfig" },
+    { "Modules", "CharacterConfig" },
+    { "Shared", "CharacterConfig" },
+    { "Configs", "CharacterConfig" },
+    { "Config", "CharacterConfig" },
+    { "Data", "CharacterConfig" },
+}) do
+    CharacterConfig = tryRequire(path)
+    if CharacterConfig then
+        break
+    end
+end
+
+if not CharacterConfig then
+    for _, d in ipairs(RS:GetDescendants()) do
+        if d:IsA("ModuleScript") and d.Name:lower():find("character") then
+            local ok, mod = pcall(require, d)
+            if ok and type(mod) == "table" then
+                local k = next(mod)
+                if k and type(mod[k]) == "table" and mod[k].Age ~= nil then
+                    CharacterConfig = mod
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function lookup(name)
+    if not CharacterConfig or not name then
+        return
+    end
+    name = tostring(name):gsub("^%s+", ""):gsub("%s+$", "")
+    if CharacterConfig[name] then
+        return CharacterConfig[name], name
+    end
+    local lower = name:lower()
+    for n, data in pairs(CharacterConfig) do
+        if n:lower() == lower then
+            return data, n
+        end
+    end
+    for n, data in pairs(CharacterConfig) do
+        if n:lower():find(lower, 1, true) or lower:find(n:lower(), 1, true) then
+            return data, n
+        end
+    end
+end
+
+----------------------------------------------------------------
+-- Heading text
+----------------------------------------------------------------
+local function headingText()
+    local gui = PG:FindFirstChild("GameGui")
+    local h = gui and gui:FindFirstChild("Heading")
+    if not h then
+        return
+    end
+    if h:IsA("TextLabel") or h:IsA("TextButton") or h:IsA("TextBox") then
+        return h.Text
+    end
+    local lab = h:FindFirstChildWhichIsA("TextLabel", true)
+        or h:FindFirstChildWhichIsA("TextButton", true)
+    return lab and lab.Text
+end
+
+----------------------------------------------------------------
+-- HUD UI
+----------------------------------------------------------------
+local old = PG:FindFirstChild("AgeAnswerHUD_Lite")
+if old then
+    old:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "AgeAnswerHUD_Lite"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 100
+gui.IgnoreGuiInset = true
+gui.Parent = PG
+
+local card = Instance.new("Frame")
+card.Name = "Card"
+card.Size = UDim2.fromOffset(320, 108)
+card.Position = UDim2.new(0, 18, 0, 120)
+card.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
+card.BackgroundTransparency = 0.12
+card.BorderSizePixel = 0
+card.Active = true
+card.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 14)
+corner.Parent = card
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(70, 90, 140)
+stroke.Thickness = 1.2
+stroke.Transparency = 0.35
+stroke.Parent = card
+
+local accent = Instance.new("Frame")
+accent.Size = UDim2.new(0, 4, 1, -16)
+accent.Position = UDim2.fromOffset(8, 8)
+accent.BackgroundColor3 = Color3.fromRGB(90, 200, 255)
+accent.BorderSizePixel = 0
+accent.Parent = card
+Instance.new("UICorner", accent).CornerRadius = UDim.new(1, 0)
+
+local tag = Instance.new("TextLabel")
+tag.BackgroundTransparency = 1
+tag.Position = UDim2.fromOffset(22, 10)
+tag.Size = UDim2.new(1, -70, 0, 16)
+tag.Font = Enum.Font.GothamMedium
+tag.TextSize = 11
+tag.TextXAlignment = Enum.TextXAlignment.Left
+tag.TextColor3 = Color3.fromRGB(130, 150, 180)
+tag.Text = "ANSWER"
+tag.Parent = card
+
+local nameLbl = Instance.new("TextLabel")
+nameLbl.BackgroundTransparency = 1
+nameLbl.Position = UDim2.fromOffset(22, 28)
+nameLbl.Size = UDim2.new(1, -32, 0, 22)
+nameLbl.Font = Enum.Font.GothamBold
+nameLbl.TextSize = 15
+nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+nameLbl.TextTruncate = Enum.TextTruncate.AtEnd
+nameLbl.TextColor3 = Color3.fromRGB(235, 240, 250)
+nameLbl.Text = "Waiting for character…"
+nameLbl.Parent = card
+
+local workLbl = Instance.new("TextLabel")
+workLbl.BackgroundTransparency = 1
+workLbl.Position = UDim2.fromOffset(22, 50)
+workLbl.Size = UDim2.new(1, -32, 0, 16)
+workLbl.Font = Enum.Font.Gotham
+workLbl.TextSize = 12
+workLbl.TextXAlignment = Enum.TextXAlignment.Left
+workLbl.TextTruncate = Enum.TextTruncate.AtEnd
+workLbl.TextColor3 = Color3.fromRGB(140, 155, 175)
+workLbl.Text = ""
+workLbl.Parent = card
+
+local ageLbl = Instance.new("TextLabel")
+ageLbl.BackgroundTransparency = 1
+ageLbl.Position = UDim2.fromOffset(22, 68)
+ageLbl.Size = UDim2.new(1, -32, 0, 32)
+ageLbl.Font = Enum.Font.GothamBold
+ageLbl.TextSize = 26
+ageLbl.TextXAlignment = Enum.TextXAlignment.Left
+ageLbl.TextColor3 = Color3.fromRGB(100, 255, 180)
+ageLbl.Text = "Age  —"
+ageLbl.Parent = card
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.fromOffset(26, 26)
+closeBtn.Position = UDim2.new(1, -32, 0, 8)
+closeBtn.BackgroundColor3 = Color3.fromRGB(30, 34, 44)
+closeBtn.Text = "×"
+closeBtn.TextColor3 = Color3.fromRGB(200, 210, 220)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 16
+closeBtn.Parent = card
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+-- soft pop-in
+card.BackgroundTransparency = 1
+nameLbl.TextTransparency = 1
+ageLbl.TextTransparency = 1
+TweenService:Create(card, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.12 }):Play()
+TweenService:Create(nameLbl, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
+TweenService:Create(ageLbl, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
+
+----------------------------------------------------------------
+-- Drag
+----------------------------------------------------------------
+do
+    local dragging, start, startPos
+    card.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            start = input.Position
+            startPos = card.Position
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            local d = input.Position - start
+            card.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
+        end
+    end)
+end
+
+----------------------------------------------------------------
+-- Update logic
+----------------------------------------------------------------
+local lastName
+
+local function setAnswer(realName, data)
+    if not data then
+        nameLbl.Text = "Waiting for character…"
+        workLbl.Text = CharacterConfig and "Config loaded" or "CharacterConfig missing"
+        ageLbl.Text = "Age  —"
+        ageLbl.TextColor3 = Color3.fromRGB(160, 170, 185)
+        accent.BackgroundColor3 = Color3.fromRGB(90, 200, 255)
+        return
+    end
+
+    nameLbl.Text = realName
+    workLbl.Text = data.Work or ""
+    ageLbl.Text = "Age  " .. tostring(data.Age)
+    ageLbl.TextColor3 = Color3.fromRGB(100, 255, 180)
+    accent.BackgroundColor3 = Color3.fromRGB(80, 255, 170)
+
+    if realName ~= lastName then
+        lastName = realName
+        ageLbl.TextTransparency = 1
+        TweenService:Create(ageLbl, TweenInfo.new(0.25), { TextTransparency = 0 }):Play()
+    end
+end
+
+local function refresh()
+    local text = headingText()
+    if not text or #text < 2 then
+        setAnswer(nil, nil)
+        return
+    end
+    local data, real = lookup(text)
+    if data then
+        setAnswer(real, data)
+    else
+        nameLbl.Text = text
+        workLbl.Text = "Not in CharacterConfig"
+        ageLbl.Text = "Age  ?"
+        ageLbl.TextColor3 = Color3.fromRGB(255, 180, 90)
+        accent.BackgroundColor3 = Color3.fromRGB(255, 170, 70)
+    end
+end
+
+-- poll + hook Heading when it appears
+task.spawn(function()
+    while gui.Parent do
+        refresh()
+        local g = PG:FindFirstChild("GameGui")
+        local h = g and g:FindFirstChild("Heading")
+        if h and not h:GetAttribute("LiteHooked") then
+            h:SetAttribute("LiteHooked", true)
+            local function hook(obj)
+                if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                    obj:GetPropertyChangedSignal("Text"):Connect(refresh)
+                end
+            end
+            hook(h)
+            for _, d in ipairs(h:GetDescendants()) do
+                hook(d)
+            end
+            h.DescendantAdded:Connect(hook)
+        end
+        task.wait(0.3)
+    end
+end)
+
+print("[Age HUD Lite] ready")

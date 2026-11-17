@@ -1,0 +1,56 @@
+-- Decompiled with Potassium's decompiler.
+
+local TweenService = game:GetService("TweenService");
+
+return {
+    PlaySound = function(p1: userdata, p2: userdata) -- Line: 5, Name: PlaySound
+        if p2 and p2.Parent then
+            local u3 = p1:Clone();
+            u3.Parent = p2;
+            u3:Play();
+            u3.Ended:Connect(function() -- Line: 10
+                -- upvalues: u3 (copy)
+                u3:Destroy();
+            end);
+
+            return u3;
+        end;
+    end,
+
+    Number = function(p4: number) -- Line: 16, Name: Number
+        return tostring(p4):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "");
+    end,
+
+    Time = function(p5: number) -- Line: 20, Name: Time
+        return `{math.floor(p5 / 86400)}d {math.floor(p5 % 86400 / 3600)}h {math.floor(p5 % 3600 / 60)}m`;
+    end,
+
+    ButtonTweens = function(u6: userdata) -- Line: 27, Name: ButtonTweens
+        -- upvalues: TweenService (copy)
+        local Size = u6.Size;
+        u6.MouseEnter:Connect(function() -- Line: 29
+            -- upvalues: TweenService (ref), u6 (copy), Size (copy)
+            TweenService:Create(u6, TweenInfo.new(0.25, Enum.EasingStyle.Back), {
+                Size = UDim2.fromScale(Size.X.Scale * 1.1, Size.Y.Scale * 1.1)
+            }):Play();
+        end);
+        u6.MouseLeave:Connect(function() -- Line: 32
+            -- upvalues: TweenService (ref), u6 (copy), Size (copy)
+            TweenService:Create(u6, TweenInfo.new(0.15), {
+                Size = Size
+            }):Play();
+        end);
+        u6.MouseButton1Down:Connect(function() -- Line: 35
+            -- upvalues: TweenService (ref), u6 (copy), Size (copy)
+            TweenService:Create(u6, TweenInfo.new(0.15, Enum.EasingStyle.Back), {
+                Size = UDim2.fromScale(Size.X.Scale * 0.9, Size.Y.Scale * 0.9)
+            }):Play();
+        end);
+        u6.Activated:Connect(function() -- Line: 38
+            -- upvalues: TweenService (ref), u6 (copy), Size (copy)
+            TweenService:Create(u6, TweenInfo.new(0.25, Enum.EasingStyle.Back), {
+                Size = UDim2.fromScale(Size.X.Scale * 1.1, Size.Y.Scale * 1.1)
+            }):Play();
+        end);
+    end
+};

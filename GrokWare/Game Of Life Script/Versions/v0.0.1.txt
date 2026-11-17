@@ -1,0 +1,697 @@
+--[[
+    Game Of Life  |  Fluent UI
+    v0.0.1  •  Made by Evol
+    PlaceId: 103044262594219 (Main)
+
+    Auto spin / end turn, loans, invest, troll, fate wheels,
+    tile + pawn ESP, match snapshot, lobby return.
+    Everything OFF by default.
+]]
+
+local Library = loadstring(game:HttpGet("https://github.com/1dontgiveaf/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/InterfaceManager.lua"))()
+
+local Window = Library:CreateWindow({
+    Title = "Game Of Life",
+    SubTitle = "Made By Evol • v0.0.1",
+    TabWidth = 155,
+    Size = UDim2.fromOffset(580, 620),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl,
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "gamepad-2" }),
+    Money = Window:AddTab({ Title = "Money", Icon = "coins" }),
+    Events = Window:AddTab({ Title = "Events", Icon = "sparkles" }),
+    ESP = Window:AddTab({ Title = "ESP", Icon = "eye" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+}
+
+----------------------------------------------------------------
+-- Services / paths
+----------------------------------------------------------------
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local VirtualUser = game:GetService("VirtualUser")
+local LocalPlayer = Players.LocalPlayer
+
+local NET = ReplicatedStorage:WaitForChild("GameOfLifeNetwork", 15)
+local TRAVEL = ReplicatedStorage:FindFirstChild("GameOfLifeTravel")
+
+local function remote(name)
+    return NET and NET:FindFirstChild(name)
+end
+
+local function fire(name, ...)
+    local r = remote(name)
+    if not r then return false, "missing " .. name end
+    local ok, err = pcall(function(...)
+        if r:IsA("RemoteEvent") then
+            r:FireServer(...)
+        elseif r:IsA("RemoteFunction") then
+            return r:InvokeServer(...)
+        end
+    end, ...)
+    return ok, err
+end
+
+local function invoke(name, ...)
+    local r = remote(name)
+    if not r or not r:IsA("RemoteFunction") then return nil, "missing RF " .. name end
+    local ok, res = pcall(function(...)
+        return r:InvokeServer(...)
+    end, ...)
+    if ok then return res end
+    return nil, res
+end
+
+local function notify(title, content, dur)
+    Library:Notify({ Title = title, Content = tostring(content), Duration = dur or 4 })
+end
+
+----------------------------------------------------------------
+-- Config
+----------------------------------------------------------------
+local CFG = {
+    AutoSpin = false,
+    AutoSpinDelay = 1.2,
+    AutoEndTurn = false,
+    AutoEndDelay = 2.5,
+
+    TileESP = false,
+    ActionTileESP = true,
+    PawnESP = false,
+    ShowTileId = true,
+
+    SpeedEnabled = false,
+    Speed = 22,
+    Fullbright = false,
+    AntiAFK = true,
+}
+
+----------------------------------------------------------------
+-- Match helpers
+----------------------------------------------------------------
+local lastSnapshot = nil
+
+local function refreshSnapshot()
+    local snap, err = invoke("GetMatchSnapshot")
+    if snap then
+        lastSnapshot = snap
+        return snap
+    end
+    return nil, err
+end
+
+local function snapshotSummary()
+    local s = lastSnapshot or select(1, refreshSnapshot())
+    if type(s) ~= "table" then
+        return "No snapshot (try again in-match)"
+    end
+    -- best-effort fields; structure may vary
+    local lines = {}
+    local function add(k, v)
+        if v ~= nil then table.insert(lines, tostring(k) .. ": " .. tostring(v)) end
+    end
+    add("phase", s.phase or s.Phase or s.state or s.State)
+    add("turn", s.turn or s.Turn or s.currentTurn)
+    add("active", s.activeUserId or s.ActiveUserId or s.currentPlayer)
+    if type(s.players) == "table" then
+        add("players", #s.players)
+    elseif type(s.Players) == "table" then
+        add("players", #s.Players)
+    end
+    -- cash for local if present
+    local me = s.players or s.Players or s.playerStates
+    if type(me) == "table" then
+        for _, p in pairs(me) do
+            if type(p) == "table" then
+                local uid = p.userId or p.UserId or p.id
+                if uid == LocalPlayer.UserId then
+                    add("cash", p.cash or p.Cash or p.money or p.Money)
+                    add("job", p.job or p.Job or p.career)
+                    add("tile", p.tileId or p.TileId or p.position)
+                    break
+                end
+            end
+        end
+    end
+    if #lines == 0 then
+        -- dump top-level keys for debugging
+        local keys = {}
+        for k in pairs(s) do table.insert(keys, tostring(k)) end
+        table.sort(keys)
+        return "Keys: " .. table.concat(keys, ", ")
+    end
+    return table.concat(lines, "\n")
+end
+
+----------------------------------------------------------------
+-- Auto loops
+----------------------------------------------------------------
+task.spawn(function()
+    while true do
+        task.wait(0.35)
+        if CFG.AutoSpin then
+            pcall(function()
+                fire("RequestSpin")
+            end)
+            task.wait(CFG.AutoSpinDelay)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if CFG.AutoEndTurn then
+            pcall(function()
+                fire("RequestEndTurn")
+            end)
+            task.wait(CFG.AutoEndDelay)
+        end
+    end
+end)
+
+----------------------------------------------------------------
+-- ESP
+----------------------------------------------------------------
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "GoL_EvolESP"
+ESPFolder.Parent = game:GetService("CoreGui")
+
+local tileMarks = {}
+local pawnMarks = {}
+
+local function clearFolder(map)
+    for _, v in pairs(map) do
+        pcall(function() v:Destroy() end)
+    end
+    table.clear(map)
+end
+
+local function markPart(part, color, text, store)
+    if not part or not part:IsA("BasePart") then return end
+    local hl = Instance.new("Highlight")
+    hl.Adornee = part.Parent:IsA("Model") and part.Parent or part
+    hl.FillColor = color
+    hl.OutlineColor = Color3.new(1, 1, 1)
+    hl.FillTransparency = 0.6
+    hl.OutlineTransparency = 0.15
+    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent = ESPFolder
+
+    local bb = Instance.new("BillboardGui")
+    bb.Size = UDim2.fromOffset(140, 28)
+    bb.StudsOffset = Vector3.new(0, 2.5, 0)
+    bb.AlwaysOnTop = true
+    bb.Adornee = part
+    bb.Parent = ESPFolder
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.fromScale(1, 1)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = color
+    lbl.TextStrokeTransparency = 0.4
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 12
+    lbl.Parent = bb
+
+    store[part] = hl
+    store[part:GetDebugId() .. "_bb"] = bb
+end
+
+local function scanTiles()
+    clearFolder(tileMarks)
+    if not CFG.TileESP then return end
+
+    local board = Workspace:FindFirstChild("GameOfLifeBoard")
+    if not board then return end
+    local tiles = board:FindFirstChild("Tiles")
+    if not tiles then return end
+
+    local function walk(folder)
+        for _, child in ipairs(folder:GetChildren()) do
+            if child:IsA("Model") then
+                local family = child:GetAttribute("TileFamily")
+                local tileId = child:GetAttribute("TileId") or child.Name
+                local resolver = child:GetAttribute("ResolverId")
+                local isAction = family == "Action" or (child:GetAttribute("ActionTileIconInstalled") == true)
+                local tags = {}
+                pcall(function()
+                    for _, t in ipairs(child:GetTags()) do table.insert(tags, t) end
+                end)
+
+                local show = true
+                if CFG.ActionTileESP and not isAction and family ~= "Action" then
+                    -- still show other interesting families
+                    if family == nil and not table.find(tags, "ActionTile") then
+                        show = false
+                    end
+                end
+
+                if show then
+                    local part = child:FindFirstChildWhichIsA("BasePart", true)
+                    if part then
+                        local color = isAction and Color3.fromRGB(255, 140, 40)
+                            or (family == "Start" and Color3.fromRGB(80, 220, 120))
+                            or Color3.fromRGB(100, 180, 255)
+                        local label = CFG.ShowTileId and tostring(tileId) or (family or "Tile")
+                        if resolver then label = label .. " · " .. tostring(resolver) end
+                        markPart(part, color, label, tileMarks)
+                    end
+                end
+            elseif child:IsA("Folder") then
+                walk(child)
+            end
+        end
+    end
+    walk(tiles)
+end
+
+local function scanPawns()
+    clearFolder(pawnMarks)
+    if not CFG.PawnESP then return end
+
+    -- pawns often live under board or as player models near tiles
+    local board = Workspace:FindFirstChild("GameOfLifeBoard")
+    local roots = { board, Workspace }
+
+    for _, root in ipairs(roots) do
+        if not root then continue end
+        for _, inst in ipairs(root:GetDescendants()) do
+            if inst:IsA("Model") and (inst.Name:lower():find("pawn") or inst:GetAttribute("UserId") or inst:GetAttribute("userId")) then
+                local part = inst.PrimaryPart or inst:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    local uid = inst:GetAttribute("UserId") or inst:GetAttribute("userId")
+                    local name = inst.Name
+                    if uid then
+                        local plr = Players:GetPlayerByUserId(tonumber(uid) or 0)
+                        if plr then name = plr.DisplayName end
+                    end
+                    local col = (uid == LocalPlayer.UserId) and Color3.fromRGB(80, 255, 120) or Color3.fromRGB(255, 90, 90)
+                    markPart(part, col, name, pawnMarks)
+                end
+            end
+        end
+    end
+
+    -- also other players' characters if present
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Character then
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local col = plr == LocalPlayer and Color3.fromRGB(80, 255, 120) or Color3.fromRGB(255, 90, 90)
+                markPart(hrp, col, plr.DisplayName, pawnMarks)
+            end
+        end
+    end
+end
+
+task.spawn(function()
+    while true do
+        task.wait(2)
+        pcall(scanTiles)
+        pcall(scanPawns)
+    end
+end)
+
+----------------------------------------------------------------
+-- Player movement / world
+----------------------------------------------------------------
+RunService.Heartbeat:Connect(function()
+    if not CFG.SpeedEnabled then return end
+    local c = LocalPlayer.Character
+    local h = c and c:FindFirstChildOfClass("Humanoid")
+    if h then h.WalkSpeed = CFG.Speed end
+end)
+
+local oldLit = {}
+local function setFullbright(on)
+    if on then
+        if not oldLit.ok then
+            oldLit = {
+                ok = true,
+                Brightness = Lighting.Brightness,
+                ClockTime = Lighting.ClockTime,
+                FogEnd = Lighting.FogEnd,
+                GlobalShadows = Lighting.GlobalShadows,
+                Ambient = Lighting.Ambient,
+            }
+        end
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 1e6
+        Lighting.GlobalShadows = false
+        Lighting.Ambient = Color3.new(1, 1, 1)
+    elseif oldLit.ok then
+        Lighting.Brightness = oldLit.Brightness
+        Lighting.ClockTime = oldLit.ClockTime
+        Lighting.FogEnd = oldLit.FogEnd
+        Lighting.GlobalShadows = oldLit.GlobalShadows
+        Lighting.Ambient = oldLit.Ambient
+        oldLit = {}
+    end
+end
+
+LocalPlayer.Idled:Connect(function()
+    if CFG.AntiAFK then
+        pcall(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    end
+end)
+
+----------------------------------------------------------------
+-- UI: Main
+----------------------------------------------------------------
+local mainSec = Tabs.Main:AddSection("Turn actions")
+
+mainSec:AddToggle("AutoSpin", {
+    Title = "Auto Spin",
+    Default = false,
+}):OnChanged(function(v) CFG.AutoSpin = v end)
+
+mainSec:AddSlider("AutoSpinDelay", {
+    Title = "Spin delay (s)",
+    Default = 1.2,
+    Min = 0.4,
+    Max = 5,
+    Rounding = 1,
+}):OnChanged(function(v) CFG.AutoSpinDelay = v end)
+
+mainSec:AddButton({
+    Title = "Spin once (RequestSpin)",
+    Callback = function()
+        local ok, err = fire("RequestSpin")
+        notify("Spin", ok and "Fired RequestSpin" or tostring(err))
+    end,
+})
+
+mainSec:AddToggle("AutoEndTurn", {
+    Title = "Auto End Turn",
+    Default = false,
+}):OnChanged(function(v) CFG.AutoEndTurn = v end)
+
+mainSec:AddSlider("AutoEndDelay", {
+    Title = "End-turn delay (s)",
+    Default = 2.5,
+    Min = 0.5,
+    Max = 8,
+    Rounding = 1,
+}):OnChanged(function(v) CFG.AutoEndDelay = v end)
+
+mainSec:AddButton({
+    Title = "End Turn once",
+    Callback = function()
+        local ok, err = fire("RequestEndTurn")
+        notify("End Turn", ok and "Fired RequestEndTurn" or tostring(err))
+    end,
+})
+
+mainSec:AddButton({
+    Title = "Request Move (no path)",
+    Callback = function()
+        -- path args unknown; fire empty for probe
+        local ok, err = fire("RequestMove")
+        notify("Move", ok and "Fired RequestMove" or tostring(err))
+    end,
+})
+
+local snapSec = Tabs.Main:AddSection("Match")
+local snapPara = snapSec:AddParagraph({
+    Title = "Snapshot",
+    Content = "Press refresh in-match",
+})
+
+snapSec:AddButton({
+    Title = "Refresh GetMatchSnapshot",
+    Callback = function()
+        local s, err = refreshSnapshot()
+        if not s then
+            notify("Snapshot", tostring(err))
+            snapPara:SetText("Failed: " .. tostring(err))
+            return
+        end
+        snapPara:SetText(snapshotSummary())
+        notify("Snapshot", "Updated")
+    end,
+})
+
+snapSec:AddButton({
+    Title = "Get Spinner Snapshot",
+    Callback = function()
+        local s, err = invoke("GetSpinnerSnapshot")
+        notify("Spinner", s and "OK (see console)" or tostring(err))
+        if s then print("[GoL] SpinnerSnapshot", s) end
+    end,
+})
+
+snapSec:AddButton({
+    Title = "Board Ready (client)",
+    Callback = function()
+        if TRAVEL and TRAVEL:FindFirstChild("BoardReady") then
+            pcall(function() TRAVEL.BoardReady:FireServer() end)
+            notify("Travel", "BoardReady fired")
+        else
+            notify("Travel", "BoardReady missing")
+        end
+    end,
+})
+
+snapSec:AddButton({
+    Title = "Return To Lobby",
+    Callback = function()
+        if TRAVEL and TRAVEL:FindFirstChild("ReturnToLobby") then
+            pcall(function() TRAVEL.ReturnToLobby:FireServer() end)
+            notify("Travel", "ReturnToLobby fired")
+        else
+            notify("Travel", "ReturnToLobby missing")
+        end
+    end,
+})
+
+----------------------------------------------------------------
+-- Money
+----------------------------------------------------------------
+local mon = Tabs.Money:AddSection("Loans")
+mon:AddButton({
+    Title = "Request Borrow",
+    Callback = function()
+        local res, err = invoke("RequestBorrow")
+        notify("Borrow", res ~= nil and tostring(res) or tostring(err))
+    end,
+})
+mon:AddButton({
+    Title = "Submit Loan Payment",
+    Callback = function()
+        -- amount unknown; fire with no args / common 1 payment
+        local ok, err = fire("SubmitLoanPayment")
+        if not ok then
+            ok, err = fire("SubmitLoanPayment", 1)
+        end
+        notify("Loan Pay", ok and "Fired" or tostring(err))
+    end,
+})
+mon:AddButton({
+    Title = "Pay All Loans",
+    Callback = function()
+        local ok, err = fire("SubmitLoanPayAll")
+        notify("Loan Pay All", ok and "Fired" or tostring(err))
+    end,
+})
+
+local inv = Tabs.Money:AddSection("Invest")
+inv:AddButton({
+    Title = "Request Investment",
+    Callback = function()
+        local res, err = invoke("RequestInvestment")
+        notify("Invest", res ~= nil and tostring(res) or tostring(err))
+    end,
+})
+
+----------------------------------------------------------------
+-- Events
+----------------------------------------------------------------
+local ev = Tabs.Events:AddSection("Wheels & chips")
+ev:AddButton({
+    Title = "Fate Wheel Spin",
+    Callback = function()
+        local ok, err = fire("RequestFateWheelSpin")
+        notify("Fate", ok and "Fired" or tostring(err))
+    end,
+})
+ev:AddButton({
+    Title = "Risky Big Break Spin",
+    Callback = function()
+        local ok, err = fire("RequestRiskyBigBreakSpin")
+        notify("Risky", ok and "Fired" or tostring(err))
+    end,
+})
+ev:AddButton({
+    Title = "Sequence Spin",
+    Callback = function()
+        local ok, err = fire("RequestSequenceSpin")
+        notify("Sequence", ok and "Fired" or tostring(err))
+    end,
+})
+ev:AddButton({
+    Title = "Bomb Chip Intent",
+    Callback = function()
+        local ok, err = fire("SubmitBombChipIntent")
+        notify("Bomb", ok and "Fired" or tostring(err))
+    end,
+})
+
+local troll = Tabs.Events:AddSection("Social")
+troll:AddButton({
+    Title = "Request Troll",
+    Callback = function()
+        local res, err = invoke("RequestTroll")
+        notify("Troll", res ~= nil and tostring(res) or tostring(err))
+    end,
+})
+
+local splitChoice = "Split"
+troll:AddDropdown("SplitSteal", {
+    Title = "Split or Steal choice",
+    Values = { "Split", "Steal" },
+    Default = 1,
+    Callback = function(v) splitChoice = v end,
+})
+troll:AddButton({
+    Title = "Submit Split Or Steal",
+    Callback = function()
+        local res, err = invoke("SubmitSplitOrSteal", splitChoice)
+        if res == nil then
+            res, err = invoke("SubmitSplitOrSteal", splitChoice:lower())
+        end
+        notify("Split/Steal", res ~= nil and tostring(res) or tostring(err))
+    end,
+})
+
+troll:AddParagraph({
+    Title = "Note",
+    Content = "Interaction choices (cards, jobs, houses) use SubmitInteractionChoice with game-specific IDs. Capture one with a remote spy when a prompt is open for a precise button.",
+})
+
+----------------------------------------------------------------
+-- ESP
+----------------------------------------------------------------
+local es = Tabs.ESP:AddSection("Board")
+es:AddToggle("TileESP", {
+    Title = "Tile ESP",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.TileESP = v
+    if not v then clearFolder(tileMarks) else scanTiles() end
+end)
+es:AddToggle("ActionOnly", {
+    Title = "Prefer Action tiles",
+    Default = true,
+}):OnChanged(function(v) CFG.ActionTileESP = v end)
+es:AddToggle("ShowTileId", {
+    Title = "Show TileId",
+    Default = true,
+}):OnChanged(function(v) CFG.ShowTileId = v end)
+es:AddToggle("PawnESP", {
+    Title = "Pawn / Player ESP",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.PawnESP = v
+    if not v then clearFolder(pawnMarks) else scanPawns() end
+end)
+es:AddButton({
+    Title = "Rescan now",
+    Callback = function()
+        scanTiles()
+        scanPawns()
+        notify("ESP", "Rescanned")
+    end,
+})
+
+----------------------------------------------------------------
+-- Player
+----------------------------------------------------------------
+local pl = Tabs.Player:AddSection("Movement")
+pl:AddToggle("SpeedEnabled", {
+    Title = "WalkSpeed",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.SpeedEnabled = v
+    if not v then
+        local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if h then h.WalkSpeed = 16 end
+    end
+end)
+pl:AddSlider("Speed", {
+    Title = "Speed",
+    Default = 22,
+    Min = 16,
+    Max = 40,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.Speed = v end)
+
+pl:AddToggle("Fullbright", {
+    Title = "Fullbright",
+    Default = false,
+}):OnChanged(function(v)
+    CFG.Fullbright = v
+    setFullbright(v)
+end)
+pl:AddToggle("AntiAFK", {
+    Title = "Anti AFK",
+    Default = true,
+}):OnChanged(function(v) CFG.AntiAFK = v end)
+
+pl:AddButton({
+    Title = "Music Off",
+    Callback = function()
+        fire("SetMusicEnabled", false)
+        notify("Music", "SetMusicEnabled false")
+    end,
+})
+pl:AddButton({
+    Title = "Music On",
+    Callback = function()
+        fire("SetMusicEnabled", true)
+        notify("Music", "SetMusicEnabled true")
+    end,
+})
+
+----------------------------------------------------------------
+-- Settings
+----------------------------------------------------------------
+Tabs.Settings:AddSection("Credits"):AddParagraph({
+    Title = "Credits",
+    Content = "Made by Evol\nGame Of Life v0.0.1\nPlaceId 103044262594219\nEverything off by default",
+})
+
+Tabs.Settings:AddSection("Info"):AddParagraph({
+    Title = "Remotes wired",
+    Content = "RequestSpin · RequestEndTurn · RequestMove\nGetMatchSnapshot · Loans · Investment\nFate / Risky / Sequence / Bomb\nTroll · SplitOrSteal · BoardReady · Lobby",
+})
+
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+InterfaceManager:SetFolder("GameOfLifeHub")
+SaveManager:SetFolder("GameOfLifeHub/Config")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+Library:Notify({
+    Title = "Game Of Life",
+    Content = "v0.0.1 loaded • Made by Evol",
+    Duration = 5,
+})
+SaveManager:LoadAutoloadConfig()

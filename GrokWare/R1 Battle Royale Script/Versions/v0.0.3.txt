@@ -1,0 +1,1165 @@
+--[[
+    R1 Battle Royale  |  Fluent UI
+    v0.0.3  •  Made by Evol
+
+    ESP (players / bots / loot / gas)
+    Vehicle speed + fly
+    Combat: aim assist, silent aim, triggerbot, FOV, Aim/Shot/Hit logger
+    Movement, world, codes, server hop
+]]
+
+local Library = loadstring(game:HttpGet("https://github.com/1dontgiveaf/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/InterfaceManager.lua"))()
+
+local Window = Library:CreateWindow({
+    Title = "R1 Battle Royale",
+    SubTitle = "Made By Evol • v0.0.3",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 580),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl,
+})
+
+local Tabs = {
+    ESP = Window:AddTab({ Title = "ESP", Icon = "eye" }),
+    Combat = Window:AddTab({ Title = "Combat", Icon = "crosshair" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    Vehicle = Window:AddTab({ Title = "Vehicle", Icon = "car" }),
+    World = Window:AddTab({ Title = "World", Icon = "sun" }),
+    Utility = Window:AddTab({ Title = "Utility", Icon = "wrench" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+}
+
+getgenv().R1_FluentWindow = Window
+getgenv().R1_FluentLibrary = Library
+
+----------------------------------------------------------------
+-- Services
+----------------------------------------------------------------
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local TeleportService = game:GetService("TeleportService")
+local VirtualUser = game:GetService("VirtualUser")
+local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Camera = Workspace.CurrentCamera
+
+local PLACE_LOBBY = 114690486941238
+local PLACE_MAP = 75942174630781
+local IS_MAP = game.PlaceId == PLACE_MAP
+local IS_LOBBY = game.PlaceId == PLACE_LOBBY
+
+----------------------------------------------------------------
+-- Config
+----------------------------------------------------------------
+local CFG = {
+    -- ESP
+    PlayerESP = false,
+    BotESP = false,
+    LootESP = false,
+    GasESP = false,
+    ShowNames = true,
+    ShowDistance = true,
+    ShowChams = true,
+    MaxDistance = 2000,
+    PlayerColor = Color3.fromRGB(255, 70, 70),
+    BotColor = Color3.fromRGB(255, 180, 40),
+    LootColor = Color3.fromRGB(80, 220, 120),
+    TeamColor = Color3.fromRGB(60, 160, 255),
+    GasColor = Color3.fromRGB(180, 60, 255),
+    GasNextColor = Color3.fromRGB(255, 200, 60),
+
+    -- Combat
+    AimAssist = false,
+    SilentAim = false,
+    AlwaysAssist = false,
+    FOV = 120,
+    ShowFOV = true,
+    FOVColor = Color3.fromRGB(0, 255, 200),
+    WallCheck = true,
+    TeamCheck = true,
+    TargetPart = "Head",
+    Priority = "Closest",
+    Smooth = 0.35,
+    Trigger = false,
+    TriggerDelay = 0.05,
+    AimKey = Enum.KeyCode.E,
+    LogRemotes = false,
+
+    -- Player
+    SpeedEnabled = false,
+    Speed = 22,
+    JumpEnabled = false,
+    JumpPower = 50,
+    Noclip = false,
+    InfiniteJump = false,
+
+    -- Vehicle
+    VehSpeed = false,
+    VehSpeedMult = 2.5,
+    VehFly = false,
+    VehFlySpeed = 80,
+
+    -- World
+    Fullbright = false,
+    NoFog = false,
+    FOVEnabled = false,
+    WorldFOV = 90,
+
+    AntiAFK = true,
+}
+
+----------------------------------------------------------------
+-- Helpers
+----------------------------------------------------------------
+local function char()
+    return LocalPlayer.Character
+end
+
+local function hrp(c)
+    c = c or char()
+    return c and c:FindFirstChild("HumanoidRootPart")
+end
+
+local function hum(c)
+    c = c or char()
+    return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+local function notify(title, content, dur)
+    Library:Notify({ Title = title, Content = content, Duration = dur or 4 })
+end
+
+local function isAlive(model)
+    local h = model and model:FindFirstChildOfClass("Humanoid")
+    return h and h.Health > 0
+end
+
+local function isTeammate(plr)
+    if not plr or plr == LocalPlayer then return false end
+    local myTeam = LocalPlayer:GetAttribute("TPS_Team") or LocalPlayer:GetAttribute("TeamId")
+    local theirTeam = plr:GetAttribute("TPS_Team") or plr:GetAttribute("TeamId")
+    if myTeam and theirTeam and myTeam == theirTeam then return true end
+    local mate = LocalPlayer:GetAttribute("TPS_MateName")
+    if mate and (plr.Name == mate or plr.DisplayName == mate) then return true end
+    return false
+end
+
+----------------------------------------------------------------
+-- ESP
+----------------------------------------------------------------
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "R1_EvolESP"
+ESPFolder.Parent = game:GetService("CoreGui")
+
+local espObjects = {}
+
+local function clearESP(model)
+    local obj = espObjects[model]
+    if not obj then return end
+    for _, v in pairs(obj) do
+        pcall(function() v:Destroy() end)
+    end
+    espObjects[model] = nil
+end
+
+local function clearAllESP()
+    for model in pairs(espObjects) do
+        if type(model) ~= "string" then
+            clearESP(model)
+        end
+    end
+end
+
+local function makeESP(model, color, labelText)
+    if espObjects[model] then clearESP(model) end
+    if not model or not model.Parent then return end
+
+    local root = model:FindFirstChild("HumanoidRootPart")
+        or model.PrimaryPart
+        or model:FindFirstChildWhichIsA("BasePart")
+    if not root then return end
+
+    local data = {}
+
+    if CFG.ShowChams then
+        local hl = Instance.new("Highlight")
+        hl.Name = "EvolChams"
+        hl.Adornee = model
+        hl.FillColor = color
+        hl.OutlineColor = Color3.new(1, 1, 1)
+        hl.FillTransparency = 0.55
+        hl.OutlineTransparency = 0.2
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        hl.Parent = ESPFolder
+        data.hl = hl
+    end
+
+    local bb = Instance.new("BillboardGui")
+    bb.Name = "EvolTag"
+    bb.Adornee = root
+    bb.Size = UDim2.fromOffset(160, 40)
+    bb.StudsOffset = Vector3.new(0, 3.2, 0)
+    bb.AlwaysOnTop = true
+    bb.Parent = ESPFolder
+
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.fromScale(1, 1)
+    text.BackgroundTransparency = 1
+    text.Text = labelText or model.Name
+    text.TextColor3 = color
+    text.TextStrokeTransparency = 0.4
+    text.Font = Enum.Font.GothamBold
+    text.TextSize = 13
+    text.Parent = bb
+
+    data.bb = bb
+    data.label = text
+    data.color = color
+    data.root = root
+    espObjects[model] = data
+end
+
+local LOOT_KEYWORDS = {
+    "Armor", "Helmet", "Weapon", "Gun", "Rifle", "Pistol", "Shotgun",
+    "SMG", "Sniper", "Med", "Bandage", "Syringe", "Ammo", "Crate",
+    "Supply", "Backpack", "Vest", "Pickup", "Loot",
+}
+
+local function isLootModel(m)
+    if not m or not m:IsA("Model") then return false end
+    local n = m.Name
+    for _, k in ipairs(LOOT_KEYWORDS) do
+        if string.find(n, k, 1, true) then return true end
+    end
+    if m:FindFirstChildWhichIsA("ProximityPrompt", true) and not m:FindFirstChildOfClass("Humanoid") then
+        return true
+    end
+    return false
+end
+
+local function scanESP()
+    if not (CFG.PlayerESP or CFG.BotESP or CFG.LootESP) then
+        for model in pairs(espObjects) do
+            if type(model) ~= "string" then clearESP(model) end
+        end
+        return
+    end
+
+    local myRoot = hrp()
+    local seen = {}
+
+    if CFG.PlayerESP then
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character and isAlive(plr.Character) then
+                local model = plr.Character
+                seen[model] = true
+                local color = isTeammate(plr) and CFG.TeamColor or CFG.PlayerColor
+                local dist = ""
+                if CFG.ShowDistance and myRoot then
+                    local r = hrp(model)
+                    if r then
+                        dist = string.format(" [%dm]", math.floor((myRoot.Position - r.Position).Magnitude))
+                    end
+                end
+                local name = CFG.ShowNames
+                    and (plr.DisplayName ~= plr.Name and (plr.DisplayName .. " (@" .. plr.Name .. ")") or plr.Name)
+                    or "Player"
+                makeESP(model, color, name .. dist)
+            end
+        end
+    end
+
+    if CFG.BotESP then
+        local bots = Workspace:FindFirstChild("TPS_Bots")
+        if bots then
+            for _, model in ipairs(bots:GetChildren()) do
+                if model:IsA("Model") and isAlive(model) then
+                    seen[model] = true
+                    local dist = ""
+                    if CFG.ShowDistance and myRoot then
+                        local r = hrp(model) or model.PrimaryPart
+                        if r then
+                            dist = string.format(" [%dm]", math.floor((myRoot.Position - r.Position).Magnitude))
+                        end
+                    end
+                    makeESP(model, CFG.BotColor, (CFG.ShowNames and ("[BOT] " .. model.Name) or "[BOT]") .. dist)
+                end
+            end
+        end
+    end
+
+    if CFG.LootESP then
+        local function scanFolder(folder, depth)
+            if depth > 4 or not folder then return end
+            for _, child in ipairs(folder:GetChildren()) do
+                if isLootModel(child) then
+                    seen[child] = true
+                    local root = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
+                    local dist = ""
+                    if CFG.ShowDistance and myRoot and root then
+                        dist = string.format(" [%dm]", math.floor((myRoot.Position - root.Position).Magnitude))
+                    end
+                    makeESP(child, CFG.LootColor, (CFG.ShowNames and child.Name or "Loot") .. dist)
+                elseif child:IsA("Folder") or child:IsA("Model") then
+                    scanFolder(child, depth + 1)
+                end
+            end
+        end
+        scanFolder(Workspace:FindFirstChild("Map"), 0)
+        scanFolder(Workspace:FindFirstChild("TPS_Range"), 0)
+        scanFolder(Workspace:FindFirstChild("Pickups"), 0)
+        for _, child in ipairs(Workspace:GetChildren()) do
+            if child.Name:find("Loot") or child.Name:find("Pickup") or child.Name:find("Supply") then
+                scanFolder(child, 0)
+            end
+        end
+    end
+
+    for model in pairs(espObjects) do
+        if type(model) ~= "string" then
+            if not seen[model] or not model.Parent then
+                clearESP(model)
+            end
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    if not (CFG.PlayerESP or CFG.BotESP or CFG.LootESP) then return end
+    local myRoot = hrp()
+    if not myRoot then return end
+    for model, obj in pairs(espObjects) do
+        if type(model) == "string" then continue end
+        if obj.root and obj.root.Parent then
+            local d = (myRoot.Position - obj.root.Position).Magnitude
+            local show = d <= CFG.MaxDistance
+            if obj.hl then obj.hl.Enabled = show and CFG.ShowChams end
+            if obj.bb then obj.bb.Enabled = show end
+            if show and obj.label and CFG.ShowDistance then
+                local base = obj.label.Text:gsub("%s*%[%d+m%]", "")
+                obj.label.Text = base .. string.format(" [%dm]", math.floor(d))
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1.25)
+        pcall(scanESP)
+    end
+end)
+
+----------------------------------------------------------------
+-- Gas ESP
+----------------------------------------------------------------
+local gasParts = { current = nil, next = nil, label = nil, labelText = nil }
+
+local function destroyGasVisuals()
+    for _, v in pairs(gasParts) do
+        pcall(function()
+            if typeof(v) == "Instance" then v:Destroy() end
+        end)
+    end
+    gasParts = { current = nil, next = nil, label = nil, labelText = nil }
+end
+
+local function findMatchState()
+    local candidates = {
+        Workspace:FindFirstChild("MatchState"),
+        ReplicatedStorage:FindFirstChild("MatchState"),
+        Workspace:FindFirstChild("TPS_MatchState"),
+        ReplicatedStorage:FindFirstChild("TPS") and ReplicatedStorage.TPS:FindFirstChild("MatchState"),
+        Workspace:FindFirstChild("Gas"),
+        Workspace:FindFirstChild("Zone"),
+    }
+    for _, c in ipairs(candidates) do
+        if c then return c end
+    end
+    return Workspace
+end
+
+local function readGasData()
+    local ms = findMatchState()
+    local center, radius, nextCenter, nextRadius
+
+    local function attr(inst, names)
+        for _, n in ipairs(names) do
+            local v = inst:GetAttribute(n)
+            if v ~= nil then return v end
+        end
+    end
+
+    local function val(inst, names)
+        for _, n in ipairs(names) do
+            local o = inst:FindFirstChild(n, true)
+            if o and (o:IsA("Vector3Value") or o:IsA("NumberValue")) then
+                return o.Value
+            end
+        end
+    end
+
+    if ms then
+        center = attr(ms, { "GasCenter", "ZoneCenter", "SafeCenter", "StormCenter", "CircleCenter", "R1_GasCenter" })
+            or val(ms, { "GasCenter", "ZoneCenter", "SafeCenter" })
+        radius = attr(ms, { "GasRadius", "ZoneRadius", "SafeRadius", "StormRadius", "CircleRadius", "R1_GasRadius" })
+            or val(ms, { "GasRadius", "ZoneRadius", "SafeRadius" })
+        nextCenter = attr(ms, { "NextGasCenter", "NextZoneCenter", "NextSafeCenter", "R1_NextGasCenter" })
+            or val(ms, { "NextGasCenter", "NextZoneCenter" })
+        nextRadius = attr(ms, { "NextGasRadius", "NextZoneRadius", "NextSafeRadius", "R1_NextGasRadius" })
+            or val(ms, { "NextGasRadius", "NextZoneRadius" })
+    end
+
+    if not center then
+        center = Workspace:GetAttribute("GasCenter") or Workspace:GetAttribute("ZoneCenter")
+        radius = Workspace:GetAttribute("GasRadius") or Workspace:GetAttribute("ZoneRadius")
+    end
+
+    if not center or not radius then
+        for _, name in ipairs({ "SafeZone", "GasZone", "Storm", "Gas", "Zone", "Circle" }) do
+            local p = Workspace:FindFirstChild(name, true)
+            if p and p:IsA("BasePart") then
+                center = center or p.Position
+                radius = radius or (math.max(p.Size.X, p.Size.Z) / 2)
+                break
+            elseif p and p:IsA("Model") then
+                local pp = p.PrimaryPart or p:FindFirstChildWhichIsA("BasePart")
+                if pp then
+                    center = center or pp.Position
+                    radius = radius or (math.max(pp.Size.X, pp.Size.Z) / 2)
+                    break
+                end
+            end
+        end
+    end
+
+    if typeof(center) == "Vector3" and type(radius) == "number" and radius > 0 then
+        return center, radius, nextCenter, nextRadius
+    end
+    return nil
+end
+
+local function makeRing(radius, color, height)
+    height = height or 4
+    local part = Instance.new("Part")
+    part.Name = "EvolGasRing"
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanQuery = false
+    part.CanTouch = false
+    part.Material = Enum.Material.ForceField
+    part.Color = color
+    part.Transparency = 0.55
+    part.Size = Vector3.new(radius * 2, height, radius * 2)
+    part.Shape = Enum.PartType.Cylinder
+    part.CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(0, 0, math.rad(90))
+    part.Parent = ESPFolder
+    return part
+end
+
+local function updateGasESP()
+    if not CFG.GasESP then
+        destroyGasVisuals()
+        return
+    end
+
+    local center, radius, nextCenter, nextRadius = readGasData()
+    if not center or not radius then
+        destroyGasVisuals()
+        return
+    end
+
+    if not gasParts.current or not gasParts.current.Parent then
+        gasParts.current = makeRing(radius, CFG.GasColor, 6)
+    end
+    gasParts.current.Size = Vector3.new(radius * 2, 6, radius * 2)
+    gasParts.current.CFrame = CFrame.new(center) * CFrame.Angles(0, 0, math.rad(90))
+    gasParts.current.Color = CFG.GasColor
+
+    if typeof(nextCenter) == "Vector3" and type(nextRadius) == "number" and nextRadius > 0 then
+        if not gasParts.next or not gasParts.next.Parent then
+            gasParts.next = makeRing(nextRadius, CFG.GasNextColor, 3)
+        end
+        gasParts.next.Size = Vector3.new(nextRadius * 2, 3, nextRadius * 2)
+        gasParts.next.CFrame = CFrame.new(nextCenter) * CFrame.Angles(0, 0, math.rad(90))
+        gasParts.next.Color = CFG.GasNextColor
+        gasParts.next.Transparency = 0.7
+    elseif gasParts.next then
+        pcall(function() gasParts.next:Destroy() end)
+        gasParts.next = nil
+    end
+
+    if not gasParts.label or not gasParts.label.Parent then
+        local bb = Instance.new("BillboardGui")
+        bb.Size = UDim2.fromOffset(200, 50)
+        bb.AlwaysOnTop = true
+        bb.StudsOffset = Vector3.new(0, 12, 0)
+        bb.Parent = ESPFolder
+        local t = Instance.new("TextLabel")
+        t.Size = UDim2.fromScale(1, 1)
+        t.BackgroundTransparency = 1
+        t.TextColor3 = CFG.GasColor
+        t.TextStrokeTransparency = 0.3
+        t.Font = Enum.Font.GothamBold
+        t.TextSize = 14
+        t.Parent = bb
+        gasParts.label = bb
+        gasParts.labelText = t
+    end
+    gasParts.label.Adornee = gasParts.current
+    local myRoot = hrp()
+    local dist = myRoot and math.floor((myRoot.Position - center).Magnitude) or 0
+    local inside = myRoot and (Vector3.new(myRoot.Position.X, 0, myRoot.Position.Z) - Vector3.new(center.X, 0, center.Z)).Magnitude <= radius
+    gasParts.labelText.Text = string.format("GAS  r=%.0f  %dm %s", radius, dist, inside and "INSIDE" or "OUTSIDE")
+    gasParts.labelText.TextColor3 = inside and Color3.fromRGB(80, 255, 120) or CFG.GasColor
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        pcall(updateGasESP)
+    end
+end)
+
+----------------------------------------------------------------
+-- Combat
+----------------------------------------------------------------
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 1.5
+fovCircle.NumSides = 64
+fovCircle.Filled = false
+fovCircle.Transparency = 0.75
+
+RunService.RenderStepped:Connect(function()
+    local show = CFG.ShowFOV and (CFG.AimAssist or CFG.SilentAim or CFG.Trigger)
+    fovCircle.Visible = show
+    if show then
+        fovCircle.Radius = CFG.FOV
+        fovCircle.Color = CFG.FOVColor
+        local inset = GuiService:GetGuiInset()
+        fovCircle.Position = Vector2.new(Mouse.X, Mouse.Y + inset.Y)
+    end
+end)
+
+local function canSee(part)
+    if not CFG.WallCheck then return true end
+    local origin = Camera.CFrame.Position
+    local rp = RaycastParams.new()
+    rp.FilterType = Enum.RaycastFilterType.Exclude
+    local filter = { LocalPlayer.Character, Camera }
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p.Character then table.insert(filter, p.Character) end
+    end
+    local bots = Workspace:FindFirstChild("TPS_Bots")
+    if bots then table.insert(filter, bots) end
+    rp.FilterDescendantsInstances = filter
+    local hit = Workspace:Raycast(origin, part.Position - origin, rp)
+    return hit == nil
+end
+
+local function getTargetPart(model)
+    if not model then return nil end
+    return model:FindFirstChild(CFG.TargetPart)
+        or model:FindFirstChild("Head")
+        or model:FindFirstChild("HumanoidRootPart")
+end
+
+local function combatCandidates()
+    local list = {}
+    local myRoot = hrp()
+
+    local function addModel(model, isBot, plr)
+        if CFG.TeamCheck and plr and isTeammate(plr) then return end
+        local h = model:FindFirstChildOfClass("Humanoid")
+        local part = getTargetPart(model)
+        if not h or h.Health <= 0 or not part then return end
+        if not canSee(part) then return end
+
+        local screen, onScreen = Camera:WorldToViewportPoint(part.Position)
+        if not onScreen or screen.Z <= 0 then return end
+        local inset = GuiService:GetGuiInset()
+        local mx, my = Mouse.X, Mouse.Y + inset.Y
+        local dist2d = (Vector2.new(screen.X, screen.Y) - Vector2.new(mx, my)).Magnitude
+        if dist2d > CFG.FOV then return end
+
+        table.insert(list, {
+            model = model,
+            part = part,
+            hum = h,
+            isBot = isBot,
+            plr = plr,
+            dist2d = dist2d,
+            worldDist = myRoot and (myRoot.Position - part.Position).Magnitude or 9999,
+            hp = h.Health,
+        })
+    end
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            addModel(plr.Character, false, plr)
+        end
+    end
+    local bots = Workspace:FindFirstChild("TPS_Bots")
+    if bots then
+        for _, m in ipairs(bots:GetChildren()) do
+            if m:IsA("Model") then addModel(m, true, nil) end
+        end
+    end
+    return list
+end
+
+local function pickTarget()
+    local list = combatCandidates()
+    if #list == 0 then return nil end
+    if CFG.Priority == "LowestHP" then
+        table.sort(list, function(a, b) return a.hp < b.hp end)
+    elseif CFG.Priority == "Crosshair" then
+        table.sort(list, function(a, b) return a.dist2d < b.dist2d end)
+    else
+        table.sort(list, function(a, b) return a.worldDist < b.worldDist end)
+    end
+    return list[1]
+end
+
+local function assistKeyDown()
+    if CFG.AlwaysAssist then return true end
+    return UserInputService:IsKeyDown(CFG.AimKey)
+end
+
+RunService.RenderStepped:Connect(function()
+    if not CFG.AimAssist then return end
+    if not assistKeyDown() then return end
+    local t = pickTarget()
+    if not t then return end
+    local goal = CFrame.lookAt(Camera.CFrame.Position, t.part.Position)
+    local alpha = math.clamp(1 - CFG.Smooth, 0.05, 1)
+    Camera.CFrame = Camera.CFrame:Lerp(goal, alpha)
+end)
+
+local function silentSnap()
+    if not CFG.SilentAim then return end
+    local t = pickTarget()
+    if not t then return end
+    Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, t.part.Position)
+end
+
+Mouse.Button1Down:Connect(silentSnap)
+
+local lastTrig = 0
+RunService.RenderStepped:Connect(function()
+    if not CFG.Trigger then return end
+    local t = pickTarget()
+    if not t then return end
+    if t.dist2d > math.min(CFG.FOV, 40) then return end
+    if tick() - lastTrig < CFG.TriggerDelay then return end
+    lastTrig = tick()
+    pcall(function() mouse1click() end)
+end)
+
+-- Remote hooks
+local WATCH = {
+    Aim = true, Shot = true, Hit = true, Action = true,
+    GasHit = true, Fire = true, Shoot = true, Damage = true,
+}
+local hooked = {}
+
+local function hookRemote(r)
+    if hooked[r] then return end
+    hooked[r] = true
+    pcall(function()
+        local old
+        old = hookfunction(r.FireServer, newcclosure(function(self, ...)
+            if CFG.LogRemotes and self == r then
+                print("[R1 FS]", r:GetFullName())
+                local args = { ... }
+                for i, v in ipairs(args) do
+                    print("  ", i, typeof(v), v)
+                    if typeof(v) == "table" then
+                        for k2, v2 in pairs(v) do
+                            print("     ", k2, typeof(v2), v2)
+                        end
+                    end
+                end
+            end
+            if CFG.SilentAim and (r.Name == "Aim" or r.Name == "Shot" or r.Name == "Hit") then
+                local t = pickTarget()
+                if t then
+                    local args = { ... }
+                    for i, v in ipairs(args) do
+                        if typeof(v) == "Vector3" then
+                            args[i] = (t.part.Position - Camera.CFrame.Position).Unit
+                        elseif typeof(v) == "CFrame" then
+                            args[i] = CFrame.lookAt(v.Position, t.part.Position)
+                        end
+                    end
+                    return old(self, unpack(args))
+                end
+            end
+            return old(self, ...)
+        end))
+    end)
+end
+
+local function findRemotes(root, found, depth)
+    depth = depth or 0
+    if depth > 6 or not root then return found end
+    for _, ch in ipairs(root:GetChildren()) do
+        if ch:IsA("RemoteEvent") or ch:IsA("RemoteFunction") or ch:IsA("UnreliableRemoteEvent") then
+            local n = ch.Name
+            if WATCH[n] or n:lower():find("aim") or n:lower():find("shot") or n:lower():find("hit") or n:lower():find("shoot") then
+                table.insert(found, ch)
+            end
+        end
+        findRemotes(ch, found, depth + 1)
+    end
+    return found
+end
+
+task.spawn(function()
+    task.wait(1.5)
+    local list = findRemotes(ReplicatedStorage, {})
+    findRemotes(Workspace, list)
+    for _, r in ipairs(list) do
+        hookRemote(r)
+    end
+    print("[R1] combat hooks:", #list)
+end)
+
+----------------------------------------------------------------
+-- Vehicle
+----------------------------------------------------------------
+local function getVehicle()
+    local c = char()
+    if not c then return nil end
+    local h = hum(c)
+    if not h or not h.SeatPart then return nil end
+    local seat = h.SeatPart
+    local model = seat
+    for _ = 1, 6 do
+        if model:IsA("Model") and (
+            model:FindFirstChildWhichIsA("VehicleSeat")
+            or model:FindFirstChild("DriveSeat")
+            or model.Name:lower():find("car")
+            or model.Name:lower():find("vehicle")
+        ) then
+            break
+        end
+        if not model.Parent or model.Parent == Workspace then break end
+        model = model.Parent
+    end
+    local root = model:FindFirstChild("Chassis")
+        or model:FindFirstChild("Body")
+        or model.PrimaryPart
+        or model:FindFirstChild("HumanoidRootPart")
+        or seat
+    if root and root:IsA("BasePart") then
+        return model, root, seat
+    end
+    return nil
+end
+
+local flyKeys = { W = false, A = false, S = false, D = false, Space = false, LeftShift = false }
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    local k = input.KeyCode
+    if k == Enum.KeyCode.W then flyKeys.W = true
+    elseif k == Enum.KeyCode.A then flyKeys.A = true
+    elseif k == Enum.KeyCode.S then flyKeys.S = true
+    elseif k == Enum.KeyCode.D then flyKeys.D = true
+    elseif k == Enum.KeyCode.Space then flyKeys.Space = true
+    elseif k == Enum.KeyCode.LeftShift then flyKeys.LeftShift = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    local k = input.KeyCode
+    if k == Enum.KeyCode.W then flyKeys.W = false
+    elseif k == Enum.KeyCode.A then flyKeys.A = false
+    elseif k == Enum.KeyCode.S then flyKeys.S = false
+    elseif k == Enum.KeyCode.D then flyKeys.D = false
+    elseif k == Enum.KeyCode.Space then flyKeys.Space = false
+    elseif k == Enum.KeyCode.LeftShift then flyKeys.LeftShift = false
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if not (CFG.VehSpeed or CFG.VehFly) then return end
+    local model, root = getVehicle()
+    if not root then return end
+
+    if CFG.VehFly then
+        local cam = Camera.CFrame
+        local dir = Vector3.zero
+        if flyKeys.W then dir += cam.LookVector end
+        if flyKeys.S then dir -= cam.LookVector end
+        if flyKeys.A then dir -= cam.RightVector end
+        if flyKeys.D then dir += cam.RightVector end
+        if flyKeys.Space then dir += Vector3.yAxis end
+        if flyKeys.LeftShift then dir -= Vector3.yAxis end
+        if dir.Magnitude > 0 then dir = dir.Unit * CFG.VehFlySpeed end
+        pcall(function()
+            root.AssemblyLinearVelocity = dir
+            local look = Vector3.new(cam.LookVector.X, 0, cam.LookVector.Z)
+            if look.Magnitude > 0.1 then
+                root.CFrame = CFrame.new(root.Position, root.Position + look)
+            end
+        end)
+    elseif CFG.VehSpeed then
+        local vel = root.AssemblyLinearVelocity
+        local horizontal = Vector3.new(vel.X, 0, vel.Z)
+        if horizontal.Magnitude > 5 then
+            local boost = horizontal.Unit * (horizontal.Magnitude * CFG.VehSpeedMult)
+            pcall(function()
+                root.AssemblyLinearVelocity = Vector3.new(boost.X, vel.Y, boost.Z)
+            end)
+        end
+    end
+end)
+
+----------------------------------------------------------------
+-- Player movement
+----------------------------------------------------------------
+local noclipConn
+local function setNoclip(on)
+    if noclipConn then
+        noclipConn:Disconnect()
+        noclipConn = nil
+    end
+    if not on then return end
+    noclipConn = RunService.Stepped:Connect(function()
+        local c = char()
+        if not c then return end
+        for _, part in ipairs(c:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+
+RunService.Heartbeat:Connect(function()
+    local h = hum()
+    if not h then return end
+    if CFG.SpeedEnabled then h.WalkSpeed = CFG.Speed end
+    if CFG.JumpEnabled then
+        pcall(function()
+            h.JumpPower = CFG.JumpPower
+            h.UseJumpPower = true
+        end)
+    end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    if CFG.Noclip then setNoclip(true) end
+end)
+
+UserInputService.JumpRequest:Connect(function()
+    if CFG.InfiniteJump then
+        local h = hum()
+        if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+----------------------------------------------------------------
+-- World
+----------------------------------------------------------------
+local oldLighting = {}
+local function applyFullbright(on)
+    if on then
+        if not oldLighting.Brightness then
+            oldLighting.Brightness = Lighting.Brightness
+            oldLighting.ClockTime = Lighting.ClockTime
+            oldLighting.FogEnd = Lighting.FogEnd
+            oldLighting.GlobalShadows = Lighting.GlobalShadows
+            oldLighting.Ambient = Lighting.Ambient
+            oldLighting.OutdoorAmbient = Lighting.OutdoorAmbient
+        end
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 1e6
+        Lighting.GlobalShadows = false
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    else
+        if oldLighting.Brightness then
+            Lighting.Brightness = oldLighting.Brightness
+            Lighting.ClockTime = oldLighting.ClockTime
+            Lighting.FogEnd = oldLighting.FogEnd
+            Lighting.GlobalShadows = oldLighting.GlobalShadows
+            Lighting.Ambient = oldLighting.Ambient
+            Lighting.OutdoorAmbient = oldLighting.OutdoorAmbient
+            oldLighting = {}
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    if CFG.FOVEnabled and Camera then
+        Camera.FieldOfView = CFG.WorldFOV
+    end
+    if CFG.NoFog then
+        Lighting.FogEnd = 1e6
+        local atm = Lighting:FindFirstChildOfClass("Atmosphere")
+        if atm then atm.Density = 0 end
+    end
+end)
+
+LocalPlayer.Idled:Connect(function()
+    if CFG.AntiAFK then
+        pcall(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    end
+end)
+
+local function redeemCode(code)
+    local rf = ReplicatedStorage:FindFirstChild("R1Codes")
+    if not rf then
+        notify("Codes", "R1Codes not found (lobby)", 4)
+        return
+    end
+    local ok, res = pcall(function()
+        return rf:InvokeServer(code)
+    end)
+    notify("Codes", ok and tostring(res or ("Sent: " .. code)) or ("Failed: " .. tostring(res)), 5)
+end
+
+----------------------------------------------------------------
+-- UI: ESP
+----------------------------------------------------------------
+local espSec = Tabs.ESP:AddSection("Players & world")
+espSec:AddToggle("PlayerESP", { Title = "Player ESP", Default = false }):OnChanged(function(v) CFG.PlayerESP = v end)
+espSec:AddToggle("BotESP", { Title = "Bot ESP (TPS_Bots)", Default = false }):OnChanged(function(v) CFG.BotESP = v end)
+espSec:AddToggle("LootESP", { Title = "Loot ESP", Default = false }):OnChanged(function(v) CFG.LootESP = v end)
+espSec:AddToggle("GasESP", { Title = "Gas / Zone Circle ESP", Default = false }):OnChanged(function(v)
+    CFG.GasESP = v
+    if not v then destroyGasVisuals() end
+end)
+espSec:AddToggle("ShowNames", { Title = "Names", Default = true }):OnChanged(function(v) CFG.ShowNames = v end)
+espSec:AddToggle("ShowDistance", { Title = "Distance", Default = true }):OnChanged(function(v) CFG.ShowDistance = v end)
+espSec:AddToggle("ShowChams", { Title = "Chams", Default = true }):OnChanged(function(v) CFG.ShowChams = v end)
+espSec:AddSlider("MaxDistance", {
+    Title = "Max Distance",
+    Default = 2000,
+    Min = 100,
+    Max = 5000,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.MaxDistance = v end)
+
+----------------------------------------------------------------
+-- UI: Combat
+----------------------------------------------------------------
+local cSec = Tabs.Combat:AddSection("Aim")
+cSec:AddToggle("AimAssist", { Title = "Aim Assist (smooth, hold E)", Default = false }):OnChanged(function(v) CFG.AimAssist = v end)
+cSec:AddToggle("SilentAim", { Title = "Silent Aim (snap + remote rewrite)", Default = false }):OnChanged(function(v) CFG.SilentAim = v end)
+cSec:AddToggle("AlwaysAssist", { Title = "Assist always (no key)", Default = false }):OnChanged(function(v) CFG.AlwaysAssist = v end)
+cSec:AddSlider("CombatFOV", {
+    Title = "Aim FOV",
+    Default = 120,
+    Min = 40,
+    Max = 400,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.FOV = v end)
+cSec:AddToggle("ShowFOV", { Title = "Show FOV circle", Default = true }):OnChanged(function(v) CFG.ShowFOV = v end)
+cSec:AddSlider("Smooth", {
+    Title = "Smooth (higher = slower)",
+    Default = 0.35,
+    Min = 0,
+    Max = 0.9,
+    Rounding = 2,
+}):OnChanged(function(v) CFG.Smooth = v end)
+cSec:AddDropdown("TargetPart", {
+    Title = "Target part",
+    Values = { "Head", "HumanoidRootPart" },
+    Default = 1,
+    Callback = function(v) CFG.TargetPart = v end,
+})
+cSec:AddDropdown("Priority", {
+    Title = "Priority",
+    Values = { "Closest", "LowestHP", "Crosshair" },
+    Default = 1,
+    Callback = function(v) CFG.Priority = v end,
+})
+cSec:AddToggle("WallCheck", { Title = "Wall check", Default = true }):OnChanged(function(v) CFG.WallCheck = v end)
+cSec:AddToggle("TeamCheck", { Title = "Team check", Default = true }):OnChanged(function(v) CFG.TeamCheck = v end)
+
+local tSec = Tabs.Combat:AddSection("Trigger")
+tSec:AddToggle("Trigger", { Title = "Triggerbot", Default = false }):OnChanged(function(v) CFG.Trigger = v end)
+tSec:AddSlider("TriggerDelay", {
+    Title = "Trigger delay",
+    Default = 0.05,
+    Min = 0,
+    Max = 0.3,
+    Rounding = 2,
+}):OnChanged(function(v) CFG.TriggerDelay = v end)
+
+local logSec = Tabs.Combat:AddSection("Remotes")
+logSec:AddToggle("LogRemotes", { Title = "Log Aim/Shot/Hit FireServer", Default = false }):OnChanged(function(v) CFG.LogRemotes = v end)
+logSec:AddParagraph({
+    Title = "Silent aim finish",
+    Content = "Enable Log → shoot in-match → paste F9 [R1 FS] lines so we can lock exact arg rewrite.",
+})
+
+----------------------------------------------------------------
+-- UI: Player
+----------------------------------------------------------------
+local plSec = Tabs.Player:AddSection("Movement")
+plSec:AddToggle("SpeedEnabled", { Title = "WalkSpeed", Default = false }):OnChanged(function(v)
+    CFG.SpeedEnabled = v
+    if not v then
+        local h = hum()
+        if h then h.WalkSpeed = 16 end
+    end
+end)
+plSec:AddSlider("Speed", { Title = "Speed Value", Default = 22, Min = 16, Max = 50, Rounding = 0 }):OnChanged(function(v)
+    CFG.Speed = v
+end)
+plSec:AddToggle("JumpEnabled", { Title = "JumpPower", Default = false }):OnChanged(function(v) CFG.JumpEnabled = v end)
+plSec:AddSlider("JumpPower", { Title = "Jump Value", Default = 50, Min = 50, Max = 120, Rounding = 0 }):OnChanged(function(v)
+    CFG.JumpPower = v
+end)
+plSec:AddToggle("Noclip", { Title = "Noclip", Default = false }):OnChanged(function(v)
+    CFG.Noclip = v
+    setNoclip(v)
+end)
+plSec:AddToggle("InfiniteJump", { Title = "Infinite Jump", Default = false }):OnChanged(function(v)
+    CFG.InfiniteJump = v
+end)
+
+----------------------------------------------------------------
+-- UI: Vehicle
+----------------------------------------------------------------
+local vSec = Tabs.Vehicle:AddSection("While driving")
+vSec:AddToggle("VehSpeed", { Title = "Vehicle Speed Boost", Default = false }):OnChanged(function(v) CFG.VehSpeed = v end)
+vSec:AddSlider("VehSpeedMult", {
+    Title = "Speed Multiplier",
+    Default = 2.5,
+    Min = 1.2,
+    Max = 6,
+    Rounding = 1,
+}):OnChanged(function(v) CFG.VehSpeedMult = v end)
+vSec:AddToggle("VehFly", { Title = "Vehicle Fly", Default = false }):OnChanged(function(v) CFG.VehFly = v end)
+vSec:AddSlider("VehFlySpeed", {
+    Title = "Fly Speed",
+    Default = 80,
+    Min = 30,
+    Max = 200,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.VehFlySpeed = v end)
+vSec:AddParagraph({
+    Title = "Controls",
+    Content = "Fly: WASD + Space (up) + LeftShift (down)\nMust be seated. Uses chassis velocity.",
+})
+
+----------------------------------------------------------------
+-- UI: World
+----------------------------------------------------------------
+local wSec = Tabs.World:AddSection("Visuals")
+wSec:AddToggle("Fullbright", { Title = "Fullbright", Default = false }):OnChanged(function(v)
+    CFG.Fullbright = v
+    applyFullbright(v)
+end)
+wSec:AddToggle("NoFog", { Title = "No Fog", Default = false }):OnChanged(function(v) CFG.NoFog = v end)
+wSec:AddToggle("FOVEnabled", { Title = "Custom FOV", Default = false }):OnChanged(function(v)
+    CFG.FOVEnabled = v
+    if not v and Camera then Camera.FieldOfView = 70 end
+end)
+wSec:AddSlider("WorldFOV", { Title = "FOV", Default = 90, Min = 60, Max = 120, Rounding = 0 }):OnChanged(function(v)
+    CFG.WorldFOV = v
+end)
+
+----------------------------------------------------------------
+-- UI: Utility
+----------------------------------------------------------------
+local uSec = Tabs.Utility:AddSection("General")
+uSec:AddToggle("AntiAFK", { Title = "Anti AFK", Default = true }):OnChanged(function(v) CFG.AntiAFK = v end)
+uSec:AddButton({
+    Title = "Rejoin",
+    Callback = function()
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end,
+})
+uSec:AddButton({
+    Title = "Server Hop",
+    Callback = function()
+        local ok, servers = pcall(function()
+            return HttpService:JSONDecode(game:HttpGet(
+                "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+            ))
+        end)
+        if not ok or not servers or not servers.data then
+            notify("Server Hop", "Failed to fetch servers", 4)
+            return
+        end
+        for _, s in ipairs(servers.data) do
+            if s.playing < s.maxPlayers and s.id ~= game.JobId then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer)
+                return
+            end
+        end
+        notify("Server Hop", "No open server found", 4)
+    end,
+})
+
+local codeSec = Tabs.Utility:AddSection("Codes (Lobby)")
+local codeInput = codeSec:AddInput("CodeInput", {
+    Title = "Code",
+    Default = "PRESEASON2",
+    Placeholder = "Enter code...",
+    Callback = function() end,
+})
+codeSec:AddButton({
+    Title = "Redeem Code",
+    Callback = function()
+        local c = codeInput.Value or "PRESEASON2"
+        if c ~= "" then redeemCode(c) end
+    end,
+})
+codeSec:AddButton({
+    Title = "Try PRESEASON2",
+    Callback = function() redeemCode("PRESEASON2") end,
+})
+
+Tabs.Utility:AddSection("Info"):AddParagraph({
+    Title = "Place",
+    Content = string.format(
+        "PlaceId: %d\n%s\nMap: %d  |  Lobby: %d",
+        game.PlaceId,
+        IS_MAP and "MAP" or (IS_LOBBY and "LOBBY" or "UNKNOWN"),
+        PLACE_MAP,
+        PLACE_LOBBY
+    ),
+})
+
+Tabs.Settings:AddSection("Credits"):AddParagraph({
+    Title = "Credits",
+    Content = "Made by Evol\nR1 Battle Royale v0.0.3\nESP · Gas · Vehicle · Combat\nEverything off by default",
+})
+
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+InterfaceManager:SetFolder("R1BattleRoyale")
+SaveManager:SetFolder("R1BattleRoyale/Config")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+Library:Notify({
+    Title = "R1 Battle Royale",
+    Content = "v0.0.3 • Combat + ESP + Vehicle",
+    Duration = 5,
+})
+SaveManager:LoadAutoloadConfig()

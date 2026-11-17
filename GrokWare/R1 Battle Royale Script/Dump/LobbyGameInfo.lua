@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "SafeGameZ",
+    CreatorType = "User",
+    CurrentPlayers = 16,
+    Description = "PRE SEASON 2 IS OUT NOW\nCODE 'PRESEASON2'\n\n\nCHAOS MODE!\n\nLOOT\nFIGHT\nWIN!\n\n(Bots are added to recreate a fast paced Arcade-style gameplay. Not to make you think there are more players than there is. Bots ranks (seen in the elimination feed) are direct reflection of how good they are in that match. When a real player joins during the lobby, one bot is removed. Bots will not prevent a real player from joining.) Play SOLO NO BOTS for a no-bot experience.\n\nMake sure to find a Helmet! They Block the f",
+    GameId = 10769578217,
+    GeneratedAt = "2026-11-15 21:26:09",
+    IsStudio = false,
+    JobId = "f3e5327c-bacb-417d-aea8-582dc58cf2fb",
+    MaxPlayers = 50,
+    Name = "[2X REWARDS] R1 Battle Royale",
+    PlaceId = 114690486941238,
+    PlaceVersion = 904,
+}

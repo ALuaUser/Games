@@ -1,0 +1,637 @@
+--[[
+    R1 Battle Royale  |  Fluent UI
+    v0.0.1  •  Made by Evol
+
+    PlaceIds:
+      Lobby  114690486941238
+      Map    75942174630781
+    GameId: 10769578217
+
+    Features grounded in your dumps:
+      - Player / Bot ESP (TPS_Bots)
+      - Loot ESP (pickups + ProximityPrompts)
+      - Player movement (speed / jump / noclip)
+      - Fullbright / FOV
+      - Anti-AFK, Rejoin, Server Hop
+      - Code redeem helper (R1Codes)
+    Everything OFF by default.
+]]
+
+local Library = loadstring(game:HttpGet("https://github.com/1dontgiveaf/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/1dontgiveaf/Fluent/main/Addons/InterfaceManager.lua"))()
+
+local Window = Library:CreateWindow({
+    Title = "R1 Battle Royale",
+    SubTitle = "Made By Evol • v0.0.1",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 520),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl,
+})
+
+local Tabs = {
+    ESP = Window:AddTab({ Title = "ESP", Icon = "eye" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    World = Window:AddTab({ Title = "World", Icon = "sun" }),
+    Utility = Window:AddTab({ Title = "Utility", Icon = "wrench" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+}
+
+----------------------------------------------------------------
+-- Services
+----------------------------------------------------------------
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local TeleportService = game:GetService("TeleportService")
+local VirtualUser = game:GetService("VirtualUser")
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+local PLACE_LOBBY = 114690486941238
+local PLACE_MAP = 75942174630781
+local IS_MAP = game.PlaceId == PLACE_MAP
+local IS_LOBBY = game.PlaceId == PLACE_LOBBY
+
+----------------------------------------------------------------
+-- Config (all off)
+----------------------------------------------------------------
+local CFG = {
+    -- ESP
+    PlayerESP = false,
+    BotESP = false,
+    LootESP = false,
+    ShowNames = true,
+    ShowDistance = true,
+    ShowChams = true,
+    MaxDistance = 2000,
+    PlayerColor = Color3.fromRGB(255, 70, 70),
+    BotColor = Color3.fromRGB(255, 180, 40),
+    LootColor = Color3.fromRGB(80, 220, 120),
+    TeamColor = Color3.fromRGB(60, 160, 255),
+
+    -- Player
+    SpeedEnabled = false,
+    Speed = 22,
+    JumpEnabled = false,
+    JumpPower = 50,
+    Noclip = false,
+    InfiniteJump = false,
+
+    -- World
+    Fullbright = false,
+    NoFog = false,
+    FOVEnabled = false,
+    FOV = 90,
+
+    -- Utility
+    AntiAFK = true,
+}
+
+----------------------------------------------------------------
+-- Helpers
+----------------------------------------------------------------
+local function char()
+    return LocalPlayer.Character
+end
+
+local function hrp(c)
+    c = c or char()
+    return c and c:FindFirstChild("HumanoidRootPart")
+end
+
+local function hum(c)
+    c = c or char()
+    return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+local function notify(title, content, dur)
+    Library:Notify({ Title = title, Content = content, Duration = dur or 4 })
+end
+
+local function isAlive(model)
+    local h = model and model:FindFirstChildOfClass("Humanoid")
+    return h and h.Health > 0
+end
+
+local function isTeammate(plr)
+    if not plr or plr == LocalPlayer then return false end
+    local myTeam = LocalPlayer:GetAttribute("TPS_Team") or LocalPlayer:GetAttribute("TeamId")
+    local theirTeam = plr:GetAttribute("TPS_Team") or plr:GetAttribute("TeamId")
+    if myTeam and theirTeam and myTeam == theirTeam then return true end
+    -- Duos mate name attribute (from chaos HUD dump)
+    local mate = LocalPlayer:GetAttribute("TPS_MateName")
+    if mate and (plr.Name == mate or plr.DisplayName == mate) then return true end
+    return false
+end
+
+----------------------------------------------------------------
+-- ESP system
+----------------------------------------------------------------
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "R1_EvolESP"
+ESPFolder.Parent = game:GetService("CoreGui")
+
+local espObjects = {} -- [model] = { highlight, billboard, ... }
+
+local function clearESP(model)
+    local obj = espObjects[model]
+    if not obj then return end
+    for _, v in pairs(obj) do
+        pcall(function() v:Destroy() end)
+    end
+    espObjects[model] = nil
+end
+
+local function clearAllESP()
+    for model in pairs(espObjects) do
+        clearESP(model)
+    end
+end
+
+local function makeESP(model, color, labelText)
+    if espObjects[model] then clearESP(model) end
+    if not model or not model.Parent then return end
+
+    local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
+    if not root then return end
+
+    local data = {}
+
+    if CFG.ShowChams then
+        local hl = Instance.new("Highlight")
+        hl.Name = "EvolChams"
+        hl.Adornee = model
+        hl.FillColor = color
+        hl.OutlineColor = Color3.new(1, 1, 1)
+        hl.FillTransparency = 0.55
+        hl.OutlineTransparency = 0.2
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        hl.Parent = ESPFolder
+        data.hl = hl
+    end
+
+    local bb = Instance.new("BillboardGui")
+    bb.Name = "EvolTag"
+    bb.Adornee = root
+    bb.Size = UDim2.fromOffset(160, 40)
+    bb.StudsOffset = Vector3.new(0, 3.2, 0)
+    bb.AlwaysOnTop = true
+    bb.Parent = ESPFolder
+
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.fromScale(1, 1)
+    text.BackgroundTransparency = 1
+    text.Text = labelText or model.Name
+    text.TextColor3 = color
+    text.TextStrokeTransparency = 0.4
+    text.Font = Enum.Font.GothamBold
+    text.TextSize = 13
+    text.Parent = bb
+
+    data.bb = bb
+    data.label = text
+    data.color = color
+    data.root = root
+    espObjects[model] = data
+end
+
+local LOOT_KEYWORDS = {
+    "Armor", "Helmet", "Weapon", "Gun", "Rifle", "Pistol", "Shotgun",
+    "SMG", "Sniper", "Med", "Bandage", "Syringe", "Ammo", "Crate",
+    "Supply", "Backpack", "Vest", "Pickup", "Loot",
+}
+
+local function isLootModel(m)
+    if not m or not m:IsA("Model") then return false end
+    local n = m.Name
+    for _, k in ipairs(LOOT_KEYWORDS) do
+        if string.find(n, k, 1, true) then return true end
+    end
+    -- has a live ProximityPrompt and isn't a player character
+    if m:FindFirstChildWhichIsA("ProximityPrompt", true) and not m:FindFirstChildOfClass("Humanoid") then
+        return true
+    end
+    return false
+end
+
+local function scanESP()
+    if not (CFG.PlayerESP or CFG.BotESP or CFG.LootESP) then
+        clearAllESP()
+        return
+    end
+
+    local myRoot = hrp()
+    local seen = {}
+
+    -- Players
+    if CFG.PlayerESP then
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character and isAlive(plr.Character) then
+                local model = plr.Character
+                seen[model] = true
+                local color = isTeammate(plr) and CFG.TeamColor or CFG.PlayerColor
+                local dist = ""
+                if CFG.ShowDistance and myRoot then
+                    local r = hrp(model)
+                    if r then
+                        dist = string.format(" [%dm]", math.floor((myRoot.Position - r.Position).Magnitude))
+                    end
+                end
+                local name = CFG.ShowNames and (plr.DisplayName ~= plr.Name and (plr.DisplayName .. " (@" .. plr.Name .. ")") or plr.Name) or "Player"
+                makeESP(model, color, name .. dist)
+            end
+        end
+    end
+
+    -- Bots (Workspace.TPS_Bots)
+    if CFG.BotESP then
+        local bots = Workspace:FindFirstChild("TPS_Bots")
+        if bots then
+            for _, model in ipairs(bots:GetChildren()) do
+                if model:IsA("Model") and isAlive(model) then
+                    seen[model] = true
+                    local dist = ""
+                    if CFG.ShowDistance and myRoot then
+                        local r = hrp(model) or model.PrimaryPart
+                        if r then
+                            dist = string.format(" [%dm]", math.floor((myRoot.Position - r.Position).Magnitude))
+                        end
+                    end
+                    makeESP(model, CFG.BotColor, (CFG.ShowNames and ("[BOT] " .. model.Name) or "[BOT]") .. dist)
+                end
+            end
+        end
+    end
+
+    -- Loot
+    if CFG.LootESP then
+        local function scanFolder(folder, depth)
+            if depth > 4 or not folder then return end
+            for _, child in ipairs(folder:GetChildren()) do
+                if isLootModel(child) then
+                    seen[child] = true
+                    local root = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
+                    local dist = ""
+                    if CFG.ShowDistance and myRoot and root then
+                        dist = string.format(" [%dm]", math.floor((myRoot.Position - root.Position).Magnitude))
+                    end
+                    if not espObjects[child] then
+                        makeESP(child, CFG.LootColor, (CFG.ShowNames and child.Name or "Loot") .. dist)
+                    else
+                        local obj = espObjects[child]
+                        if obj and obj.label and CFG.ShowDistance and myRoot and root then
+                            obj.label.Text = (CFG.ShowNames and child.Name or "Loot") .. dist
+                        end
+                    end
+                elseif child:IsA("Folder") or child:IsA("Model") then
+                    scanFolder(child, depth + 1)
+                end
+            end
+        end
+
+        -- Common containers from dumps
+        scanFolder(Workspace:FindFirstChild("Map"), 0)
+        scanFolder(Workspace:FindFirstChild("TPS_Range"), 0)
+        scanFolder(Workspace:FindFirstChild("Pickups"), 0)
+        -- fallback light scan of workspace top-level
+        for _, child in ipairs(Workspace:GetChildren()) do
+            if child.Name:find("Loot") or child.Name:find("Pickup") or child.Name:find("Supply") then
+                scanFolder(child, 0)
+            end
+        end
+    end
+
+    -- cleanup despawned
+    for model in pairs(espObjects) do
+        if not seen[model] or not model.Parent then
+            clearESP(model)
+        end
+    end
+end
+
+-- Distance fade / live update
+RunService.RenderStepped:Connect(function()
+    if not (CFG.PlayerESP or CFG.BotESP or CFG.LootESP) then return end
+    local myRoot = hrp()
+    if not myRoot then return end
+    for model, obj in pairs(espObjects) do
+        if obj.root and obj.root.Parent then
+            local d = (myRoot.Position - obj.root.Position).Magnitude
+            local show = d <= CFG.MaxDistance
+            if obj.hl then obj.hl.Enabled = show and CFG.ShowChams end
+            if obj.bb then obj.bb.Enabled = show end
+            if show and obj.label and CFG.ShowDistance then
+                local base = obj.label.Text:gsub("%s*%[%d+m%]", "")
+                obj.label.Text = base .. string.format(" [%dm]", math.floor(d))
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1.25)
+        pcall(scanESP)
+    end
+end)
+
+----------------------------------------------------------------
+-- Player loops
+----------------------------------------------------------------
+local noclipConn
+local function setNoclip(on)
+    if noclipConn then
+        noclipConn:Disconnect()
+        noclipConn = nil
+    end
+    if not on then return end
+    noclipConn = RunService.Stepped:Connect(function()
+        local c = char()
+        if not c then return end
+        for _, part in ipairs(c:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+
+RunService.Heartbeat:Connect(function()
+    local h = hum()
+    if not h then return end
+    if CFG.SpeedEnabled then
+        h.WalkSpeed = CFG.Speed
+    end
+    if CFG.JumpEnabled then
+        pcall(function()
+            h.JumpPower = CFG.JumpPower
+            h.UseJumpPower = true
+        end)
+    end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    if CFG.Noclip then setNoclip(true) end
+end)
+
+-- Infinite jump
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if CFG.InfiniteJump then
+        local h = hum()
+        if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+----------------------------------------------------------------
+-- World
+----------------------------------------------------------------
+local oldLighting = {}
+local function applyFullbright(on)
+    if on then
+        if not oldLighting.Brightness then
+            oldLighting.Brightness = Lighting.Brightness
+            oldLighting.ClockTime = Lighting.ClockTime
+            oldLighting.FogEnd = Lighting.FogEnd
+            oldLighting.GlobalShadows = Lighting.GlobalShadows
+            oldLighting.Ambient = Lighting.Ambient
+            oldLighting.OutdoorAmbient = Lighting.OutdoorAmbient
+        end
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 1e6
+        Lighting.GlobalShadows = false
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    else
+        if oldLighting.Brightness then
+            Lighting.Brightness = oldLighting.Brightness
+            Lighting.ClockTime = oldLighting.ClockTime
+            Lighting.FogEnd = oldLighting.FogEnd
+            Lighting.GlobalShadows = oldLighting.GlobalShadows
+            Lighting.Ambient = oldLighting.Ambient
+            Lighting.OutdoorAmbient = oldLighting.OutdoorAmbient
+            oldLighting = {}
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    if CFG.FOVEnabled and Camera then
+        Camera.FieldOfView = CFG.FOV
+    end
+    if CFG.NoFog then
+        Lighting.FogEnd = 1e6
+        local atm = Lighting:FindFirstChildOfClass("Atmosphere")
+        if atm then atm.Density = 0 end
+    end
+end)
+
+----------------------------------------------------------------
+-- Anti AFK
+----------------------------------------------------------------
+LocalPlayer.Idled:Connect(function()
+    if CFG.AntiAFK then
+        pcall(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    end
+end)
+
+----------------------------------------------------------------
+-- Codes (R1Codes RemoteFunction)
+----------------------------------------------------------------
+local function redeemCode(code)
+    local rf = ReplicatedStorage:FindFirstChild("R1Codes")
+    if not rf then
+        notify("Codes", "R1Codes remote not found (lobby only?)", 4)
+        return
+    end
+    local ok, res = pcall(function()
+        return rf:InvokeServer(code)
+    end)
+    if ok then
+        notify("Codes", tostring(res or "Sent: " .. code), 5)
+    else
+        notify("Codes", "Failed: " .. tostring(res), 5)
+    end
+end
+
+----------------------------------------------------------------
+-- UI
+----------------------------------------------------------------
+-- ESP
+local espSec = Tabs.ESP:AddSection("Players & Bots")
+espSec:AddToggle("PlayerESP", { Title = "Player ESP", Default = false }):OnChanged(function(v)
+    CFG.PlayerESP = v
+    if not v and not CFG.BotESP and not CFG.LootESP then clearAllESP() end
+end)
+espSec:AddToggle("BotESP", { Title = "Bot ESP (TPS_Bots)", Default = false }):OnChanged(function(v)
+    CFG.BotESP = v
+    if not v and not CFG.PlayerESP and not CFG.LootESP then clearAllESP() end
+end)
+espSec:AddToggle("LootESP", { Title = "Loot ESP", Default = false }):OnChanged(function(v)
+    CFG.LootESP = v
+    if not v and not CFG.PlayerESP and not CFG.BotESP then clearAllESP() end
+end)
+espSec:AddToggle("ShowNames", { Title = "Names", Default = true }):OnChanged(function(v) CFG.ShowNames = v end)
+espSec:AddToggle("ShowDistance", { Title = "Distance", Default = true }):OnChanged(function(v) CFG.ShowDistance = v end)
+espSec:AddToggle("ShowChams", { Title = "Chams (Highlight)", Default = true }):OnChanged(function(v) CFG.ShowChams = v end)
+espSec:AddSlider("MaxDistance", {
+    Title = "Max Distance",
+    Default = 2000,
+    Min = 100,
+    Max = 5000,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.MaxDistance = v end)
+
+-- Player
+local plSec = Tabs.Player:AddSection("Movement")
+plSec:AddToggle("SpeedEnabled", { Title = "WalkSpeed", Default = false }):OnChanged(function(v)
+    CFG.SpeedEnabled = v
+    if not v then
+        local h = hum()
+        if h then h.WalkSpeed = 16 end
+    end
+end)
+plSec:AddSlider("Speed", {
+    Title = "Speed Value",
+    Default = 22,
+    Min = 16,
+    Max = 50,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.Speed = v end)
+plSec:AddToggle("JumpEnabled", { Title = "JumpPower", Default = false }):OnChanged(function(v) CFG.JumpEnabled = v end)
+plSec:AddSlider("JumpPower", {
+    Title = "Jump Value",
+    Default = 50,
+    Min = 50,
+    Max = 120,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.JumpPower = v end)
+plSec:AddToggle("Noclip", { Title = "Noclip", Default = false }):OnChanged(function(v)
+    CFG.Noclip = v
+    setNoclip(v)
+end)
+plSec:AddToggle("InfiniteJump", { Title = "Infinite Jump", Default = false }):OnChanged(function(v)
+    CFG.InfiniteJump = v
+end)
+
+-- World
+local wSec = Tabs.World:AddSection("Visuals")
+wSec:AddToggle("Fullbright", { Title = "Fullbright", Default = false }):OnChanged(function(v)
+    CFG.Fullbright = v
+    applyFullbright(v)
+end)
+wSec:AddToggle("NoFog", { Title = "No Fog", Default = false }):OnChanged(function(v) CFG.NoFog = v end)
+wSec:AddToggle("FOVEnabled", { Title = "Custom FOV", Default = false }):OnChanged(function(v)
+    CFG.FOVEnabled = v
+    if not v and Camera then Camera.FieldOfView = 70 end
+end)
+wSec:AddSlider("FOV", {
+    Title = "FOV",
+    Default = 90,
+    Min = 60,
+    Max = 120,
+    Rounding = 0,
+}):OnChanged(function(v) CFG.FOV = v end)
+
+-- Utility
+local uSec = Tabs.Utility:AddSection("General")
+uSec:AddToggle("AntiAFK", { Title = "Anti AFK", Default = true }):OnChanged(function(v) CFG.AntiAFK = v end)
+
+uSec:AddButton({
+    Title = "Rejoin",
+    Callback = function()
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end,
+})
+uSec:AddButton({
+    Title = "Server Hop (same place)",
+    Callback = function()
+        local ok, servers = pcall(function()
+            return HttpService:JSONDecode(game:HttpGet(
+                "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+            ))
+        end)
+        if not ok or not servers or not servers.data then
+            notify("Server Hop", "Failed to fetch servers", 4)
+            return
+        end
+        for _, s in ipairs(servers.data) do
+            if s.playing < s.maxPlayers and s.id ~= game.JobId then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer)
+                return
+            end
+        end
+        notify("Server Hop", "No open server found", 4)
+    end,
+})
+
+local codeSec = Tabs.Utility:AddSection("Codes (Lobby)")
+local codeInput
+codeInput = codeSec:AddInput("CodeInput", {
+    Title = "Code",
+    Default = "PRESEASON2",
+    Placeholder = "Enter code...",
+    Callback = function() end,
+})
+codeSec:AddButton({
+    Title = "Redeem Code",
+    Callback = function()
+        local c = codeInput.Value or codeInput.Text or "PRESEASON2"
+        if c == "" then
+            notify("Codes", "Enter a code first", 3)
+            return
+        end
+        redeemCode(c)
+    end,
+})
+codeSec:AddButton({
+    Title = "Try PRESEASON2",
+    Callback = function()
+        redeemCode("PRESEASON2")
+    end,
+})
+
+local infoSec = Tabs.Utility:AddSection("Info")
+infoSec:AddParagraph({
+    Title = "Place",
+    Content = string.format(
+        "PlaceId: %d\nMode: %s\nMap Place: %d\nLobby Place: %d",
+        game.PlaceId,
+        IS_MAP and "MAP (in match)" or (IS_LOBBY and "LOBBY" or "UNKNOWN"),
+        PLACE_MAP,
+        PLACE_LOBBY
+    ),
+})
+
+-- Settings / Credits
+local cred = Tabs.Settings:AddSection("Credits")
+cred:AddParagraph({
+    Title = "Credits",
+    Content = "Made by Evol\nR1 Battle Royale v0.0.1\nESP · Movement · World · Codes\nEverything off by default",
+})
+
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+InterfaceManager:SetFolder("R1BattleRoyale")
+SaveManager:SetFolder("R1BattleRoyale/Config")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+Library:Notify({
+    Title = "R1 Battle Royale",
+    Content = "v0.0.1 loaded • Made by Evol",
+    Duration = 5,
+})
+SaveManager:LoadAutoloadConfig()

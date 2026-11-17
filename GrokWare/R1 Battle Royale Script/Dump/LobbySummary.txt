@@ -1,0 +1,97 @@
+-- EvolsDumper Summary  2026-11-15 21:26:15
+-- PlaceId: 114690486941238  Game: [2X REWARDS] R1 Battle Royale
+
+-- ===== REMOTES (36) =====
+[1] BindableFunction  PlayEmote  Workspace.skchrs.Animate.PlayEmote
+[2] BindableFunction  PlayEmote  Workspace.ThomasMelchior88.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  Workspace.ASWninjaz.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.Finir_Gamecor.Animate.PlayEmote
+[5] BindableFunction  PlayEmote  Workspace.n0ttusg.Animate.PlayEmote
+[6] BindableFunction  PlayEmote  Workspace.GazaaaMC.Animate.PlayEmote
+[7] BindableFunction  PlayEmote  Workspace.Itzcardosoo.Animate.PlayEmote
+[8] BindableFunction  PlayEmote  Workspace.JTjustME34.Animate.PlayEmote
+[9] BindableFunction  PlayEmote  Workspace.KazFLBG.Animate.PlayEmote
+[10] BindableFunction  PlayEmote  Workspace.KarumuBlox.Animate.PlayEmote
+[11] BindableFunction  PlayEmote  Workspace.TheDucky_Dave.Animate.PlayEmote
+[12] BindableFunction  PlayEmote  Workspace.kgk001.Animate.PlayEmote
+[13] BindableFunction  PlayEmote  Workspace.cosmickilla23.Animate.PlayEmote
+[14] BindableFunction  PlayEmote  Workspace.krokodyl820.Animate.PlayEmote
+[15] BindableFunction  PlayEmote  Workspace.dkndat123.Animate.PlayEmote
+[16] BindableFunction  PlayEmote  Workspace.iluvmoms6092.Animate.PlayEmote
+[17] RemoteEvent  ProfileSync  ReplicatedStorage.R1Remotes.ProfileSync
+[18] RemoteFunction  ProfileRequest  ReplicatedStorage.R1Remotes.ProfileRequest
+[19] RemoteEvent  WeaponChallengeCompleted  ReplicatedStorage.R1Remotes.WeaponChallengeCompleted
+[20] RemoteFunction  Menu  ReplicatedStorage.R1Remotes.Menu
+[21] RemoteFunction  Market  ReplicatedStorage.R1Remotes.Market
+[22] RemoteEvent  MarketPush  ReplicatedStorage.R1Remotes.MarketPush
+[23] RemoteFunction  Hosted  ReplicatedStorage.R1Remotes.Hosted
+[24] RemoteEvent  HostedAnnounce  ReplicatedStorage.R1Remotes.HostedAnnounce
+[25] RemoteEvent  HostedReady  ReplicatedStorage.R1Remotes.HostedReady
+[26] RemoteFunction  Trade  ReplicatedStorage.R1Remotes.Trade
+[27] RemoteEvent  TradePush  ReplicatedStorage.R1Remotes.TradePush
+[28] RemoteEvent  ClanPush  ReplicatedStorage.R1Remotes.ClanPush
+[29] RemoteFunction  Clans  ReplicatedStorage.R1Remotes.Clans
+[30] RemoteFunction  R1AdminModes  ReplicatedStorage.R1AdminModes
+[31] RemoteFunction  R1Admin  ReplicatedStorage.R1Admin
+[32] RemoteEvent  R1AdminGhost  ReplicatedStorage.R1AdminGhost
+[33] RemoteFunction  R1Codes  ReplicatedStorage.R1Codes
+[34] RemoteFunction  R1AdminTrade  ReplicatedStorage.R1AdminTrade
+[35] RemoteFunction  R1TournamentAdmin  ReplicatedStorage.R1TournamentAdmin
+[36] RemoteFunction  R1EventCardAdmin  ReplicatedStorage.R1EventCardAdmin
+
+-- ===== TOP CLASSES =====
+Part = 1724
+Vector3Value = 1099
+Attachment = 1056
+Animation = 432
+MeshPart = 379
+StringValue = 355
+NoCollisionConstraint = 323
+AnimationConstraint = 255
+WrapTarget = 255
+BallSocketConstraint = 238
+NumberValue = 198
+Sound = 144
+ModuleScript = 122
+Model = 94
+WeldConstraint = 80
+InputBinding = 74
+Accessory = 73
+SurfaceAppearance = 60
+Texture = 57
+Frame = 43
+UIGradient = 43
+Folder = 41
+UICorner = 40
+SpecialMesh = 38
+InputAction = 30
+WedgePart = 24
+LocalScript = 23
+Script = 21
+Motor6D = 18
+Animator = 17
+Humanoid = 17
+Weld = 17
+FaceControls = 16
+Status = 16
+BindableFunction = 16
+Wire = 16
+AudioEmitter = 15
+SurfaceGui = 14
+RemoteFunction = 12
+TextLabel = 11
+
+-- ===== STATS =====
+Flat = 7625
+Values = 1656
+Tags = 18
+Properties = 10052
+BytesWritten = 911176
+Objects = 7625
+DumpMode = FULL
+Attributes = 620
+Scripts = 44
+ElapsedSeconds = 5.446922779083252
+Remotes = 36
+Errors = 0
+Modules = 122
