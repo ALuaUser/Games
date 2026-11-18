@@ -225,7 +225,7 @@ local ENV = (getgenv and getgenv()) or _G
 -- CONFIG  -  point BASE at the raw folder of your GitHub repo (keep the trailing "/")
 --            e.g. https://raw.githubusercontent.com/MyName/MyRepo/main/
 ----------------------------------------------------------------
-local BASE = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/"
+local BASE = "https://raw.githubusercontent.com/ALuaUser/Games/refs/heads/main/ProjectOldArcade/Games/"
 
 local GAMES = {
     {
