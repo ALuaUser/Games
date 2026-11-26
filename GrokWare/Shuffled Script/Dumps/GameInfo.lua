@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "SHUFFLED!",
+    CreatorType = "Group",
+    CurrentPlayers = 7,
+    Description = "Welcome to Shuffled!\n\n🎵 Pull. Collect. Trade.\n📦 Open packs of real songs, by genre or by artist\n💎 Chase every rarity: Demo, Single, Hit, Platinum, Diamond and Unique\n🌈 Uniques are 1 of 1. Pull one and nobody else will ever have it\n🏆 Show off your best cards in your showcase and earn coins, even offline\n💿 Finish albums and achievements for big coin rewards\n🤝 Trade live with friends or sell on the market\n💬 Chat with fans of your genre across every server\n🎁 Free packs eve",
+    GameId = 10772000828,
+    GeneratedAt = "2026-11-20 19:26:11",
+    IsStudio = false,
+    JobId = "8b21a854-ccf7-4ae8-b4f5-b9cb5c29729d",
+    MaxPlayers = 12,
+    Name = "SHUFFLED! [MUSIC TRADING CARDS!]",
+    PlaceId = 97895487991697,
+    PlaceVersion = 255,
+}

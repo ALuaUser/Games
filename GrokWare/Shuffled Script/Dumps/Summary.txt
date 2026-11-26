@@ -1,0 +1,184 @@
+-- EvolsDumper Summary  2026-11-20 19:26:12
+-- PlaceId: 97895487991697  Game: SHUFFLED! [MUSIC TRADING CARDS!]
+
+-- ===== REMOTES (123) =====
+[1] RemoteEvent  TradeEvent  ReplicatedStorage.Remotes.TradeEvent
+[2] RemoteEvent  NewsChanged  ReplicatedStorage.Remotes.NewsChanged
+[3] RemoteEvent  RestartSoon  ReplicatedStorage.Remotes.RestartSoon
+[4] RemoteEvent  AdminSetCoins  ReplicatedStorage.Remotes.AdminSetCoins
+[5] RemoteEvent  DevGiveCard  ReplicatedStorage.Remotes.DevGiveCard
+[6] RemoteFunction  GrantCurrency  ReplicatedStorage.Remotes.GrantCurrency
+[7] RemoteFunction  UnlockAllPasses  ReplicatedStorage.Remotes.UnlockAllPasses
+[8] RemoteFunction  AdminFeed  ReplicatedStorage.Remotes.AdminFeed
+[9] RemoteFunction  AdminLookup  ReplicatedStorage.Remotes.AdminLookup
+[10] RemoteFunction  AdminAction  ReplicatedStorage.Remotes.AdminAction
+[11] RemoteEvent  CoverGone  ReplicatedStorage.Remotes.CoverGone
+[12] RemoteEvent  CoverBack  ReplicatedStorage.Remotes.CoverBack
+[13] RemoteFunction  Covers  ReplicatedStorage.Remotes.Covers
+[14] RemoteFunction  SongCovers  ReplicatedStorage.Remotes.SongCovers
+[15] RemoteFunction  CoverAction  ReplicatedStorage.Remotes.CoverAction
+[16] RemoteFunction  SongVideo  ReplicatedStorage.Remotes.SongVideo
+[17] RemoteEvent  CatalogChanged  ReplicatedStorage.Remotes.CatalogChanged
+[18] RemoteFunction  Catalog  ReplicatedStorage.Remotes.Catalog
+[19] RemoteEvent  DataSync  ReplicatedStorage.Remotes.DataSync
+[20] RemoteEvent  Notify  ReplicatedStorage.Remotes.Notify
+[21] RemoteEvent  ThemesChanged  ReplicatedStorage.Remotes.ThemesChanged
+[22] RemoteFunction  Themes  ReplicatedStorage.Remotes.Themes
+[23] RemoteFunction  QuickSell  ReplicatedStorage.Remotes.QuickSell
+[24] RemoteFunction  FavoriteCard  ReplicatedStorage.Remotes.FavoriteCard
+[25] RemoteFunction  SellCards  ReplicatedStorage.Remotes.SellCards
+[26] RemoteFunction  OpenPack  ReplicatedStorage.Remotes.OpenPack
+[27] RemoteFunction  OpenCrates  ReplicatedStorage.Remotes.OpenCrates
+[28] RemoteEvent  RevealDone  ReplicatedStorage.Remotes.RevealDone
+[29] RemoteFunction  SetShowcase  ReplicatedStorage.Remotes.SetShowcase
+[30] RemoteFunction  AutoShowcase  ReplicatedStorage.Remotes.AutoShowcase
+[31] RemoteFunction  CollectIncome  ReplicatedStorage.Remotes.CollectIncome
+[32] RemoteEvent  Active  ReplicatedStorage.Remotes.Active
+[33] RemoteFunction  SetThemeSong  ReplicatedStorage.Remotes.SetThemeSong
+[34] RemoteFunction  SetFavoriteArtist  ReplicatedStorage.Remotes.SetFavoriteArtist
+[35] RemoteFunction  SetBio  ReplicatedStorage.Remotes.SetBio
+[36] RemoteFunction  SetLastFm  ReplicatedStorage.Remotes.SetLastFm
+[37] RemoteFunction  SetGlow  ReplicatedStorage.Remotes.SetGlow
+[38] RemoteFunction  SetSetting  ReplicatedStorage.Remotes.SetSetting
+[39] RemoteFunction  BuyTheme  ReplicatedStorage.Remotes.BuyTheme
+[40] RemoteFunction  SetLook  ReplicatedStorage.Remotes.SetLook
+[41] RemoteFunction  Playlist  ReplicatedStorage.Remotes.Playlist
+[42] RemoteFunction  ViewProfile  ReplicatedStorage.Remotes.ViewProfile
+[43] RemoteFunction  NowPlaying  ReplicatedStorage.Remotes.NowPlaying
+[44] RemoteFunction  FriendRequest  ReplicatedStorage.Remotes.FriendRequest
+[45] RemoteFunction  FriendRespond  ReplicatedStorage.Remotes.FriendRespond
+[46] RemoteFunction  FriendRemove  ReplicatedStorage.Remotes.FriendRemove
+[47] RemoteFunction  FriendList  ReplicatedStorage.Remotes.FriendList
+[48] RemoteFunction  JoinPlayer  ReplicatedStorage.Remotes.JoinPlayer
+[49] RemoteFunction  BlockPlayer  ReplicatedStorage.Remotes.BlockPlayer
+[50] RemoteFunction  FindServer  ReplicatedStorage.Remotes.FindServer
+[51] RemoteFunction  Everyone  ReplicatedStorage.Remotes.Everyone
+[52] RemoteFunction  JoinServerOf  ReplicatedStorage.Remotes.JoinServerOf
+[53] RemoteFunction  BuyPackRobux  ReplicatedStorage.Remotes.BuyPackRobux
+[54] RemoteFunction  BuyCoins  ReplicatedStorage.Remotes.BuyCoins
+[55] RemoteFunction  SocialGift  ReplicatedStorage.Remotes.SocialGift
+[56] RemoteFunction  LeaveGift  ReplicatedStorage.Remotes.LeaveGift
+[57] RemoteFunction  LikeGift  ReplicatedStorage.Remotes.LikeGift
+[58] RemoteFunction  ClaimQuest  ReplicatedStorage.Remotes.ClaimQuest
+[59] RemoteFunction  ClaimDaily  ReplicatedStorage.Remotes.ClaimDaily
+[60] RemoteFunction  RefreshQuests  ReplicatedStorage.Remotes.RefreshQuests
+[61] RemoteFunction  BuyUpgrade  ReplicatedStorage.Remotes.BuyUpgrade
+[62] RemoteFunction  BuyPass  ReplicatedStorage.Remotes.BuyPass
+[63] RemoteFunction  CheckGroup  ReplicatedStorage.Remotes.CheckGroup
+[64] RemoteFunction  GiftPass  ReplicatedStorage.Remotes.GiftPass
+[65] RemoteFunction  CardPuller  ReplicatedStorage.Remotes.CardPuller
+[66] RemoteFunction  ClaimAlbum  ReplicatedStorage.Remotes.ClaimAlbum
+[67] RemoteFunction  Fuse  ReplicatedStorage.Remotes.Fuse
+[68] RemoteFunction  AutoFuseNow  ReplicatedStorage.Remotes.AutoFuseNow
+[69] RemoteFunction  ClaimAchievement  ReplicatedStorage.Remotes.ClaimAchievement
+[70] RemoteFunction  SeasonClaim  ReplicatedStorage.Remotes.SeasonClaim
+[71] RemoteFunction  BuySeasonPremium  ReplicatedStorage.Remotes.BuySeasonPremium
+[72] RemoteFunction  TradeRequest  ReplicatedStorage.Remotes.TradeRequest
+[73] RemoteFunction  TradeRespond  ReplicatedStorage.Remotes.TradeRespond
+[74] RemoteFunction  TradeOffer  ReplicatedStorage.Remotes.TradeOffer
+[75] RemoteFunction  TradeReady  ReplicatedStorage.Remotes.TradeReady
+[76] RemoteFunction  TradeCancel  ReplicatedStorage.Remotes.TradeCancel
+[77] RemoteFunction  TradeChat  ReplicatedStorage.Remotes.TradeChat
+[78] RemoteFunction  BoardList  ReplicatedStorage.Remotes.BoardList
+[79] RemoteFunction  BoardCreate  ReplicatedStorage.Remotes.BoardCreate
+[80] RemoteFunction  BoardAccept  ReplicatedStorage.Remotes.BoardAccept
+[81] RemoteFunction  BoardCancel  ReplicatedStorage.Remotes.BoardCancel
+[82] RemoteFunction  BoardMine  ReplicatedStorage.Remotes.BoardMine
+[83] RemoteFunction  BoardOffer  ReplicatedStorage.Remotes.BoardOffer
+[84] RemoteFunction  BoardWithdraw  ReplicatedStorage.Remotes.BoardWithdraw
+[85] RemoteFunction  BoardPick  ReplicatedStorage.Remotes.BoardPick
+[86] RemoteFunction  BoardDecline  ReplicatedStorage.Remotes.BoardDecline
+[87] RemoteFunction  BoardBid  ReplicatedStorage.Remotes.BoardBid
+[88] RemoteFunction  TradeAsk  ReplicatedStorage.Remotes.TradeAsk
+[89] RemoteFunction  TradeAnswer  ReplicatedStorage.Remotes.TradeAnswer
+[90] RemoteFunction  TradeHistory  ReplicatedStorage.Remotes.TradeHistory
+[91] RemoteFunction  TradeSeen  ReplicatedStorage.Remotes.TradeSeen
+[92] RemoteFunction  ClaimEvent  ReplicatedStorage.Remotes.ClaimEvent
+[93] RemoteFunction  Tutorial  ReplicatedStorage.Remotes.Tutorial
+[94] RemoteFunction  RequestArtist  ReplicatedStorage.Remotes.RequestArtist
+[95] RemoteFunction  RequestSearch  ReplicatedStorage.Remotes.RequestSearch
+[96] RemoteFunction  AddArtistNow  ReplicatedStorage.Remotes.AddArtistNow
+[97] RemoteEvent  ChatNotice  ReplicatedStorage.Remotes.ChatNotice
+[98] RemoteFunction  ChatFm  ReplicatedStorage.Remotes.ChatFm
+[99] RemoteFunction  FmCover  ReplicatedStorage.Remotes.FmCover
+[100] RemoteEvent  RoomChat  ReplicatedStorage.Remotes.RoomChat
+[101] RemoteFunction  RoomHistory  ReplicatedStorage.Remotes.RoomHistory
+[102] RemoteEvent  ChatLog  ReplicatedStorage.Remotes.ChatLog
+[103] RemoteEvent  MemoryReport  ReplicatedStorage.Remotes.MemoryReport
+[104] RemoteFunction  SetTitle  ReplicatedStorage.Remotes.SetTitle
+[105] RemoteFunction  Boards  ReplicatedStorage.Remotes.Boards
+[106] RemoteFunction  BuyStore  ReplicatedStorage.Remotes.BuyStore
+[107] RemoteFunction  SendFeedback  ReplicatedStorage.Remotes.SendFeedback
+[108] RemoteFunction  InviteInfo  ReplicatedStorage.Remotes.InviteInfo
+[109] RemoteFunction  NewsList  ReplicatedStorage.Remotes.NewsList
+[110] RemoteEvent  NewsSeen  ReplicatedStorage.Remotes.NewsSeen
+[111] RemoteFunction  RestartInfo  ReplicatedStorage.Remotes.RestartInfo
+[112] RemoteEvent  Whereabouts  ReplicatedStorage.Remotes.Whereabouts
+[113] RemoteFunction  BlackMarket  ReplicatedStorage.Remotes.BlackMarket
+[114] RemoteFunction  RerollFinish  ReplicatedStorage.Remotes.RerollFinish
+[115] RemoteEvent  HumanCheck  ReplicatedStorage.Remotes.HumanCheck
+[116] RemoteEvent  BattleUpdate  ReplicatedStorage.Remotes.BattleUpdate
+[117] RemoteEvent  BattleInvited  ReplicatedStorage.Remotes.BattleInvited
+[118] RemoteFunction  BattleAction  ReplicatedStorage.Remotes.BattleAction
+[119] RemoteFunction  RedeemCode  ReplicatedStorage.Remotes.RedeemCode
+[120] RemoteFunction  Grading  ReplicatedStorage.Remotes.Grading
+[121] RemoteFunction  Prestige  ReplicatedStorage.Remotes.Prestige
+[122] BindableFunction  PlayEmote  ReplicatedStorage.BlackMarketDealer.Animate.PlayEmote
+[123] BindableFunction  PlayEmote  ReplicatedStorage.BlackMarketRigs.Dealer.Animate.PlayEmote
+
+-- ===== TOP CLASSES =====
+Vector3Value = 154
+ModuleScript = 128
+Attachment = 114
+RemoteFunction = 99
+InputBinding = 74
+Animation = 56
+StringValue = 53
+Part = 38
+NoCollisionConstraint = 38
+NumberValue = 38
+MeshPart = 38
+AnimationConstraint = 30
+InputAction = 30
+WrapTarget = 30
+BallSocketConstraint = 28
+RemoteEvent = 22
+BodyPartDescription = 12
+AccessoryDescription = 8
+Weld = 8
+TouchTransmitter = 8
+Accessory = 8
+Folder = 7
+Model = 5
+LocalScript = 4
+InputContext = 4
+Script = 4
+BodyColors = 2
+Pants = 2
+Humanoid = 2
+BindableFunction = 2
+FaceControls = 2
+Animator = 2
+HumanoidDescription = 2
+Shirt = 2
+StarterGui = 1
+PointLight = 1
+SurfaceLight = 1
+SpotLight = 1
+StarterCharacterScripts = 1
+Atmosphere = 1
+
+-- ===== STATS =====
+Flat = 1076
+Values = 245
+Tags = 0
+Properties = 1383
+BytesWritten = 131929
+Objects = 1076
+DumpMode = FULL
+Attributes = 11
+Scripts = 8
+ElapsedSeconds = 1.3536090850830078
+Remotes = 123
+Errors = 0
+Modules = 128

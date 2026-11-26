@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "Dofaminum Studio",
+    CreatorType = "Group",
+    CurrentPlayers = 4,
+    Description = "Fix up an old roadside motel and turn it into the best stop on the road!\n\nClean the rooms, make the beds and check in your guests at the front desk. Every happy guest pays, tips and leaves a review. More stars bring more guests.\n\nWHAT YOU DO\n- Clean rooms with a vacuum and a mop\n- Wash the sheets and make the beds\n- Hand out room keys and carry suitcases\n- Make coffee and answer room service calls\n- Furnish every room: beds, lamps, sofas, tubs and more\n- Grow rooms from Regular to Comfort to VIP",
+    GameId = 10771805737,
+    GeneratedAt = "2026-11-21 19:48:33",
+    IsStudio = false,
+    JobId = "bd7f62e6-da76-4b51-b803-4c64e7c2307f",
+    MaxPlayers = 6,
+    Name = "Run a Motel ! [EXPAND]",
+    PlaceId = 82046305882496,
+    PlaceVersion = 863,
+}

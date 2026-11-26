@@ -1,0 +1,129 @@
+-- EvolsDumper Summary  2026-11-21 19:49:11
+-- PlaceId: 82046305882496  Game: Run a Motel ! [EXPAND]
+
+-- ===== REMOTES (68) =====
+[1] BindableFunction  BagsTest  Workspace.Camera.MotelBags.BagsTest
+[2] BindableFunction  PlayEmote  Workspace.gothhh22.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  Workspace.Diana8794389.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.KarumuBlox.Animate.PlayEmote
+[5] BindableFunction  PlayEmote  Workspace.jess321654.Animate.PlayEmote
+[6] RemoteFunction  Want  ReplicatedStorage.DreamIntroNet.Want
+[7] RemoteEvent  Done  ReplicatedStorage.DreamIntroNet.Done
+[8] RemoteFunction  Buy  ReplicatedStorage.MotelUpgradesNet.Buy
+[9] RemoteEvent  MoneyFx  ReplicatedStorage.MotelEconomyNet.MoneyFx
+[10] RemoteFunction  BuyRoom  ReplicatedStorage.MotelEconomyNet.BuyRoom
+[11] RemoteEvent  RoomUnlocked  ReplicatedStorage.MotelEconomyNet.RoomUnlocked
+[12] RemoteEvent  ClassChanged  ReplicatedStorage.MotelEconomyNet.ClassChanged
+[13] RemoteEvent  Event  ReplicatedStorage.MotelStaffNet.Event
+[14] RemoteFunction  Hire  ReplicatedStorage.MotelStaffNet.Hire
+[15] RemoteEvent  Report  ReplicatedStorage.MotelCleanNet.Report
+[16] RemoteFunction  Wipe  ReplicatedStorage.MotelCleanNet.Wipe
+[17] RemoteFunction  Grill  ReplicatedStorage.MotelChoresNet.Grill
+[18] RemoteFunction  Hush  ReplicatedStorage.MotelChoresNet.Hush
+[19] RemoteFunction  Fix  ReplicatedStorage.MotelChoresNet.Fix
+[20] RemoteFunction  WalkDone  ReplicatedStorage.MotelChoresNet.WalkDone
+[21] RemoteFunction  WalkStart  ReplicatedStorage.MotelChoresNet.WalkStart
+[22] RemoteFunction  AnswerPhone  ReplicatedStorage.MotelGuestsNet.AnswerPhone
+[23] RemoteFunction  TakeCash  ReplicatedStorage.MotelGuestsNet.TakeCash
+[24] RemoteFunction  CheckIn  ReplicatedStorage.MotelGuestsNet.CheckIn
+[25] RemoteFunction  ServeCoffee  ReplicatedStorage.MotelGuestsNet.ServeCoffee
+[26] RemoteEvent  GuestEvent  ReplicatedStorage.MotelGuestsNet.GuestEvent
+[27] RemoteEvent  Offline  ReplicatedStorage.MotelGuestsNet.Offline
+[28] RemoteFunction  SetOpen  ReplicatedStorage.MotelGuestsNet.SetOpen
+[29] RemoteFunction  FoldTowel  ReplicatedStorage.MotelGuestsNet.FoldTowel
+[30] RemoteFunction  ToggleVacancy  ReplicatedStorage.MotelGuestsNet.ToggleVacancy
+[31] RemoteFunction  CarryBag  ReplicatedStorage.MotelGuestsNet.CarryBag
+[32] RemoteFunction  DropBag  ReplicatedStorage.MotelGuestsNet.DropBag
+[33] RemoteFunction  TakeSupply  ReplicatedStorage.MotelGuestsNet.TakeSupply
+[34] RemoteFunction  Deliver  ReplicatedStorage.MotelGuestsNet.Deliver
+[35] RemoteFunction  RefusePet  ReplicatedStorage.MotelGuestsNet.RefusePet
+[36] RemoteFunction  GivePoolTowel  ReplicatedStorage.MotelGuestsNet.GivePoolTowel
+[37] RemoteFunction  BuyWasher  ReplicatedStorage.MotelYardNet.BuyWasher
+[38] RemoteFunction  BuyToolbox  ReplicatedStorage.MotelYardNet.BuyToolbox
+[39] RemoteFunction  Repair  ReplicatedStorage.MotelYardNet.Repair
+[40] RemoteFunction  FillPool  ReplicatedStorage.MotelYardNet.FillPool
+[41] RemoteEvent  ZoneDone  ReplicatedStorage.MotelYardNet.ZoneDone
+[42] RemoteEvent  Report  ReplicatedStorage.MotelYardNet.Report
+[43] RemoteFunction  Act  ReplicatedStorage.MotelLaundryNet.Act
+[44] RemoteEvent  Event  ReplicatedStorage.MotelLaundryNet.Event
+[45] RemoteFunction  Jar  ReplicatedStorage.MotelNeighboursNet.Jar
+[46] RemoteFunction  Postcard  ReplicatedStorage.MotelNeighboursNet.Postcard
+[47] RemoteEvent  Event  ReplicatedStorage.MotelNeighboursNet.Event
+[48] RemoteEvent  Seen  ReplicatedStorage.MotelTutorialNet.Seen
+[49] RemoteFunction  Buy  ReplicatedStorage.MotelShopNet.Buy
+[50] RemoteFunction  Prices  ReplicatedStorage.MotelShopNet.Prices
+[51] RemoteEvent  Event  ReplicatedStorage.MotelShopNet.Event
+[52] RemoteEvent  Seen  ReplicatedStorage.MotelShopNet.Seen
+[53] RemoteFunction  Build  ReplicatedStorage.MotelWingNet.Build
+[54] RemoteEvent  Ready  ReplicatedStorage.MotelWingNet.Ready
+[55] RemoteFunction  Refill  ReplicatedStorage.MotelHotelNet.Refill
+[56] RemoteFunction  Dishes  ReplicatedStorage.MotelHotelNet.Dishes
+[57] RemoteFunction  Send  ReplicatedStorage.MotelReportNet.Send
+[58] RemoteFunction  Act  ReplicatedStorage.MotelLotNet.Act
+[59] RemoteEvent  MotelAnalyticsNet  ReplicatedStorage.MotelAnalyticsNet
+[60] RemoteEvent  MotelDiagnosticsNet  ReplicatedStorage.MotelDiagnosticsNet
+[61] RemoteEvent  MotelClubNet  ReplicatedStorage.MotelClubNet
+[62] RemoteFunction  Cmd  ReplicatedStorage.MotelAdminNet.Cmd
+[63] RemoteEvent  Furnishing  ReplicatedStorage.MotelPlacement.Remotes.Furnishing
+[64] RemoteFunction  SwapItem  ReplicatedStorage.MotelPlacement.Remotes.SwapItem
+[65] RemoteFunction  PaintRoom  ReplicatedStorage.MotelPlacement.Remotes.PaintRoom
+[66] RemoteFunction  RemoveItem  ReplicatedStorage.MotelPlacement.Remotes.RemoveItem
+[67] RemoteFunction  Move  ReplicatedStorage.MotelPlacement.Remotes.Move
+[68] RemoteFunction  Place  ReplicatedStorage.MotelPlacement.Remotes.Place
+
+-- ===== TOP CLASSES =====
+Part = 32105
+MeshPart = 7281
+Texture = 3831
+Vector3Value = 2990
+Model = 2439
+Attachment = 2271
+WeldConstraint = 1883
+TextLabel = 914
+SurfaceGui = 729
+Folder = 722
+SpecialMesh = 652
+WrapTarget = 630
+Motor6D = 405
+WedgePart = 398
+PointLight = 382
+Decal = 303
+NumberValue = 301
+NoCollisionConstraint = 285
+AnimationConstraint = 225
+BallSocketConstraint = 210
+PathfindingModifier = 144
+UIStroke = 141
+ModuleScript = 136
+StringValue = 131
+SpotLight = 122
+Animation = 109
+BodyPartDescription = 90
+InputBinding = 74
+ParticleEmitter = 65
+Frame = 61
+UnionOperation = 54
+LocalScript = 53
+Sound = 44
+RemoteFunction = 43
+Humanoid = 42
+FaceControls = 42
+HumanoidDescription = 42
+Animator = 42
+InputAction = 30
+RemoteEvent = 20
+
+-- ===== STATS =====
+Flat = 60649
+Values = 3422
+Tags = 3169
+Properties = 64394
+BytesWritten = 8090842
+Objects = 60649
+DumpMode = FULL
+Attributes = 64124
+Scripts = 61
+ElapsedSeconds = 38.64439082145691
+Remotes = 68
+Errors = 0
+Modules = 136

@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "SafeGameZ",
+    CreatorType = "User",
+    CurrentPlayers = 1,
+    Description = "",
+    GameId = 10769578217,
+    GeneratedAt = "2026-11-17 23:31:59",
+    IsStudio = false,
+    JobId = "ca4f9175-cd7c-44ee-96cf-98ac366d223c",
+    MaxPlayers = 60,
+    Name = "Map",
+    PlaceId = 75942174630781,
+    PlaceVersion = 1130,
+}

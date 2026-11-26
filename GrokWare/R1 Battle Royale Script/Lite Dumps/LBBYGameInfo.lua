@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "SafeGameZ",
+    CreatorType = "User",
+    CurrentPlayers = 30,
+    Description = "PRE SEASON 2 IS OUT NOW\nCODE 'PRESEASON2'\n\nPlay Solos, Duos, and Trios\n\nPlay In-Game Tournaments for Exclusive Rewards\n\nGrind the leaderboard for EXLUSIVE LEADERBOARD REWARDS AT THE END OF THE SEASON!\n\nSeason 2 Ends November 30th\n\nLOOT\nFIGHT\nWIN!\n\n\nAIRDROPS HAVE A CHANCE TO CONTAIN A HUNTING RIFLE!\n",
+    GameId = 10769578217,
+    GeneratedAt = "2026-11-17 23:30:52",
+    IsStudio = false,
+    JobId = "7e0d1be2-a092-4e33-921f-43907d3ded0a",
+    MaxPlayers = 50,
+    Name = "[RESET] R1 Battle Royale",
+    PlaceId = 114690486941238,
+    PlaceVersion = 919,
+}

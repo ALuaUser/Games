@@ -1,0 +1,111 @@
+-- EvolsDumper Summary  2026-11-17 23:30:59
+-- PlaceId: 114690486941238  Game: [RESET] R1 Battle Royale
+
+-- ===== REMOTES (50) =====
+[1] BindableFunction  PlayEmote  Workspace.whitew966.Animate.PlayEmote
+[2] BindableFunction  PlayEmote  Workspace.ItzDom6.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  Workspace.baby_lootbag.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.Zbysio915.Animate.PlayEmote
+[5] BindableFunction  PlayEmote  Workspace.Pepe349959.Animate.PlayEmote
+[6] BindableFunction  PlayEmote  Workspace.KarumuBlox.Animate.PlayEmote
+[7] BindableFunction  PlayEmote  Workspace.bbell0_0.Animate.PlayEmote
+[8] BindableFunction  PlayEmote  Workspace.PassaroSagaz.Animate.PlayEmote
+[9] BindableFunction  PlayEmote  Workspace.WessiWEST94.Animate.PlayEmote
+[10] BindableFunction  PlayEmote  Workspace.CORMEXXX.Animate.PlayEmote
+[11] BindableFunction  PlayEmote  Workspace.6Zooooooom9.Animate.PlayEmote
+[12] BindableFunction  PlayEmote  Workspace.Fuseprk27.Animate.PlayEmote
+[13] BindableFunction  PlayEmote  Workspace.RAMGEMI666.Animate.PlayEmote
+[14] BindableFunction  PlayEmote  Workspace.koi42500.Animate.PlayEmote
+[15] BindableFunction  PlayEmote  Workspace.Stickyblue15.Animate.PlayEmote
+[16] BindableFunction  PlayEmote  Workspace.Vedgar503.Animate.PlayEmote
+[17] BindableFunction  PlayEmote  Workspace.lantern505.Animate.PlayEmote
+[18] BindableFunction  PlayEmote  Workspace.bariy15.Animate.PlayEmote
+[19] BindableFunction  PlayEmote  Workspace.YeezeeManLikeYeezees.Animate.PlayEmote
+[20] BindableFunction  PlayEmote  Workspace.AvItaS44.Animate.PlayEmote
+[21] BindableFunction  PlayEmote  Workspace.Dilzzyyyy.Animate.PlayEmote
+[22] BindableFunction  PlayEmote  Workspace.BigWormP90.Animate.PlayEmote
+[23] BindableFunction  PlayEmote  Workspace.Snoopythegoat54.Animate.PlayEmote
+[24] BindableFunction  PlayEmote  Workspace.wafflesrblue3.Animate.PlayEmote
+[25] BindableFunction  PlayEmote  Workspace.Haryisgoat.Animate.PlayEmote
+[26] BindableFunction  PlayEmote  Workspace.Yahamour.Animate.PlayEmote
+[27] BindableFunction  PlayEmote  Workspace.alltintedcadillac.Animate.PlayEmote
+[28] BindableFunction  PlayEmote  Workspace.Vhiinz.Animate.PlayEmote
+[29] BindableFunction  PlayEmote  Workspace.dr_sounding.Animate.PlayEmote
+[30] BindableFunction  PlayEmote  Workspace.ronineator.Animate.PlayEmote
+[31] RemoteFunction  R1Admin  ReplicatedStorage.R1Admin
+[32] RemoteEvent  R1AdminGhost  ReplicatedStorage.R1AdminGhost
+[33] RemoteFunction  R1Codes  ReplicatedStorage.R1Codes
+[34] RemoteFunction  Market  ReplicatedStorage.R1Remotes.Market
+[35] RemoteEvent  MarketPush  ReplicatedStorage.R1Remotes.MarketPush
+[36] RemoteFunction  Hosted  ReplicatedStorage.R1Remotes.Hosted
+[37] RemoteEvent  HostedAnnounce  ReplicatedStorage.R1Remotes.HostedAnnounce
+[38] RemoteEvent  HostedReady  ReplicatedStorage.R1Remotes.HostedReady
+[39] RemoteEvent  ProfileSync  ReplicatedStorage.R1Remotes.ProfileSync
+[40] RemoteFunction  ProfileRequest  ReplicatedStorage.R1Remotes.ProfileRequest
+[41] RemoteEvent  WeaponChallengeCompleted  ReplicatedStorage.R1Remotes.WeaponChallengeCompleted
+[42] RemoteFunction  Menu  ReplicatedStorage.R1Remotes.Menu
+[43] RemoteEvent  TradePush  ReplicatedStorage.R1Remotes.TradePush
+[44] RemoteFunction  Trade  ReplicatedStorage.R1Remotes.Trade
+[45] RemoteFunction  Clans  ReplicatedStorage.R1Remotes.Clans
+[46] RemoteEvent  ClanPush  ReplicatedStorage.R1Remotes.ClanPush
+[47] RemoteFunction  R1TournamentAdmin  ReplicatedStorage.R1TournamentAdmin
+[48] RemoteFunction  R1AdminModes  ReplicatedStorage.R1AdminModes
+[49] RemoteFunction  R1AdminTrade  ReplicatedStorage.R1AdminTrade
+[50] RemoteFunction  R1EventCardAdmin  ReplicatedStorage.R1EventCardAdmin
+
+-- ===== TOP CLASSES =====
+Vector3Value = 1995
+Attachment = 1860
+Part = 1500
+Animation = 810
+StringValue = 636
+MeshPart = 605
+NoCollisionConstraint = 589
+WrapTarget = 465
+AnimationConstraint = 465
+BallSocketConstraint = 434
+NumberValue = 366
+Sound = 270
+ModuleScript = 125
+Model = 118
+WeldConstraint = 105
+Texture = 79
+InputBinding = 74
+Accessory = 73
+SurfaceAppearance = 60
+SpecialMesh = 52
+UIGradient = 43
+Frame = 43
+UICorner = 40
+LocalScript = 37
+Folder = 36
+Script = 35
+Motor6D = 32
+Weld = 31
+Animator = 31
+Humanoid = 31
+InputAction = 30
+FaceControls = 30
+Status = 30
+BindableFunction = 30
+WedgePart = 22
+Wire = 20
+AudioEmitter = 19
+Decal = 18
+PointLight = 14
+SurfaceGui = 13
+
+-- ===== STATS =====
+Flat = 11391
+Values = 3002
+Tags = 55
+Properties = 15836
+BytesWritten = 1382060
+Objects = 11391
+DumpMode = FULL
+Attributes = 928
+Scripts = 72
+ElapsedSeconds = 7.765406608581543
+Remotes = 50
+Errors = 0
+Modules = 125

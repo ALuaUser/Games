@@ -1,0 +1,88 @@
+-- EvolsDumper Summary  2026-11-17 23:32:21
+-- PlaceId: 75942174630781  Game: Map
+
+-- ===== REMOTES (27) =====
+[1] BindableFunction  PlayEmote  Workspace.KarumuBlox.Animate.PlayEmote
+[2] RemoteEvent  Action  ReplicatedStorage.TPS.Remotes.Action
+[3] UnreliableRemoteEvent  Aim  ReplicatedStorage.TPS.Remotes.Aim
+[4] RemoteEvent  State  ReplicatedStorage.TPS.Remotes.State
+[5] RemoteEvent  Shot  ReplicatedStorage.TPS.Remotes.Shot
+[6] RemoteEvent  Impact  ReplicatedStorage.TPS.Remotes.Impact
+[7] RemoteEvent  Hit  ReplicatedStorage.TPS.Remotes.Hit
+[8] RemoteEvent  Notice  ReplicatedStorage.TPS.Remotes.Notice
+[9] RemoteEvent  KillFeed  ReplicatedStorage.TPS.Remotes.KillFeed
+[10] RemoteEvent  Hurt  ReplicatedStorage.TPS.Remotes.Hurt
+[11] RemoteEvent  Duel  ReplicatedStorage.TPS.Remotes.Duel
+[12] RemoteEvent  Reboot  ReplicatedStorage.TPS.Remotes.Reboot
+[13] RemoteEvent  Airdrop  ReplicatedStorage.TPS.Remotes.Airdrop
+[14] RemoteEvent  GasHit  ReplicatedStorage.TPS.Remotes.GasHit
+[15] RemoteEvent  Match  ReplicatedStorage.TPS.Remotes.Match
+[16] RemoteEvent  Device  ReplicatedStorage.TPS.Remotes.Device
+[17] RemoteEvent  Chaos  ReplicatedStorage.TPS.Remotes.Chaos
+[18] RemoteEvent  Breakables  ReplicatedStorage.TPS.Remotes.Breakables
+[19] RemoteEvent  R1_CarEnter  ReplicatedStorage.TPS.Remotes.R1_CarEnter
+[20] RemoteEvent  Ping  ReplicatedStorage.TPS.Remotes.Ping
+[21] RemoteFunction  R1Admin  ReplicatedStorage.R1Admin
+[22] RemoteEvent  R1AdminGhost  ReplicatedStorage.R1AdminGhost
+[23] RemoteEvent  ProfileSync  ReplicatedStorage.R1Remotes.ProfileSync
+[24] RemoteFunction  ProfileRequest  ReplicatedStorage.R1Remotes.ProfileRequest
+[25] RemoteEvent  WeaponChallengeCompleted  ReplicatedStorage.R1Remotes.WeaponChallengeCompleted
+[26] UnreliableRemoteEvent  R1Sync  ReplicatedStorage.R1Sync
+[27] RemoteEvent  R1SyncReport  ReplicatedStorage.R1SyncReport
+
+-- ===== TOP CLASSES =====
+Model = 11475
+Vector3Value = 4554
+Attachment = 3629
+Frame = 2009
+TextLabel = 1904
+Part = 1812
+NoCollisionConstraint = 1216
+MeshPart = 1201
+WrapTarget = 975
+AnimationConstraint = 960
+BallSocketConstraint = 896
+WeldConstraint = 610
+Folder = 411
+NumberValue = 396
+UITextSizeConstraint = 130
+ModuleScript = 119
+SpecialMesh = 105
+UnionOperation = 90
+Accessory = 76
+InputBinding = 74
+WedgePart = 69
+Humanoid = 65
+Shirt = 64
+FaceControls = 64
+Animator = 64
+HumanoidDescription = 64
+Pants = 64
+AlignOrientation = 63
+Status = 63
+ForceField = 63
+SurfaceAppearance = 59
+StringValue = 55
+Sound = 51
+Texture = 34
+InputAction = 30
+LocalScript = 29
+Animation = 27
+Weld = 26
+RemoteEvent = 22
+Configuration = 15
+
+-- ===== STATS =====
+Flat = 33787
+Values = 5009
+Tags = 136
+Properties = 39156
+BytesWritten = 3711986
+Objects = 33787
+DumpMode = FULL
+Attributes = 13131
+Scripts = 35
+ElapsedSeconds = 22.094818830490112
+Remotes = 27
+Errors = 0
+Modules = 119
