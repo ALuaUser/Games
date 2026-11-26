@@ -1,0 +1,252 @@
+-- EvolsDumper Summary  2026-11-25 18:55:40
+-- PlaceId: 78884249003161  Game: Voxel Wars
+
+-- ===== REMOTES (191) =====
+[1] BindableFunction  PlayEmote  Workspace.alexwilliamvans.Animate.PlayEmote
+[2] BindableFunction  PlayEmote  Workspace.roblox_user_7438234817.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  Workspace.dyadya_andreo.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.ciaosonolippo.Animate.PlayEmote
+[5] BindableFunction  PlayEmote  Workspace.EUROSTYLE11.Animate.PlayEmote
+[6] BindableFunction  PlayEmote  Workspace.ming0151.Animate.PlayEmote
+[7] BindableFunction  PlayEmote  Workspace.mrlowtab_1.Animate.PlayEmote
+[8] BindableFunction  PlayEmote  Workspace.TheRoninBetaPlays.Animate.PlayEmote
+[9] BindableFunction  PlayEmote  Workspace.MikiShowGaming2005.Animate.PlayEmote
+[10] BindableFunction  PlayEmote  Workspace.hell261802.Animate.PlayEmote
+[11] BindableFunction  PlayEmote  Workspace.Scordi221.Animate.PlayEmote
+[12] RemoteFunction  CmdrFunction  ReplicatedStorage.CmdrClient.CmdrFunction
+[13] RemoteEvent  CmdrEvent  ReplicatedStorage.CmdrClient.CmdrEvent
+[14] RemoteFunction  Remote  ReplicatedStorage.Gunsmith.Remote
+[15] RemoteEvent  VehicleRemoved  ReplicatedStorage.Vehicles.Remotes.VehicleRemoved
+[16] RemoteEvent  VehicleSeat  ReplicatedStorage.Vehicles.Remotes.VehicleSeat
+[17] RemoteEvent  VehicleEdits  ReplicatedStorage.Vehicles.Remotes.VehicleEdits
+[18] RemoteEvent  VehicleImpulse  ReplicatedStorage.Vehicles.Remotes.VehicleImpulse
+[19] RemoteEvent  VehicleCrash  ReplicatedStorage.Vehicles.Remotes.VehicleCrash
+[20] UnreliableRemoteEvent  VehiclePoses  ReplicatedStorage.Vehicles.Remotes.VehiclePoses
+[21] RemoteFunction  VehicleSnapshot  ReplicatedStorage.Vehicles.Remotes.VehicleSnapshot
+[22] UnreliableRemoteEvent  VehicleDrive  ReplicatedStorage.Vehicles.Remotes.VehicleDrive
+[23] RemoteEvent  TankFire  ReplicatedStorage.Vehicles.Remotes.TankFire
+[24] RemoteEvent  TankShot  ReplicatedStorage.Vehicles.Remotes.TankShot
+[25] RemoteEvent  HeliFire  ReplicatedStorage.Vehicles.Remotes.HeliFire
+[26] RemoteEvent  HeliDoorFire  ReplicatedStorage.Vehicles.Remotes.HeliDoorFire
+[27] UnreliableRemoteEvent  HeliGunAim  ReplicatedStorage.Vehicles.Remotes.HeliGunAim
+[28] RemoteEvent  VehicleRam  ReplicatedStorage.Vehicles.Remotes.VehicleRam
+[29] RemoteEvent  JetOrdnance  ReplicatedStorage.Vehicles.Remotes.JetOrdnance
+[30] RemoteEvent  AAOrdnance  ReplicatedStorage.Vehicles.Remotes.AAOrdnance
+[31] RemoteEvent  AAFlare  ReplicatedStorage.Vehicles.Remotes.AAFlare
+[32] UnreliableRemoteEvent  AAOrdnanceTrack  ReplicatedStorage.Vehicles.Remotes.AAOrdnanceTrack
+[33] RemoteEvent  LaunchRocketBlast  ReplicatedStorage.LaunchRocketBlast
+[34] RemoteEvent  Event  ReplicatedStorage.Bots.Event
+[35] UnreliableRemoteEvent  Shots  ReplicatedStorage.Bots.Shots
+[36] UnreliableRemoteEvent  State  ReplicatedStorage.Bots.State
+[37] RemoteEvent  UpdateMove  ReplicatedStorage.UpdateMove
+[38] RemoteEvent  EmplacementSeat  ReplicatedStorage.Game.EmplacementRemotes.EmplacementSeat
+[39] RemoteEvent  EmplacementFire  ReplicatedStorage.Game.EmplacementRemotes.EmplacementFire
+[40] UnreliableRemoteEvent  EmplacementAim  ReplicatedStorage.Game.EmplacementRemotes.EmplacementAim
+[41] RemoteFunction  ModDesk  ReplicatedStorage.Game.Remotes.ModDesk
+[42] RemoteFunction  OwnerGift  ReplicatedStorage.Game.Remotes.OwnerGift
+[43] RemoteFunction  DebugServerInfo  ReplicatedStorage.Game.Remotes.DebugServerInfo
+[44] RemoteEvent  grantscrap  ReplicatedStorage.Game.Remotes.grantscrap
+[45] RemoteEvent  addxp  ReplicatedStorage.Game.Remotes.addxp
+[46] RemoteEvent  setplayerlevel  ReplicatedStorage.Game.Remotes.setplayerlevel
+[47] RemoteEvent  unlockall  ReplicatedStorage.Game.Remotes.unlockall
+[48] RemoteEvent  redeemcode  ReplicatedStorage.Game.Remotes.redeemcode
+[49] RemoteEvent  adminpanel  ReplicatedStorage.Game.Remotes.adminpanel
+[50] RemoteEvent  claimallquests  ReplicatedStorage.Game.Remotes.claimallquests
+[51] RemoteFunction  getplayerdata  ReplicatedStorage.Game.Remotes.getplayerdata
+[52] RemoteFunction  checkadmin  ReplicatedStorage.Game.Remotes.checkadmin
+[53] RemoteEvent  Vote  ReplicatedStorage.Game.Remotes.Vote
+[54] RemoteFunction  DevGive  ReplicatedStorage.Game.Remotes.DevGive
+[55] RemoteEvent  CrateDrop  ReplicatedStorage.Game.Remotes.CrateDrop
+[56] RemoteEvent  Gift  ReplicatedStorage.Game.Remotes.Gift
+[57] RemoteFunction  Career  ReplicatedStorage.Game.Remotes.Career
+[58] RemoteEvent  PassTier  ReplicatedStorage.Game.Remotes.PassTier
+[59] RemoteEvent  TripleStrikeInbound  ReplicatedStorage.Game.Remotes.TripleStrikeInbound
+[60] RemoteEvent  TripleStrike  ReplicatedStorage.Game.Remotes.TripleStrike
+[61] RemoteEvent  Bomb  ReplicatedStorage.Game.Remotes.Bomb
+[62] RemoteEvent  VehicleLevel  ReplicatedStorage.Game.Remotes.VehicleLevel
+[63] RemoteFunction  VehicleLoadout  ReplicatedStorage.Game.Remotes.VehicleLoadout
+[64] RemoteEvent  CheatFlag  ReplicatedStorage.Game.Remotes.CheatFlag
+[65] RemoteEvent  DiamondCamo  ReplicatedStorage.Game.Remotes.DiamondCamo
+[66] RemoteEvent  GoldCamo  ReplicatedStorage.Game.Remotes.GoldCamo
+[67] RemoteEvent  Revive  ReplicatedStorage.Game.Remotes.Revive
+[68] RemoteEvent  MobileLobby  ReplicatedStorage.Game.Remotes.MobileLobby
+[69] RemoteEvent  QuestAction  ReplicatedStorage.Game.Remotes.QuestAction
+[70] RemoteEvent  Quest  ReplicatedStorage.Game.Remotes.Quest
+[71] RemoteEvent  WeaponLevel  ReplicatedStorage.Game.Remotes.WeaponLevel
+[72] RemoteEvent  LevelUp  ReplicatedStorage.Game.Remotes.LevelUp
+[73] RemoteEvent  Badge  ReplicatedStorage.Game.Remotes.Badge
+[74] RemoteEvent  GunshipState  ReplicatedStorage.Game.Remotes.GunshipState
+[75] RemoteEvent  Gunship  ReplicatedStorage.Game.Remotes.Gunship
+[76] UnreliableRemoteEvent  HellfirePose  ReplicatedStorage.Game.Remotes.HellfirePose
+[77] RemoteEvent  HellfireState  ReplicatedStorage.Game.Remotes.HellfireState
+[78] RemoteEvent  Hellfire  ReplicatedStorage.Game.Remotes.Hellfire
+[79] RemoteFunction  Build  ReplicatedStorage.Game.Remotes.Build
+[80] RemoteEvent  Settings  ReplicatedStorage.Game.Remotes.Settings
+[81] RemoteEvent  Progress  ReplicatedStorage.Game.Remotes.Progress
+[82] RemoteEvent  AirstrikeInbound  ReplicatedStorage.Game.Remotes.AirstrikeInbound
+[83] RemoteEvent  CallAirstrike  ReplicatedStorage.Game.Remotes.CallAirstrike
+[84] RemoteFunction  Shop  ReplicatedStorage.Game.Remotes.Shop
+[85] RemoteEvent  Redeploy  ReplicatedStorage.Game.Remotes.Redeploy
+[86] RemoteEvent  Score  ReplicatedStorage.Game.Remotes.Score
+[87] RemoteEvent  MatchEvent  ReplicatedStorage.Game.Remotes.MatchEvent
+[88] RemoteEvent  PickTeam  ReplicatedStorage.Game.Remotes.PickTeam
+[89] RemoteEvent  Eliminated  ReplicatedStorage.Game.Remotes.Eliminated
+[90] RemoteEvent  Died  ReplicatedStorage.Game.Remotes.Died
+[91] RemoteEvent  Feed  ReplicatedStorage.Game.Remotes.Feed
+[92] RemoteEvent  Damaged  ReplicatedStorage.Game.Remotes.Damaged
+[93] RemoteEvent  HitConfirm  ReplicatedStorage.Game.Remotes.HitConfirm
+[94] RemoteEvent  Points  ReplicatedStorage.Game.Remotes.Points
+[95] RemoteFunction  VehicleBay  ReplicatedStorage.Game.Remotes.VehicleBay
+[96] RemoteEvent  PlayerReport  ReplicatedStorage.Game.Remotes.PlayerReport
+[97] RemoteFunction  Leaderboards  ReplicatedStorage.Game.Remotes.Leaderboards
+[98] RemoteEvent  ThrowSmoke  ReplicatedStorage.Voxel.Remotes.ThrowSmoke
+[99] RemoteEvent  SmokeThrown  ReplicatedStorage.Voxel.Remotes.SmokeThrown
+[100] RemoteEvent  SmokePopped  ReplicatedStorage.Voxel.Remotes.SmokePopped
+[101] UnreliableRemoteEvent  ClockProbe  ReplicatedStorage.Voxel.Remotes.ClockProbe
+[102] RemoteEvent  FireAA  ReplicatedStorage.Voxel.Remotes.FireAA
+[103] RemoteEvent  applydamage  ReplicatedStorage.Voxel.Remotes.applydamage
+[104] RemoteEvent  hitplayer  ReplicatedStorage.Voxel.Remotes.hitplayer
+[105] RemoteEvent  setwalkspeed  ReplicatedStorage.Voxel.Remotes.setwalkspeed
+[106] RemoteEvent  teleportplayer  ReplicatedStorage.Voxel.Remotes.teleportplayer
+[107] RemoteEvent  togglegod  ReplicatedStorage.Voxel.Remotes.togglegod
+[108] RemoteEvent  refillammo  ReplicatedStorage.Voxel.Remotes.refillammo
+[109] RemoteEvent  spawncar  ReplicatedStorage.Voxel.Remotes.spawncar
+[110] RemoteEvent  espupdate  ReplicatedStorage.Voxel.Remotes.espupdate
+[111] RemoteEvent  aimassisttarget  ReplicatedStorage.Voxel.Remotes.aimassisttarget
+[112] RemoteFunction  playerpositions  ReplicatedStorage.Voxel.Remotes.playerpositions
+[113] RemoteFunction  getenemydata  ReplicatedStorage.Voxel.Remotes.getenemydata
+[114] RemoteEvent  SniperScope  ReplicatedStorage.Voxel.Remotes.SniperScope
+[115] RemoteEvent  ThrowGrenade  ReplicatedStorage.Voxel.Remotes.ThrowGrenade
+[116] RemoteEvent  GroundFire  ReplicatedStorage.Voxel.Remotes.GroundFire
+[117] RemoteFunction  GroundFireSnapshot  ReplicatedStorage.Voxel.Remotes.GroundFireSnapshot
+[118] RemoteEvent  FireLMG  ReplicatedStorage.Voxel.Remotes.FireLMG
+[119] RemoteEvent  ReloadLMG  ReplicatedStorage.Voxel.Remotes.ReloadLMG
+[120] RemoteEvent  Crouch  ReplicatedStorage.Voxel.Remotes.Crouch
+[121] RemoteEvent  Punch  ReplicatedStorage.Voxel.Remotes.Punch
+[122] RemoteEvent  GroundDent  ReplicatedStorage.Voxel.Remotes.GroundDent
+[123] RemoteFunction  GroundDentSnapshot  ReplicatedStorage.Voxel.Remotes.GroundDentSnapshot
+[124] RemoteEvent  FireSMG  ReplicatedStorage.Voxel.Remotes.FireSMG
+[125] RemoteEvent  ReloadSMG  ReplicatedStorage.Voxel.Remotes.ReloadSMG
+[126] RemoteEvent  FireMinigun  ReplicatedStorage.Voxel.Remotes.FireMinigun
+[127] RemoteEvent  PipeBombThrown  ReplicatedStorage.Voxel.Remotes.PipeBombThrown
+[128] RemoteEvent  FireDMR  ReplicatedStorage.Voxel.Remotes.FireDMR
+[129] RemoteEvent  ReloadDMR  ReplicatedStorage.Voxel.Remotes.ReloadDMR
+[130] RemoteEvent  MeleeSwing  ReplicatedStorage.Voxel.Remotes.MeleeSwing
+[131] RemoteEvent  FireShotgun  ReplicatedStorage.Voxel.Remotes.FireShotgun
+[132] RemoteEvent  ReloadShotgun  ReplicatedStorage.Voxel.Remotes.ReloadShotgun
+[133] RemoteEvent  TouchAim  ReplicatedStorage.Voxel.Remotes.TouchAim
+[134] RemoteEvent  ShovelDig  ReplicatedStorage.Voxel.Remotes.ShovelDig
+[135] RemoteEvent  ReportTouch  ReplicatedStorage.Voxel.Remotes.ReportTouch
+[136] RemoteEvent  ReportClient  ReplicatedStorage.Voxel.Remotes.ReportClient
+[137] RemoteEvent  FireHandCannon  ReplicatedStorage.Voxel.Remotes.FireHandCannon
+[138] RemoteEvent  ReloadHandCannon  ReplicatedStorage.Voxel.Remotes.ReloadHandCannon
+[139] UnreliableRemoteEvent  AimShare  ReplicatedStorage.Voxel.Remotes.AimShare
+[140] RemoteEvent  ThrowMolotov  ReplicatedStorage.Voxel.Remotes.ThrowMolotov
+[141] RemoteEvent  MolotovThrown  ReplicatedStorage.Voxel.Remotes.MolotovThrown
+[142] RemoteEvent  MolotovBurst  ReplicatedStorage.Voxel.Remotes.MolotovBurst
+[143] RemoteEvent  FireFlame  ReplicatedStorage.Voxel.Remotes.FireFlame
+[144] UnreliableRemoteEvent  FlameSprayU  ReplicatedStorage.Voxel.Remotes.FlameSprayU
+[145] RemoteFunction  VoxelFireSnapshot  ReplicatedStorage.Voxel.Remotes.VoxelFireSnapshot
+[146] RemoteEvent  VoxelFire  ReplicatedStorage.Voxel.Remotes.VoxelFire
+[147] RemoteEvent  VoxelDamage  ReplicatedStorage.Voxel.Remotes.VoxelDamage
+[148] RemoteEvent  WorldReset  ReplicatedStorage.Voxel.Remotes.WorldReset
+[149] RemoteEvent  GrenadeThrown  ReplicatedStorage.Voxel.Remotes.GrenadeThrown
+[150] RemoteEvent  ReloadRifle  ReplicatedStorage.Voxel.Remotes.ReloadRifle
+[151] RemoteEvent  FireRifle  ReplicatedStorage.Voxel.Remotes.FireRifle
+[152] RemoteEvent  ReloadRocket  ReplicatedStorage.Voxel.Remotes.ReloadRocket
+[153] RemoteEvent  ThrowBomb  ReplicatedStorage.Voxel.Remotes.ThrowBomb
+[154] RemoteFunction  VoxelSnapshot  ReplicatedStorage.Voxel.Remotes.VoxelSnapshot
+[155] RemoteEvent  VoxelEdits  ReplicatedStorage.Voxel.Remotes.VoxelEdits
+[156] RemoteEvent  Explosion  ReplicatedStorage.Voxel.Remotes.Explosion
+[157] RemoteEvent  RocketSpawned  ReplicatedStorage.Voxel.Remotes.RocketSpawned
+[158] RemoteEvent  FireRocket  ReplicatedStorage.Voxel.Remotes.FireRocket
+[159] UnreliableRemoteEvent  ShotFX  ReplicatedStorage.Voxel.Remotes.ShotFX
+[160] RemoteEvent  HammerHit  ReplicatedStorage.Voxel.Remotes.HammerHit
+[161] RemoteEvent  PickupLandmine  ReplicatedStorage.Voxel.Remotes.PickupLandmine
+[162] RemoteEvent  LandmineGone  ReplicatedStorage.Voxel.Remotes.LandmineGone
+[163] RemoteEvent  LandmineThrown  ReplicatedStorage.Voxel.Remotes.LandmineThrown
+[164] RemoteEvent  ThrowLandmine  ReplicatedStorage.Voxel.Remotes.ThrowLandmine
+[165] RemoteEvent  Lean  ReplicatedStorage.Voxel.Remotes.Lean
+[166] UnreliableRemoteEvent  DeckRide  ReplicatedStorage.Voxel.Remotes.DeckRide
+[167] RemoteEvent  KnifeHit  ReplicatedStorage.Voxel.Remotes.KnifeHit
+[168] UnreliableRemoteEvent  RepairSparkU  ReplicatedStorage.Voxel.Remotes.RepairSparkU
+[169] RemoteEvent  RepairTorch  ReplicatedStorage.Voxel.Remotes.RepairTorch
+[170] RemoteEvent  DetonateC4  ReplicatedStorage.Voxel.Remotes.DetonateC4
+[171] RemoteEvent  C4Gone  ReplicatedStorage.Voxel.Remotes.C4Gone
+[172] RemoteEvent  C4Stuck  ReplicatedStorage.Voxel.Remotes.C4Stuck
+[173] RemoteEvent  C4Thrown  ReplicatedStorage.Voxel.Remotes.C4Thrown
+[174] RemoteEvent  ThrowC4  ReplicatedStorage.Voxel.Remotes.ThrowC4
+[175] RemoteEvent  ClaymoreGone  ReplicatedStorage.Voxel.Remotes.ClaymoreGone
+[176] RemoteEvent  ClaymorePlaced  ReplicatedStorage.Voxel.Remotes.ClaymorePlaced
+[177] RemoteEvent  PlaceClaymore  ReplicatedStorage.Voxel.Remotes.PlaceClaymore
+[178] RemoteFunction  Feedback  ReplicatedStorage.Voxel.Remotes.Feedback
+[179] RemoteEvent  ReportFirst  ReplicatedStorage.Voxel.Remotes.ReportFirst
+[180] RemoteEvent  StreamReady  ReplicatedStorage.Voxel.Remotes.StreamReady
+[181] RemoteEvent  ReportUI  ReplicatedStorage.Voxel.Remotes.ReportUI
+[182] UnreliableRemoteEvent  AATrack  ReplicatedStorage.Voxel.Remotes.AATrack
+[183] RemoteEvent  ReloadAA  ReplicatedStorage.Voxel.Remotes.ReloadAA
+[184] RemoteEvent  FirePistol  ReplicatedStorage.Voxel.Remotes.FirePistol
+[185] RemoteEvent  ReloadPistol  ReplicatedStorage.Voxel.Remotes.ReloadPistol
+[186] RemoteEvent  FireSniper  ReplicatedStorage.Voxel.Remotes.FireSniper
+[187] RemoteEvent  ReloadSniper  ReplicatedStorage.Voxel.Remotes.ReloadSniper
+[188] RemoteEvent  Press  ReplicatedStorage.Lifts.Press
+[189] RemoteEvent  Moved  ReplicatedStorage.Lifts.Moved
+[190] RemoteEvent  VoxelWarsAnalyticsReport  ReplicatedStorage.VoxelWarsAnalyticsReport
+[191] BindableFunction  PlayEmote  StarterPlayer.StarterCharacterScripts.Animate.PlayEmote
+
+-- ===== TOP CLASSES =====
+Part = 110108
+Weld = 4322
+Attachment = 1407
+MeshPart = 1029
+Vector3Value = 1002
+ModuleScript = 575
+SurfaceAppearance = 471
+Decal = 392
+Animation = 324
+ParticleEmitter = 300
+NoCollisionConstraint = 285
+Beam = 264
+StringValue = 247
+NumberValue = 234
+Wire = 227
+AnimationConstraint = 225
+BallSocketConstraint = 210
+Folder = 184
+WeldConstraint = 174
+WrapTarget = 165
+AudioFilter = 156
+SurfaceLight = 150
+LocalScript = 147
+RemoteEvent = 142
+Frame = 134
+UnionOperation = 121
+Model = 117
+BodyPartDescription = 114
+Sound = 99
+InputBinding = 74
+PointLight = 65
+Tool = 64
+AudioPlayer = 55
+UIStroke = 37
+AudioEmitter = 36
+TextLabel = 35
+Configuration = 34
+InputAction = 30
+SpawnLocation = 24
+RemoteFunction = 22
+
+-- ===== STATS =====
+Flat = 124106
+Values = 1484
+Tags = 140
+Properties = 126301
+BytesWritten = 8420011
+Objects = 124106
+DumpMode = FULL
+Attributes = 3224
+Scripts = 163
+ElapsedSeconds = 79.10184788703918
+Remotes = 191
+Errors = 0
+Modules = 575

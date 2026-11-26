@@ -1,0 +1,108 @@
+-- EvolsDumper Summary  2026-11-24 23:39:03
+-- PlaceId: 77588808128300  Game: Trade To Be Rich
+
+-- ===== REMOTES (47) =====
+[1] BindableFunction  PlayEmote  Workspace.chunk8917.Animate.PlayEmote
+[2] BindableFunction  PlayEmote  Workspace.President_kitty123.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  Workspace.ken_446677.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.KarumuBlox.Animate.PlayEmote
+[5] RemoteFunction  UnMutePlayerRequest  ReplicatedStorage.DefaultChatSystemChatEvents.UnMutePlayerRequest
+[6] RemoteFunction  MutePlayerRequest  ReplicatedStorage.DefaultChatSystemChatEvents.MutePlayerRequest
+[7] RemoteFunction  GetInitDataRequest  ReplicatedStorage.DefaultChatSystemChatEvents.GetInitDataRequest
+[8] RemoteEvent  SetBlockedUserIdsRequest  ReplicatedStorage.DefaultChatSystemChatEvents.SetBlockedUserIdsRequest
+[9] RemoteEvent  SayMessageRequest  ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest
+[10] RemoteEvent  ChannelNameColorUpdated  ReplicatedStorage.DefaultChatSystemChatEvents.ChannelNameColorUpdated
+[11] RemoteEvent  OnMainChannelSet  ReplicatedStorage.DefaultChatSystemChatEvents.OnMainChannelSet
+[12] RemoteEvent  OnUnmuted  ReplicatedStorage.DefaultChatSystemChatEvents.OnUnmuted
+[13] RemoteEvent  OnMuted  ReplicatedStorage.DefaultChatSystemChatEvents.OnMuted
+[14] RemoteEvent  OnChannelLeft  ReplicatedStorage.DefaultChatSystemChatEvents.OnChannelLeft
+[15] RemoteEvent  OnChannelJoined  ReplicatedStorage.DefaultChatSystemChatEvents.OnChannelJoined
+[16] RemoteEvent  OnNewSystemMessage  ReplicatedStorage.DefaultChatSystemChatEvents.OnNewSystemMessage
+[17] RemoteEvent  OnMessageDoneFiltering  ReplicatedStorage.DefaultChatSystemChatEvents.OnMessageDoneFiltering
+[18] RemoteEvent  OnNewMessage  ReplicatedStorage.DefaultChatSystemChatEvents.OnNewMessage
+[19] RemoteFunction  SellAll  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.SellAll
+[20] RemoteFunction  Stand  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Stand
+[21] RemoteFunction  Sell  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Sell
+[22] RemoteFunction  ClaimOffline  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.ClaimOffline
+[23] RemoteFunction  Trade  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Trade
+[24] RemoteFunction  HousePlace  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.HousePlace
+[25] RemoteFunction  ClaimGift  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.ClaimGift
+[26] RemoteFunction  UpgradeHouse  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.UpgradeHouse
+[27] RemoteEvent  AfkHop  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.AfkHop
+[28] RemoteFunction  Rebirth  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Rebirth
+[29] RemoteFunction  PlayerTrade  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.PlayerTrade
+[30] RemoteEvent  Device  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Device
+[31] RemoteFunction  BuySlot  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.BuySlot
+[32] RemoteFunction  AdminHouse  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.AdminHouse
+[33] RemoteFunction  Conveyor  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Conveyor
+[34] RemoteFunction  UpgradeLuck  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.UpgradeLuck
+[35] RemoteEvent  BuyProduct  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.BuyProduct
+[36] RemoteFunction  BeltRobux  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.BeltRobux
+[37] RemoteFunction  GetPlot  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.GetPlot
+[38] RemoteEvent  Setting  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Setting
+[39] RemoteFunction  CollectorGive  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.CollectorGive
+[40] RemoteFunction  AutoBuy  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.AutoBuy
+[41] RemoteEvent  Effect  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.Effect
+[42] RemoteFunction  AdminSetMoney  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.AdminSetMoney
+[43] RemoteFunction  LockItem  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.LockItem
+[44] RemoteFunction  AdminWipeData  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.AdminWipeData
+[45] RemoteFunction  EquipBest  ReplicatedStorage.Shared.Packages._Index.littensy_remo@1.5.2.remo.container.EquipBest
+[46] RemoteFunction  RemoteFunction  ReplicatedStorage.Shared.Packages._Index.leifstout_networker@0.3.1.networker._remotes.DataService.RemoteFunction
+[47] RemoteEvent  RemoteEvent  ReplicatedStorage.Shared.Packages._Index.leifstout_networker@0.3.1.networker._remotes.DataService.RemoteEvent
+
+-- ===== TOP CLASSES =====
+Vector3Value = 8595
+Attachment = 6773
+MeshPart = 3133
+Part = 2456
+NoCollisionConstraint = 2185
+AnimationConstraint = 1725
+WrapTarget = 1725
+BallSocketConstraint = 1610
+StringValue = 1587
+NumberValue = 740
+BodyPartDescription = 738
+ParticleEmitter = 665
+ModuleScript = 456
+Model = 389
+AccessoryDescription = 361
+Accessory = 361
+Weld = 303
+TouchTransmitter = 298
+UIStroke = 246
+TextLabel = 235
+SurfaceAppearance = 198
+HumanoidDescription = 123
+Animator = 123
+BodyColors = 123
+Humanoid = 123
+Status = 121
+Pants = 117
+FaceControls = 114
+Shirt = 113
+Animation = 110
+Folder = 84
+WrapLayer = 77
+BillboardGui = 64
+RigidConstraint = 64
+Decal = 58
+Motor6D = 48
+Frame = 45
+UIListLayout = 41
+WeldConstraint = 40
+Configuration = 37
+
+-- ===== STATS =====
+Flat = 36798
+Values = 10924
+Tags = 125
+Properties = 48333
+BytesWritten = 5091272
+Objects = 36798
+DumpMode = FULL
+Attributes = 4151
+Scripts = 13
+ElapsedSeconds = 23.731093168258667
+Remotes = 47
+Errors = 0
+Modules = 456

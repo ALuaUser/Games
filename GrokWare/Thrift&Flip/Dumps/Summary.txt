@@ -1,0 +1,244 @@
+-- EvolsDumper Summary  2026-11-24 23:59:51
+-- PlaceId: 94206080514907  Game: Thrift&Flip: Resell Tycoon
+
+-- ===== REMOTES (183) =====
+[1] BindableFunction  PlayEmote  Workspace.Map.ServiceUnits.West.Unit_5.CarWorkshopRuntime.WorkshopMechanic.Animate.PlayEmote
+[2] BindableFunction  PlayEmote  Workspace.Map.ServiceUnits.East.Unit_1.CarWorkshopRuntime.WorkshopMechanic.Animate.PlayEmote
+[3] BindableFunction  PlayEmote  Workspace.Map.ServiceUnits.East.Unit_5.CarWorkshopRuntime.WorkshopMechanic.Animate.PlayEmote
+[4] BindableFunction  PlayEmote  Workspace.Map.ServiceUnits.East.Unit_3.CarWorkshopRuntime.WorkshopMechanic.Animate.PlayEmote
+[5] BindableFunction  PlayEmote  Workspace.Karli10xo.Animate.PlayEmote
+[6] BindableFunction  PlayEmote  Workspace.IvKatie.Animate.PlayEmote
+[7] BindableFunction  PlayEmote  Workspace.Breezy11255.Animate.PlayEmote
+[8] BindableFunction  PlayEmote  Workspace.xxvahdg.Animate.PlayEmote
+[9] BindableFunction  PlayEmote  Workspace.KarumuBlox.Animate.PlayEmote
+[10] BindableFunction  PlayEmote  Workspace.BigMumaJelly.Animate.PlayEmote
+[11] RemoteEvent  TeleportRequest  ReplicatedStorage.Remotes.TeleportRequest
+[12] RemoteEvent  ThriftOpen  ReplicatedStorage.Remotes.ThriftOpen
+[13] RemoteEvent  ThriftUpdate  ReplicatedStorage.Remotes.ThriftUpdate
+[14] RemoteFunction  ThriftBuy  ReplicatedStorage.Remotes.ThriftBuy
+[15] RemoteFunction  ThriftSnapshot  ReplicatedStorage.Remotes.ThriftSnapshot
+[16] RemoteEvent  ComputerOpen  ReplicatedStorage.Remotes.ComputerOpen
+[17] RemoteEvent  ComputerUpdate  ReplicatedStorage.Remotes.ComputerUpdate
+[18] RemoteFunction  ComputerAction  ReplicatedStorage.Remotes.ComputerAction
+[19] RemoteFunction  ComputerSnapshot  ReplicatedStorage.Remotes.ComputerSnapshot
+[20] RemoteEvent  SaleNotify  ReplicatedStorage.Remotes.SaleNotify
+[21] RemoteEvent  BasketOpen  ReplicatedStorage.Remotes.BasketOpen
+[22] RemoteEvent  BasketUpdate  ReplicatedStorage.Remotes.BasketUpdate
+[23] RemoteEvent  SupplierUpdate  ReplicatedStorage.Remotes.SupplierUpdate
+[24] RemoteFunction  BasketSnapshot  ReplicatedStorage.Remotes.BasketSnapshot
+[25] RemoteFunction  BasketAction  ReplicatedStorage.Remotes.BasketAction
+[26] RemoteFunction  SupplierSnapshot  ReplicatedStorage.Remotes.SupplierSnapshot
+[27] RemoteFunction  SupplierAction  ReplicatedStorage.Remotes.SupplierAction
+[28] RemoteFunction  BagUpgradeRequest  ReplicatedStorage.Remotes.BagUpgradeRequest
+[29] RemoteFunction  StaffSnapshot  ReplicatedStorage.Remotes.StaffSnapshot
+[30] RemoteFunction  StaffAction  ReplicatedStorage.Remotes.StaffAction
+[31] RemoteEvent  StaffUpdate  ReplicatedStorage.Remotes.StaffUpdate
+[32] RemoteEvent  ActionSound  ReplicatedStorage.Remotes.ActionSound
+[33] RemoteEvent  ShoeShopOpen  ReplicatedStorage.Remotes.ShoeShopOpen
+[34] RemoteEvent  HRRoomNotice  ReplicatedStorage.Remotes.HRRoomNotice
+[35] RemoteEvent  LegitCheckOpen  ReplicatedStorage.Remotes.LegitCheckOpen
+[36] RemoteEvent  LegitCheckAction  ReplicatedStorage.Remotes.LegitCheckAction
+[37] RemoteEvent  LegitCheckUpdate  ReplicatedStorage.Remotes.LegitCheckUpdate
+[38] RemoteEvent  TrainNowRequest  ReplicatedStorage.Remotes.TrainNowRequest
+[39] RemoteEvent  TrainNowResult  ReplicatedStorage.Remotes.TrainNowResult
+[40] RemoteEvent  VehicleGuide  ReplicatedStorage.Remotes.VehicleGuide
+[41] RemoteEvent  BugReportNotice  ReplicatedStorage.Remotes.BugReportNotice
+[42] RemoteFunction  BugReportSubmit  ReplicatedStorage.Remotes.BugReportSubmit
+[43] RemoteFunction  BugReportNotices  ReplicatedStorage.Remotes.BugReportNotices
+[44] RemoteEvent  NetFX  ReplicatedStorage.Remotes.NetFX
+[45] RemoteEvent  ObbyRestart  ReplicatedStorage.Remotes.ObbyRestart
+[46] RemoteFunction  StayBonus  ReplicatedStorage.Remotes.StayBonus
+[47] RemoteEvent  StorePurchaseConfirmed  ReplicatedStorage.Remotes.StorePurchaseConfirmed
+[48] RemoteFunction  CategoryAccessRequest  ReplicatedStorage.Remotes.CategoryAccessRequest
+[49] RemoteFunction  MusicSettingsRequest  ReplicatedStorage.Remotes.MusicSettingsRequest
+[50] RemoteEvent  VehicleOpen  ReplicatedStorage.Remotes.VehicleOpen
+[51] RemoteFunction  VehicleAction  ReplicatedStorage.Remotes.VehicleAction
+[52] RemoteEvent  VehicleDrive  ReplicatedStorage.Remotes.VehicleDrive
+[53] RemoteFunction  CardDropRequest  ReplicatedStorage.Remotes.CardDropRequest
+[54] RemoteEvent  CardDropEvent  ReplicatedStorage.Remotes.CardDropEvent
+[55] RemoteFunction  YouTuberPackRequest  ReplicatedStorage.Remotes.YouTuberPackRequest
+[56] RemoteFunction  CardOpeningRequest  ReplicatedStorage.Remotes.CardOpeningRequest
+[57] RemoteEvent  CardOpeningEvent  ReplicatedStorage.Remotes.CardOpeningEvent
+[58] RemoteFunction  CardCollectionRequest  ReplicatedStorage.Remotes.CardCollectionRequest
+[59] RemoteEvent  VillaActivity  ReplicatedStorage.Remotes.VillaActivity
+[60] RemoteEvent  VillaBilliard  ReplicatedStorage.Remotes.VillaBilliard
+[61] RemoteFunction  SalesTeam  ReplicatedStorage.Remotes.SalesTeam
+[62] RemoteEvent  SalesTeamEvent  ReplicatedStorage.Remotes.SalesTeamEvent
+[63] RemoteFunction  MoonRequest  ReplicatedStorage.Remotes.MoonRequest
+[64] RemoteFunction  LobbyTopList  ReplicatedStorage.Remotes.LobbyTopList
+[65] RemoteEvent  ConveyorMotion  ReplicatedStorage.Remotes.ConveyorMotion
+[66] UnreliableRemoteEvent  ConveyorMotionFast  ReplicatedStorage.Remotes.ConveyorMotionFast
+[67] RemoteEvent  ComputerWatch  ReplicatedStorage.Remotes.ComputerWatch
+[68] RemoteEvent  ThriftSession  ReplicatedStorage.Remotes.ThriftSession
+[69] RemoteEvent  RackPresence  ReplicatedStorage.Remotes.RackPresence
+[70] RemoteEvent  ThriftPurchaseActivity  ReplicatedStorage.Remotes.ThriftPurchaseActivity
+[71] RemoteEvent  VanMotion  ReplicatedStorage.Remotes.VanMotion
+[72] UnreliableRemoteEvent  VanMotionSamples  ReplicatedStorage.Remotes.VanMotionSamples
+[73] RemoteEvent  LobbyPush  ReplicatedStorage.Remotes.LobbyPush
+[74] RemoteFunction  BagContents  ReplicatedStorage.Remotes.BagContents
+[75] RemoteEvent  DevLagMeter  ReplicatedStorage.Remotes.DevLagMeter
+[76] RemoteFunction  DevLagPing  ReplicatedStorage.Remotes.DevLagPing
+[77] RemoteEvent  LagProbeReport  ReplicatedStorage.Remotes.LagProbeReport
+[78] RemoteEvent  LagProbeClock  ReplicatedStorage.Remotes.LagProbeClock
+[79] RemoteFunction  LagProbePing  ReplicatedStorage.Remotes.LagProbePing
+[80] RemoteEvent  LagProbeUp  ReplicatedStorage.Remotes.LagProbeUp
+[81] RemoteEvent  LagDiagConfig  ReplicatedStorage.Remotes.LagDiagConfig
+[82] RemoteEvent  LagTransportReliable  ReplicatedStorage.Remotes.LagTransportReliable
+[83] UnreliableRemoteEvent  LagTransportUnreliable  ReplicatedStorage.Remotes.LagTransportUnreliable
+[84] RemoteEvent  LagTestEvent  ReplicatedStorage.Remotes.LagTestEvent
+[85] RemoteFunction  LagTestAction  ReplicatedStorage.Remotes.LagTestAction
+[86] RemoteFunction  LagCompareControl  ReplicatedStorage.Remotes.LagCompareControl
+[87] RemoteEvent  LagCompareEcho  ReplicatedStorage.Remotes.LagCompareEcho
+[88] UnreliableRemoteEvent  LagCompareEchoU  ReplicatedStorage.Remotes.LagCompareEchoU
+[89] RemoteEvent  LagCompareBeacon  ReplicatedStorage.Remotes.LagCompareBeacon
+[90] UnreliableRemoteEvent  LagCompareBeaconU  ReplicatedStorage.Remotes.LagCompareBeaconU
+[91] RemoteEvent  LagCompareReport  ReplicatedStorage.Remotes.LagCompareReport
+[92] RemoteEvent  LagCompareFeed  ReplicatedStorage.Remotes.LagCompareFeed
+[93] RemoteEvent  BusinessHubOpen  ReplicatedStorage.Remotes.BusinessHubOpen
+[94] RemoteFunction  BusinessHub  ReplicatedStorage.Remotes.BusinessHub
+[95] RemoteFunction  CarWorkshop  ReplicatedStorage.Remotes.CarWorkshop
+[96] RemoteEvent  CarWorkshopEvent  ReplicatedStorage.Remotes.CarWorkshopEvent
+[97] RemoteFunction  TipperTruckDig  ReplicatedStorage.Remotes.TipperTruckDig
+[98] RemoteEvent  TipperTruckEvent  ReplicatedStorage.Remotes.TipperTruckEvent
+[99] RemoteFunction  DailyRewardRequest  ReplicatedStorage.Remotes.DailyRewardRequest
+[100] RemoteEvent  DailyRewardUpdate  ReplicatedStorage.Remotes.DailyRewardUpdate
+[101] RemoteEvent  HourlyQuestUpdate  ReplicatedStorage.Remotes.HourlyQuestUpdate
+[102] RemoteFunction  HourlyQuestRequest  ReplicatedStorage.Remotes.HourlyQuestRequest
+[103] RemoteFunction  OfflineEarnings  ReplicatedStorage.Remotes.OfflineEarnings
+[104] RemoteFunction  LevelRewardSnapshot  ReplicatedStorage.Remotes.LevelRewardSnapshot
+[105] RemoteEvent  LevelRewardUpdate  ReplicatedStorage.Remotes.LevelRewardUpdate
+[106] RemoteFunction  LevelRewardClaim  ReplicatedStorage.Remotes.LevelRewardClaim
+[107] RemoteFunction  BusinessNameSave  ReplicatedStorage.Remotes.BusinessNameSave
+[108] RemoteEvent  BusinessNameOpen  ReplicatedStorage.Remotes.BusinessNameOpen
+[109] RemoteEvent  PurchasePadFeedback  ReplicatedStorage.Remotes.PurchasePadFeedback
+[110] RemoteEvent  VillaChoiceOpen  ReplicatedStorage.Remotes.VillaChoiceOpen
+[111] RemoteFunction  VillaChoiceRequest  ReplicatedStorage.Remotes.VillaChoiceRequest
+[112] RemoteEvent  ProcessingNotice  ReplicatedStorage.Remotes.ProcessingNotice
+[113] RemoteEvent  LogisticsOpen  ReplicatedStorage.Remotes.LogisticsOpen
+[114] RemoteEvent  LogisticsUpdate  ReplicatedStorage.Remotes.LogisticsUpdate
+[115] RemoteFunction  LogisticsAction  ReplicatedStorage.Remotes.LogisticsAction
+[116] RemoteEvent  BugThanksBanner  ReplicatedStorage.Remotes.BugThanksBanner
+[117] RemoteEvent  OfferPopupDismiss  ReplicatedStorage.Remotes.OfferPopupDismiss
+[118] RemoteFunction  RebirthRequest  ReplicatedStorage.Remotes.RebirthRequest
+[119] RemoteFunction  RewardedAdRequest  ReplicatedStorage.Remotes.RewardedAdRequest
+[120] RemoteEvent  CommunityCodeOpen  ReplicatedStorage.Remotes.CommunityCodeOpen
+[121] RemoteFunction  CommunityCodeRequest  ReplicatedStorage.Remotes.CommunityCodeRequest
+[122] RemoteEvent  SuggestionOpen  ReplicatedStorage.Remotes.SuggestionOpen
+[123] RemoteFunction  SuggestionSubmit  ReplicatedStorage.Remotes.SuggestionSubmit
+[124] RemoteEvent  PerfumeAuctionEvent  ReplicatedStorage.Remotes.PerfumeAuctionEvent
+[125] RemoteFunction  PerfumeAuctionRequest  ReplicatedStorage.Remotes.PerfumeAuctionRequest
+[126] RemoteEvent  TutorialExitProbe  ReplicatedStorage.Remotes.TutorialExitProbe
+[127] RemoteFunction  TrashBinRequest  ReplicatedStorage.Remotes.TrashBinRequest
+[128] RemoteFunction  StreetwearDropRequest  ReplicatedStorage.Remotes.StreetwearDropRequest
+[129] RemoteFunction  VipLoungeRequest  ReplicatedStorage.Remotes.VipLoungeRequest
+[130] RemoteFunction  AdminAnnounce  ReplicatedStorage.Remotes.AdminAnnounce
+[131] RemoteEvent  AnnouncementShow  ReplicatedStorage.Remotes.AnnouncementShow
+[132] RemoteFunction  CompanyRequest  ReplicatedStorage.Remotes.CompanyRequest
+[133] RemoteEvent  CompanyEvent  ReplicatedStorage.Remotes.CompanyEvent
+[134] RemoteEvent  InfluencerOpen  ReplicatedStorage.Remotes.InfluencerOpen
+[135] RemoteEvent  BuilderOpen  ReplicatedStorage.Remotes.BuilderOpen
+[136] RemoteEvent  ScoutOpen  ReplicatedStorage.Remotes.ScoutOpen
+[137] RemoteEvent  FactoryStyleOpen  ReplicatedStorage.Remotes.FactoryStyleOpen
+[138] RemoteEvent  FashionShowEvent  ReplicatedStorage.Remotes.FashionShowEvent
+[139] RemoteFunction  GlobalRequest  ReplicatedStorage.Remotes.GlobalRequest
+[140] RemoteEvent  GlobalOpen  ReplicatedStorage.Remotes.GlobalOpen
+[141] RemoteFunction  BillboardRequest  ReplicatedStorage.Remotes.BillboardRequest
+[142] RemoteEvent  BillboardOpen  ReplicatedStorage.Remotes.BillboardOpen
+[143] RemoteEvent  TeleportFade  ReplicatedStorage.Remotes.TeleportFade
+[144] RemoteFunction  MapTravel  ReplicatedStorage.Remotes.MapTravel
+[145] RemoteEvent  TraderReward  ReplicatedStorage.Remotes.TraderReward
+[146] RemoteEvent  TraderClose  ReplicatedStorage.Remotes.TraderClose
+[147] RemoteFunction  TraderBuy  ReplicatedStorage.Remotes.TraderBuy
+[148] RemoteEvent  TraderOpen  ReplicatedStorage.Remotes.TraderOpen
+[149] RemoteFunction  BloxyColaRequest  ReplicatedStorage.Remotes.BloxyColaRequest
+[150] RemoteEvent  BloxyColaFX  ReplicatedStorage.Remotes.BloxyColaFX
+[151] RemoteEvent  ArcadeOpen  ReplicatedStorage.Remotes.ArcadeOpen
+[152] RemoteFunction  ArcadeRequest  ReplicatedStorage.Remotes.ArcadeRequest
+[153] RemoteEvent  ArcadeInput  ReplicatedStorage.Remotes.ArcadeInput
+[154] RemoteEvent  ArcadeUpdate  ReplicatedStorage.Remotes.ArcadeUpdate
+[155] RemoteEvent  WheelOfFortuneOpen  ReplicatedStorage.Remotes.WheelOfFortuneOpen
+[156] RemoteFunction  WheelOfFortuneSpin  ReplicatedStorage.Remotes.WheelOfFortuneSpin
+[157] RemoteEvent  TutorialState  ReplicatedStorage.Remotes.TutorialState
+[158] RemoteFunction  TutorialAction  ReplicatedStorage.Remotes.TutorialAction
+[159] RemoteEvent  TrendNotify  ReplicatedStorage.Remotes.TrendNotify
+[160] RemoteEvent  MarketTrendsUpdate  ReplicatedStorage.Remotes.MarketTrendsUpdate
+[161] RemoteFunction  MarketTrendsRequest  ReplicatedStorage.Remotes.MarketTrendsRequest
+[162] RemoteEvent  BusinessAnalyticsOpen  ReplicatedStorage.Remotes.BusinessAnalyticsOpen
+[163] RemoteFunction  BusinessAnalyticsRequest  ReplicatedStorage.Remotes.BusinessAnalyticsRequest
+[164] RemoteEvent  RetailHQOpen  ReplicatedStorage.Remotes.RetailHQOpen
+[165] RemoteEvent  PhysicalRetailOpen  ReplicatedStorage.Remotes.PhysicalRetailOpen
+[166] RemoteEvent  PhysicalRetailMannequinOpen  ReplicatedStorage.Remotes.PhysicalRetailMannequinOpen
+[167] RemoteFunction  PhysicalRetailAction  ReplicatedStorage.Remotes.PhysicalRetailAction
+[168] RemoteEvent  PhysicalRetailCollected  ReplicatedStorage.Remotes.PhysicalRetailCollected
+[169] RemoteEvent  RetailIdentityOpen  ReplicatedStorage.Remotes.RetailIdentityOpen
+[170] RemoteFunction  RetailIdentitySave  ReplicatedStorage.Remotes.RetailIdentitySave
+[171] RemoteEvent  EngineeringOpen  ReplicatedStorage.Remotes.EngineeringOpen
+[172] RemoteEvent  EngineeringUpdate  ReplicatedStorage.Remotes.EngineeringUpdate
+[173] RemoteFunction  EngineeringAction  ReplicatedStorage.Remotes.EngineeringAction
+[174] RemoteEvent  FactoryOnboardingState  ReplicatedStorage.Remotes.FactoryOnboardingState
+[175] RemoteEvent  FactoryUpgradeNotice  ReplicatedStorage.Remotes.FactoryUpgradeNotice
+[176] RemoteFunction  FactoryOnboardingAction  ReplicatedStorage.Remotes.FactoryOnboardingAction
+[177] RemoteEvent  OnboardingComputerView  ReplicatedStorage.Remotes.OnboardingComputerView
+[178] RemoteEvent  OnboardingDevice  ReplicatedStorage.Remotes.OnboardingDevice
+[179] RemoteEvent  OnboardingLoadingFinished  ReplicatedStorage.Remotes.OnboardingLoadingFinished
+[180] RemoteEvent  AnalyticsUI  ReplicatedStorage.Remotes.AnalyticsUI
+[181] RemoteEvent  TrainingOpen  ReplicatedStorage.Remotes.TrainingOpen
+[182] RemoteFunction  TrainingAction  ReplicatedStorage.Remotes.TrainingAction
+[183] RemoteEvent  StorageWarsEvent  ReplicatedStorage.StorageWarsEvent
+
+-- ===== TOP CLASSES =====
+Part = 36833
+Model = 6898
+Attachment = 4715
+MeshPart = 4575
+Frame = 3162
+WeldConstraint = 3081
+UnionOperation = 2574
+SurfaceAppearance = 2520
+TextLabel = 2176
+Decal = 1924
+NoCollisionConstraint = 1812
+Vector3Value = 1570
+Pose = 1496
+SurfaceGui = 1049
+Folder = 930
+UICorner = 652
+StringValue = 471
+UITextSizeConstraint = 445
+ImageLabel = 358
+UIStroke = 322
+WrapTarget = 315
+Animation = 287
+ProximityPrompt = 278
+AnimationConstraint = 270
+SurfaceLight = 262
+NumberValue = 258
+BallSocketConstraint = 252
+Motor6D = 245
+ModuleScript = 238
+PointLight = 172
+LocalScript = 162
+SpotLight = 145
+Keyframe = 136
+BillboardGui = 134
+CylinderMesh = 128
+BodyPartDescription = 120
+WedgePart = 110
+RemoteEvent = 103
+TouchTransmitter = 98
+Bone = 89
+
+-- ===== STATS =====
+Flat = 82782
+Values = 2316
+Tags = 235
+Properties = 86805
+BytesWritten = 13150933
+Objects = 82782
+DumpMode = FULL
+Attributes = 68732
+Scripts = 172
+ElapsedSeconds = 52.37719941139221
+Remotes = 183
+Errors = 0
+Modules = 238

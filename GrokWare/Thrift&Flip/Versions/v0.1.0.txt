@@ -1,0 +1,1123 @@
+--[[
+    Thrift&Flip — Full Store Rarity ESP
+    PlaceId: 94206080514907
+
+    Rarity = Tier only (game map):
+      1 Common · 2 Uncommon · 3 Rare · 4 Epic · 5 Legendary
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local LP = Players.LocalPlayer
+
+local function getThriftRoot()
+    local map = workspace:FindFirstChild("Map")
+    return map and map:FindFirstChild("ThriftStore")
+end
+
+----------------------------------------------------------------
+-- Config
+----------------------------------------------------------------
+local CFG = {
+    enabled = true,
+    showCommon = false,
+    showUncommon = true,
+    showRare = true,
+    showEpic = true,
+    showLegendary = true,
+    showMythic = true,
+    minTier = 2,
+    showName = true,
+    showTier = true,
+    showCategory = true,
+    maxDistance = 300,
+    fillTransparency = 0.45,
+    alertUncommon = false,
+    alertRare = true,
+    alertEpic = true,
+    alertLegendary = true,
+    alertMythic = true,
+    alertSound = true,
+}
+
+local TIER_RARITY = {
+    [1] = { "Common", Color3.fromRGB(200, 200, 200) },
+    [2] = { "Uncommon", Color3.fromRGB(60, 200, 100) },
+    [3] = { "Rare", Color3.fromRGB(70, 140, 255) },
+    [4] = { "Epic", Color3.fromRGB(180, 70, 255) },
+    [5] = { "Legendary", Color3.fromRGB(255, 180, 40) },
+}
+
+local function rarityFromTier(tier, name)
+    tier = math.clamp(tonumber(tier) or 1, 1, 10)
+    local n = string.lower(tostring(name or ""))
+    if n:find("mythic", 1, true) or tier >= 6 then
+        return "Mythic", Color3.fromRGB(255, 60, 200), tier
+    end
+    local row = TIER_RARITY[tier] or TIER_RARITY[1]
+    return row[1], row[2], tier
+end
+
+local function allowed(rarity)
+    if rarity == "Common" then return CFG.showCommon end
+    if rarity == "Uncommon" then return CFG.showUncommon end
+    if rarity == "Rare" then return CFG.showRare end
+    if rarity == "Epic" then return CFG.showEpic end
+    if rarity == "Legendary" then return CFG.showLegendary end
+    if rarity == "Mythic" then return CFG.showMythic end
+    return true
+end
+
+----------------------------------------------------------------
+-- Detect stock / sellable display items
+----------------------------------------------------------------
+local function looksLikeStock(inst)
+    if not inst:IsA("Model") then return false end
+    local n = inst.Name
+    if n:sub(1, 6) == "Stock_" then return true end
+    if inst:GetAttribute("Tier") ~= nil and (
+        inst:GetAttribute("DefinitionId") ~= nil
+        or inst:GetAttribute("BaseName") ~= nil
+        or inst:GetAttribute("Category") ~= nil
+    ) then
+        return true
+    end
+    return false
+end
+
+local function readItem(inst)
+    local tier = inst:GetAttribute("Tier") or 1
+    local cat = inst:GetAttribute("Category") or ""
+    local name = inst:GetAttribute("DisplayName")
+        or inst:GetAttribute("BaseName")
+        or inst:GetAttribute("DefinitionId")
+        or inst.Name:gsub("^Stock_", ""):gsub("_Dirty$", ""):gsub("_Clean$", ""):gsub("_Display$", "")
+    local rarity, color, tnum = rarityFromTier(tier, name)
+    return {
+        tier = tnum,
+        category = tostring(cat),
+        name = tostring(name),
+        rarity = rarity,
+        color = color,
+        area = inst:GetAttribute("StenderId") or (inst.Parent and inst.Parent.Parent and inst.Parent.Parent.Name) or "",
+    }
+end
+
+----------------------------------------------------------------
+-- Theme / helpers
+----------------------------------------------------------------
+local FONT = Enum.Font.BuilderSans
+local FONT_MED = Enum.Font.BuilderSansMedium
+local FONT_BOLD = Enum.Font.BuilderSansBold
+
+local THEME = {
+    bg     = Color3.fromRGB(22, 22, 26),
+    side   = Color3.fromRGB(17, 17, 20),
+    row    = Color3.fromRGB(31, 31, 36),
+    hover  = Color3.fromRGB(39, 39, 45),
+    stroke = Color3.fromRGB(52, 52, 60),
+    text   = Color3.fromRGB(236, 236, 240),
+    dim    = Color3.fromRGB(138, 138, 150),
+    on     = Color3.fromRGB(88, 140, 235),
+    off    = Color3.fromRGB(64, 64, 72),
+}
+
+local RARITY_COLORS = {
+    Common = Color3.fromRGB(200, 200, 200),
+    Uncommon = Color3.fromRGB(60, 200, 100),
+    Rare = Color3.fromRGB(70, 140, 255),
+    Epic = Color3.fromRGB(180, 70, 255),
+    Legendary = Color3.fromRGB(255, 180, 40),
+    Mythic = Color3.fromRGB(255, 60, 200),
+}
+
+local function corner(parent, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r)
+    c.Parent = parent
+end
+
+local function stroke(parent, color, thickness, transparency)
+    local s = Instance.new("UIStroke")
+    s.Color = color
+    s.Thickness = thickness or 1
+    s.Transparency = transparency or 0
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    s.Parent = parent
+    return s
+end
+
+local function label(parent, props)
+    local l = Instance.new("TextLabel")
+    l.BackgroundTransparency = 1
+    l.Font = props.font or FONT
+    l.TextSize = props.size or 14
+    l.TextColor3 = props.color or THEME.text
+    l.TextXAlignment = props.alignX or Enum.TextXAlignment.Left
+    l.TextYAlignment = props.alignY or Enum.TextYAlignment.Center
+    l.TextTruncate = Enum.TextTruncate.AtEnd
+    l.Text = props.text or ""
+    l.Size = props.size2 or UDim2.fromScale(1, 1)
+    l.Position = props.pos or UDim2.new()
+    l.Parent = parent
+    return l
+end
+
+local function getPos(inst)
+    if inst.PrimaryPart then return inst.PrimaryPart.Position end
+    local p = inst:FindFirstChild("Root", true) or inst:FindFirstChildWhichIsA("BasePart", true)
+    return p and p.Position
+end
+
+-- extra settings used by the UI
+CFG.alertPos = "Top Center"
+CFG.uiKey = "RightShift"
+
+local DEFAULTS = {}
+for k, v in pairs(CFG) do DEFAULTS[k] = v end
+
+----------------------------------------------------------------
+-- Alerts for new high-tier stock
+----------------------------------------------------------------
+local alertGui = Instance.new("ScreenGui")
+alertGui.Name = "ThriftRarityAlerts"
+alertGui.ResetOnSpawn = false
+alertGui.DisplayOrder = 120
+alertGui.IgnoreGuiInset = true
+alertGui.Parent = LP:WaitForChild("PlayerGui")
+
+local alertQueue = {}
+local alertBusy = false
+local seenKeys = {}
+local SOUND_IDS = {
+    Mythic = "rbxassetid://4590657391",
+    Legendary = "rbxassetid://4590657391",
+    Epic = "rbxassetid://6026984224",
+    Rare = "rbxassetid://6026984224",
+}
+
+local ALERT_POSITIONS = {
+    ["Top Center"] = function(W, H)
+        return Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 20), UDim2.new(0.5, 0, 0, -H - 10)
+    end,
+    ["Top Left"] = function(W, H)
+        return Vector2.new(0, 0), UDim2.new(0, 20, 0, 20), UDim2.new(0, -W - 20, 0, 20)
+    end,
+    ["Top Right"] = function(W, H)
+        return Vector2.new(1, 0), UDim2.new(1, -20, 0, 20), UDim2.new(1, W + 20, 0, 20)
+    end,
+    ["Bottom Center"] = function(W, H)
+        return Vector2.new(0.5, 1), UDim2.new(0.5, 0, 1, -20), UDim2.new(0.5, 0, 1, H + 10)
+    end,
+}
+local ALERT_POS_NAMES = { "Top Center", "Top Left", "Top Right", "Bottom Center" }
+
+local function rarityWantsAlert(rarity)
+    if rarity == "Uncommon" then return CFG.alertUncommon end
+    if rarity == "Rare" then return CFG.alertRare end
+    if rarity == "Epic" then return CFG.alertEpic end
+    if rarity == "Legendary" then return CFG.alertLegendary end
+    if rarity == "Mythic" then return CFG.alertMythic end
+    return false
+end
+
+local function playAlertSound(rarity)
+    if not CFG.alertSound then return end
+    local id = SOUND_IDS[rarity] or SOUND_IDS.Rare
+    local s = Instance.new("Sound")
+    s.SoundId = id
+    s.Volume = rarity == "Mythic" and 1.2 or 0.85
+    s.Parent = alertGui
+    pcall(function() s:Play() end)
+    task.delay(3, function() s:Destroy() end)
+end
+
+local function edgeFlash(color)
+    local f = Instance.new("Frame")
+    f.Size = UDim2.fromScale(1, 1)
+    f.BackgroundTransparency = 1
+    f.BorderSizePixel = 0
+    f.Parent = alertGui
+    local s = Instance.new("UIStroke")
+    s.Color = color
+    s.Thickness = 10
+    s.Transparency = 0.5
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    s.Parent = f
+    local tw = TweenService:Create(s, TweenInfo.new(0.7, Enum.EasingStyle.Quad), { Transparency = 1 })
+    tw:Play()
+    tw.Completed:Connect(function() f:Destroy() end)
+end
+
+local function runNextAlert()
+    if alertBusy or #alertQueue == 0 then return end
+    alertBusy = true
+    local info = table.remove(alertQueue, 1)
+    local color = RARITY_COLORS[info.rarity] or THEME.on
+    local big = info.rarity == "Mythic" or info.rarity == "Legendary"
+    local W, H = big and 420 or 340, big and 76 or 62
+    local anchor, restPos, hidePos = (ALERT_POSITIONS[CFG.alertPos] or ALERT_POSITIONS["Top Center"])(W, H)
+
+    local holder = Instance.new("Frame")
+    holder.AnchorPoint = anchor
+    holder.Position = hidePos
+    holder.Size = UDim2.fromOffset(W, H)
+    holder.BackgroundColor3 = THEME.bg
+    holder.BorderSizePixel = 0
+    holder.Parent = alertGui
+    corner(holder, 6)
+    stroke(holder, big and color or THEME.stroke, big and 2 or 1, 0)
+
+    label(holder, {
+        text = info.rarity, font = FONT_BOLD, size = big and 16 or 14, color = color,
+        size2 = UDim2.new(0.5, -14, 0, 20), pos = UDim2.fromOffset(14, big and 10 or 8),
+    })
+    label(holder, {
+        text = string.format("T%d  ·  %s", info.tier, info.category ~= "" and info.category or "Store"),
+        font = FONT, size = 13, color = THEME.dim, alignX = Enum.TextXAlignment.Right,
+        size2 = UDim2.new(0.5, -14, 0, 20), pos = UDim2.new(0.5, 0, 0, big and 10 or 8),
+    })
+    label(holder, {
+        text = info.name, font = FONT_BOLD, size = big and 24 or 19, color = THEME.text,
+        size2 = UDim2.new(1, -28, 0, big and 32 or 26), pos = UDim2.fromOffset(14, big and 34 or 29),
+    })
+
+    playAlertSound(info.rarity)
+    if big then edgeFlash(color) end
+
+    local duration = big and 4.5 or 3.2
+    TweenService:Create(holder, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = restPos,
+    }):Play()
+
+    task.delay(duration, function()
+        local tw = TweenService:Create(holder, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = hidePos,
+        })
+        tw:Play()
+        tw.Completed:Wait()
+        holder:Destroy()
+        alertBusy = false
+        runNextAlert()
+    end)
+end
+
+local function notifyNew(inst, info)
+    if not CFG.enabled then return end
+    if info.tier < CFG.minTier then return end
+    if not allowed(info.rarity) then return end
+    if not rarityWantsAlert(info.rarity) then return end
+    local key = tostring(inst)
+    if seenKeys[key] then return end
+    seenKeys[key] = true
+    table.insert(alertQueue, info)
+    runNextAlert()
+end
+
+----------------------------------------------------------------
+-- ESP tracking
+----------------------------------------------------------------
+local tracked = {}
+
+local function clearOne(inst)
+    local t = tracked[inst]
+    if not t then return end
+    if t.hl then pcall(function() t.hl:Destroy() end) end
+    if t.bill then pcall(function() t.bill:Destroy() end) end
+    tracked[inst] = nil
+end
+
+local function clearAll()
+    for inst in pairs(tracked) do clearOne(inst) end
+end
+
+local function shouldShow(info)
+    if not CFG.enabled then return false end
+    if info.tier < CFG.minTier then return false end
+    return allowed(info.rarity)
+end
+
+local function makeNameText(info)
+    return CFG.showName and info.name or ""
+end
+
+local function makeMetaText(info)
+    local parts = {}
+    if CFG.showTier then table.insert(parts, string.format("%s T%d", info.rarity, info.tier)) end
+    if CFG.showCategory and info.category ~= "" then table.insert(parts, info.category) end
+    return table.concat(parts, " · ")
+end
+
+local function ensure(inst)
+    if not looksLikeStock(inst) then return end
+    local info = readItem(inst)
+    if not shouldShow(info) then
+        clearOne(inst)
+        return
+    end
+
+    local t = tracked[inst]
+    if t then
+        if t.hl then
+            t.hl.FillColor = info.color
+            t.hl.OutlineColor = info.color
+            t.hl.FillTransparency = CFG.fillTransparency
+            t.hl.Enabled = true
+        end
+        if t.bill then t.bill.MaxDistance = CFG.maxDistance end
+        if t.nameLabel then t.nameLabel.Text = makeNameText(info) end
+        if t.metaLabel then
+            t.metaLabel.Text = makeMetaText(info)
+            t.metaLabel.TextColor3 = info.color
+        end
+        t.info = info
+        return
+    end
+
+    local hl = Instance.new("Highlight")
+    hl.Name = "ThriftRarityESP"
+    hl.Adornee = inst
+    hl.FillColor = info.color
+    hl.OutlineColor = info.color
+    hl.FillTransparency = CFG.fillTransparency
+    hl.OutlineTransparency = 0
+    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent = inst
+
+    local bill = Instance.new("BillboardGui")
+    bill.Name = "ThriftRarityTag"
+    bill.Size = UDim2.fromOffset(180, 34)
+    bill.StudsOffset = Vector3.new(0, 2.4, 0)
+    bill.AlwaysOnTop = true
+    bill.MaxDistance = CFG.maxDistance
+    local anchor = inst:FindFirstChild("Root", true)
+        or inst.PrimaryPart
+        or inst:FindFirstChildWhichIsA("BasePart", true)
+        or inst
+    bill.Adornee = anchor
+    bill.Parent = inst
+
+    local nameLabel = label(bill, {
+        text = makeNameText(info), font = FONT_BOLD, size = 14, color = THEME.text,
+        alignX = Enum.TextXAlignment.Center,
+        size2 = UDim2.new(1, 0, 0, 18), pos = UDim2.fromOffset(0, 0),
+    })
+    nameLabel.TextStrokeTransparency = 0.2
+    nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+
+    local metaLabel = label(bill, {
+        text = makeMetaText(info), font = FONT_MED, size = 12, color = info.color,
+        alignX = Enum.TextXAlignment.Center,
+        size2 = UDim2.new(1, 0, 0, 14), pos = UDim2.fromOffset(0, 18),
+    })
+    metaLabel.TextStrokeTransparency = 0.2
+    metaLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+
+    tracked[inst] = { hl = hl, bill = bill, nameLabel = nameLabel, metaLabel = metaLabel, info = info }
+    notifyNew(inst, info)
+end
+
+local function scan()
+    local root = getThriftRoot()
+    if not root then return end
+
+    local keep = {}
+    for _, d in ipairs(root:GetDescendants()) do
+        if looksLikeStock(d) then
+            ensure(d)
+            keep[d] = true
+        end
+    end
+    for inst in pairs(tracked) do
+        if not keep[inst] or not inst.Parent then
+            clearOne(inst)
+        end
+    end
+end
+
+task.defer(function()
+    local root = getThriftRoot()
+    if not root then return end
+    root.DescendantAdded:Connect(function(d)
+        if looksLikeStock(d) then
+            task.defer(ensure, d)
+        end
+    end)
+    root.DescendantRemoving:Connect(function(d)
+        if tracked[d] then clearOne(d) end
+    end)
+end)
+
+task.spawn(function()
+    while true do
+        if CFG.enabled then scan() end
+        task.wait(1.2)
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not CFG.enabled then return end
+    local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local origin = hrp.Position
+    for inst, t in pairs(tracked) do
+        local pos = getPos(inst)
+        if pos and t.hl then
+            local on = (pos - origin).Magnitude <= CFG.maxDistance
+            t.hl.Enabled = on
+            if t.bill then t.bill.Enabled = on end
+        end
+    end
+end)
+
+----------------------------------------------------------------
+-- Window
+----------------------------------------------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "ThriftRarityESP"
+gui.ResetOnSpawn = false
+gui.Parent = LP:WaitForChild("PlayerGui")
+
+local WIN_W, WIN_H, TITLE_H, SIDE_W = 520, 380, 36, 124
+
+local win = Instance.new("Frame")
+win.Size = UDim2.fromOffset(WIN_W, WIN_H)
+win.Position = UDim2.fromOffset(20, 90)
+win.BackgroundColor3 = THEME.bg
+win.BorderSizePixel = 0
+win.ClipsDescendants = true
+win.Parent = gui
+corner(win, 8)
+stroke(win, THEME.stroke, 1, 0)
+
+-- title bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, TITLE_H)
+titleBar.BackgroundColor3 = THEME.side
+titleBar.BorderSizePixel = 0
+titleBar.Parent = win
+
+label(titleBar, {
+    text = "Thrift ESP", font = FONT_BOLD, size = 15,
+    size2 = UDim2.new(1, -90, 1, 0), pos = UDim2.fromOffset(14, 0),
+})
+
+local function titleButton(text, offsetFromRight)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.fromOffset(30, 24)
+    b.Position = UDim2.new(1, -offsetFromRight, 0.5, -12)
+    b.BackgroundTransparency = 1
+    b.Text = text
+    b.Font = FONT_BOLD
+    b.TextSize = 16
+    b.TextColor3 = THEME.dim
+    b.Parent = titleBar
+    b.MouseEnter:Connect(function() b.TextColor3 = THEME.text end)
+    b.MouseLeave:Connect(function() b.TextColor3 = THEME.dim end)
+    return b
+end
+local minBtn = titleButton("–", 68)
+local closeBtn = titleButton("✕", 36)
+
+local titleLine = Instance.new("Frame")
+titleLine.AnchorPoint = Vector2.new(0, 1)
+titleLine.Position = UDim2.fromScale(0, 1)
+titleLine.Size = UDim2.new(1, 0, 0, 1)
+titleLine.BackgroundColor3 = THEME.stroke
+titleLine.BorderSizePixel = 0
+titleLine.Parent = titleBar
+
+-- sidebar
+local sidebar = Instance.new("Frame")
+sidebar.Position = UDim2.fromOffset(0, TITLE_H)
+sidebar.Size = UDim2.new(0, SIDE_W, 1, -TITLE_H)
+sidebar.BackgroundColor3 = THEME.side
+sidebar.BorderSizePixel = 0
+sidebar.Parent = win
+
+local sideLine = Instance.new("Frame")
+sideLine.AnchorPoint = Vector2.new(1, 0)
+sideLine.Position = UDim2.fromScale(1, 0)
+sideLine.Size = UDim2.new(0, 1, 1, 0)
+sideLine.BackgroundColor3 = THEME.stroke
+sideLine.BorderSizePixel = 0
+sideLine.Parent = sidebar
+
+local tabList = Instance.new("Frame")
+tabList.Size = UDim2.new(1, 0, 1, -34)
+tabList.BackgroundTransparency = 1
+tabList.Parent = sidebar
+local tabPad = Instance.new("UIPadding")
+tabPad.PaddingTop = UDim.new(0, 8)
+tabPad.PaddingLeft = UDim.new(0, 8)
+tabPad.PaddingRight = UDim.new(0, 9)
+tabPad.Parent = tabList
+local tabLayout = Instance.new("UIListLayout")
+tabLayout.Padding = UDim.new(0, 2)
+tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+tabLayout.Parent = tabList
+
+local footer = label(sidebar, {
+    text = "0 items", size = 12, color = THEME.dim,
+    size2 = UDim2.new(1, -16, 0, 26), pos = UDim2.new(0, 12, 1, -30),
+})
+
+-- content
+local content = Instance.new("Frame")
+content.Position = UDim2.fromOffset(SIDE_W, TITLE_H)
+content.Size = UDim2.new(1, -SIDE_W, 1, -TITLE_H)
+content.BackgroundTransparency = 1
+content.Parent = win
+
+local pages, tabButtons = {}, {}
+local renderers = {}   -- re-sync controls after load/reset
+
+local function newPage(name)
+    local sf = Instance.new("ScrollingFrame")
+    sf.Size = UDim2.fromScale(1, 1)
+    sf.BackgroundTransparency = 1
+    sf.BorderSizePixel = 0
+    sf.ScrollBarThickness = 3
+    sf.ScrollBarImageColor3 = THEME.stroke
+    sf.CanvasSize = UDim2.new()
+    sf.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    sf.Visible = false
+    sf.Parent = content
+    local p = Instance.new("UIPadding")
+    p.PaddingTop = UDim.new(0, 8)
+    p.PaddingBottom = UDim.new(0, 10)
+    p.PaddingLeft = UDim.new(0, 12)
+    p.PaddingRight = UDim.new(0, 14)
+    p.Parent = sf
+    local l = Instance.new("UIListLayout")
+    l.Padding = UDim.new(0, 4)
+    l.SortOrder = Enum.SortOrder.LayoutOrder
+    l.Parent = sf
+    local pg = { frame = sf, n = 0 }
+    pages[name] = pg
+
+    local tb = Instance.new("TextButton")
+    tb.Size = UDim2.new(1, 0, 0, 30)
+    tb.BackgroundColor3 = THEME.row
+    tb.BackgroundTransparency = 1
+    tb.AutoButtonColor = false
+    tb.Text = ""
+    tb.LayoutOrder = #tabButtons + 1
+    tb.Parent = tabList
+    corner(tb, 5)
+    local tl = label(tb, {
+        text = name, font = FONT_MED, size = 14, color = THEME.dim,
+        size2 = UDim2.new(1, -20, 1, 0), pos = UDim2.fromOffset(10, 0),
+    })
+    tabButtons[name] = { btn = tb, lbl = tl }
+    return pg
+end
+
+local currentTab
+local function selectTab(name)
+    currentTab = name
+    for n, pg in pairs(pages) do
+        pg.frame.Visible = (n == name)
+        local tb = tabButtons[n]
+        tb.btn.BackgroundTransparency = (n == name) and 0 or 1
+        tb.lbl.TextColor3 = (n == name) and THEME.text or THEME.dim
+    end
+end
+
+local function nextOrder(pg)
+    pg.n += 1
+    return pg.n
+end
+
+----------------------------------------------------------------
+-- Controls
+----------------------------------------------------------------
+local function section(pg, text)
+    local l = label(pg.frame, {
+        text = text, font = FONT_BOLD, size = 13, color = THEME.dim,
+        size2 = UDim2.new(1, 0, 0, 24), alignY = Enum.TextYAlignment.Bottom,
+    })
+    l.LayoutOrder = nextOrder(pg)
+end
+
+local function toggle(pg, name, key, opts)
+    opts = opts or {}
+    local row = Instance.new("TextButton")
+    row.Size = UDim2.new(1, 0, 0, 32)
+    row.BackgroundColor3 = THEME.row
+    row.AutoButtonColor = false
+    row.Text = ""
+    row.LayoutOrder = nextOrder(pg)
+    row.Parent = pg.frame
+    corner(row, 5)
+
+    label(row, {
+        text = name, font = FONT_MED, size = 14, color = opts.color or THEME.text,
+        size2 = UDim2.new(1, -100, 1, 0), pos = UDim2.fromOffset(10, 0),
+    })
+
+    if opts.count then
+        pg.counts = pg.counts or {}
+        pg.counts[opts.count] = label(row, {
+            text = "0", size = 13, color = THEME.dim, alignX = Enum.TextXAlignment.Right,
+            size2 = UDim2.new(0, 40, 1, 0), pos = UDim2.new(1, -92, 0, 0),
+        })
+    end
+
+    local sw = Instance.new("Frame")
+    sw.Size = UDim2.fromOffset(34, 18)
+    sw.AnchorPoint = Vector2.new(1, 0.5)
+    sw.Position = UDim2.new(1, -10, 0.5, 0)
+    sw.BorderSizePixel = 0
+    sw.Parent = row
+    corner(sw, 9)
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.fromOffset(14, 14)
+    knob.AnchorPoint = Vector2.new(0, 0.5)
+    knob.BackgroundColor3 = Color3.fromRGB(245, 245, 250)
+    knob.BorderSizePixel = 0
+    knob.Parent = sw
+    corner(knob, 7)
+
+    local function render(animate)
+        local on = CFG[key]
+        local ti = TweenInfo.new(animate and 0.12 or 0, Enum.EasingStyle.Quad)
+        TweenService:Create(sw, ti, { BackgroundColor3 = on and (opts.color or THEME.on) or THEME.off }):Play()
+        TweenService:Create(knob, ti, {
+            Position = on and UDim2.new(1, -16, 0.5, 0) or UDim2.new(0, 2, 0.5, 0),
+        }):Play()
+    end
+    render(false)
+    table.insert(renderers, function() render(false) end)
+
+    row.MouseEnter:Connect(function() row.BackgroundColor3 = THEME.hover end)
+    row.MouseLeave:Connect(function() row.BackgroundColor3 = THEME.row end)
+    row.MouseButton1Click:Connect(function()
+        CFG[key] = not CFG[key]
+        render(true)
+        if opts.onChange then opts.onChange(CFG[key]) end
+    end)
+end
+
+local function slider(pg, name, key, min, max, step, fmt, onChange)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, 0, 0, 50)
+    row.BackgroundColor3 = THEME.row
+    row.LayoutOrder = nextOrder(pg)
+    row.Parent = pg.frame
+    corner(row, 5)
+
+    label(row, {
+        text = name, font = FONT_MED, size = 14,
+        size2 = UDim2.new(1, -90, 0, 26), pos = UDim2.fromOffset(10, 2),
+    })
+    local valueLabel = label(row, {
+        text = "", font = FONT_MED, size = 13, color = THEME.dim, alignX = Enum.TextXAlignment.Right,
+        size2 = UDim2.new(0, 80, 0, 26), pos = UDim2.new(1, -90, 0, 2),
+    })
+
+    local track = Instance.new("Frame")
+    track.Size = UDim2.new(1, -20, 0, 4)
+    track.Position = UDim2.fromOffset(10, 35)
+    track.BackgroundColor3 = THEME.off
+    track.BorderSizePixel = 0
+    track.Parent = row
+    corner(track, 2)
+    local fill = Instance.new("Frame")
+    fill.BackgroundColor3 = THEME.on
+    fill.BorderSizePixel = 0
+    fill.Parent = track
+    corner(fill, 2)
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.fromOffset(12, 12)
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.BackgroundColor3 = Color3.fromRGB(245, 245, 250)
+    knob.BorderSizePixel = 0
+    knob.Parent = track
+    corner(knob, 6)
+
+    local function render()
+        local rel = (CFG[key] - min) / (max - min)
+        fill.Size = UDim2.fromScale(rel, 1)
+        knob.Position = UDim2.new(rel, 0, 0.5, 0)
+        valueLabel.Text = fmt and fmt(CFG[key]) or tostring(CFG[key])
+    end
+    render()
+    table.insert(renderers, render)
+
+    local function setFromX(x)
+        local rel = math.clamp((x - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1)
+        local v = min + rel * (max - min)
+        v = math.floor(v / step + 0.5) * step
+        v = math.floor(math.clamp(v, min, max) * 1000 + 0.5) / 1000
+        CFG[key] = v
+        render()
+        if onChange then onChange(v) end
+    end
+
+    local dragging = false
+    local hit = Instance.new("TextButton")
+    hit.Size = UDim2.new(1, 0, 0, 24)
+    hit.Position = UDim2.new(0, 0, 0, 24)
+    hit.BackgroundTransparency = 1
+    hit.Text = ""
+    hit.Parent = row
+    hit.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            setFromX(input.Position.X)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch) then
+            setFromX(input.Position.X)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+
+-- options: array of { text, value }
+local function dropdown(pg, name, options, get, set)
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1, 0, 0, 0)
+    holder.AutomaticSize = Enum.AutomaticSize.Y
+    holder.BackgroundColor3 = THEME.row
+    holder.LayoutOrder = nextOrder(pg)
+    holder.Parent = pg.frame
+    corner(holder, 5)
+    local hl = Instance.new("UIListLayout")
+    hl.SortOrder = Enum.SortOrder.LayoutOrder
+    hl.Parent = holder
+
+    local head = Instance.new("TextButton")
+    head.Size = UDim2.new(1, 0, 0, 32)
+    head.BackgroundTransparency = 1
+    head.Text = ""
+    head.LayoutOrder = 1
+    head.Parent = holder
+    label(head, {
+        text = name, font = FONT_MED, size = 14,
+        size2 = UDim2.new(0.5, -10, 1, 0), pos = UDim2.fromOffset(10, 0),
+    })
+    local valueLabel = label(head, {
+        text = "", font = FONT_MED, size = 13, color = THEME.dim, alignX = Enum.TextXAlignment.Right,
+        size2 = UDim2.new(0.5, -30, 1, 0), pos = UDim2.new(0.5, 0, 0, 0),
+    })
+    local arrow = label(head, {
+        text = "▾", font = FONT_BOLD, size = 14, color = THEME.dim, alignX = Enum.TextXAlignment.Center,
+        size2 = UDim2.fromOffset(24, 32), pos = UDim2.new(1, -26, 0, 0),
+    })
+
+    local listFrame = Instance.new("Frame")
+    listFrame.Size = UDim2.new(1, 0, 0, 0)
+    listFrame.AutomaticSize = Enum.AutomaticSize.Y
+    listFrame.BackgroundTransparency = 1
+    listFrame.Visible = false
+    listFrame.LayoutOrder = 2
+    listFrame.Parent = holder
+    local ll = Instance.new("UIListLayout")
+    ll.SortOrder = Enum.SortOrder.LayoutOrder
+    ll.Parent = listFrame
+    local lp = Instance.new("UIPadding")
+    lp.PaddingBottom = UDim.new(0, 4)
+    lp.PaddingLeft = UDim.new(0, 4)
+    lp.PaddingRight = UDim.new(0, 4)
+    lp.Parent = listFrame
+
+    local optButtons = {}
+    local function refresh()
+        local cur = get()
+        for _, ob in ipairs(optButtons) do
+            local sel = ob.value == cur
+            ob.lbl.TextColor3 = sel and THEME.on or THEME.text
+            ob.lbl.Font = sel and FONT_BOLD or FONT
+            if sel then valueLabel.Text = ob.text end
+        end
+    end
+
+    for i, o in ipairs(options) do
+        local ob = Instance.new("TextButton")
+        ob.Size = UDim2.new(1, 0, 0, 26)
+        ob.BackgroundColor3 = THEME.hover
+        ob.BackgroundTransparency = 1
+        ob.AutoButtonColor = false
+        ob.Text = ""
+        ob.LayoutOrder = i
+        ob.Parent = listFrame
+        corner(ob, 4)
+        local l = label(ob, {
+            text = o[1], size = 14, size2 = UDim2.new(1, -12, 1, 0), pos = UDim2.fromOffset(8, 0),
+        })
+        ob.MouseEnter:Connect(function() ob.BackgroundTransparency = 0 end)
+        ob.MouseLeave:Connect(function() ob.BackgroundTransparency = 1 end)
+        ob.MouseButton1Click:Connect(function()
+            set(o[2])
+            refresh()
+            listFrame.Visible = false
+            arrow.Text = "▾"
+        end)
+        table.insert(optButtons, { value = o[2], text = o[1], lbl = l })
+    end
+    refresh()
+    table.insert(renderers, refresh)
+
+    head.MouseButton1Click:Connect(function()
+        listFrame.Visible = not listFrame.Visible
+        arrow.Text = listFrame.Visible and "▴" or "▾"
+    end)
+end
+
+local function button(pg, text, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, 0, 0, 32)
+    b.BackgroundColor3 = THEME.row
+    b.AutoButtonColor = false
+    b.Text = text
+    b.Font = FONT_MED
+    b.TextSize = 14
+    b.TextColor3 = THEME.text
+    b.LayoutOrder = nextOrder(pg)
+    b.Parent = pg.frame
+    corner(b, 5)
+    stroke(b, THEME.stroke, 1, 0)
+    b.MouseEnter:Connect(function() b.BackgroundColor3 = THEME.hover end)
+    b.MouseLeave:Connect(function() b.BackgroundColor3 = THEME.row end)
+    b.MouseButton1Click:Connect(callback)
+    return b
+end
+
+local function note(pg, text)
+    local l = label(pg.frame, {
+        text = text, size = 12, color = THEME.dim,
+        size2 = UDim2.new(1, 0, 0, 20),
+    })
+    l.LayoutOrder = nextOrder(pg)
+    return l
+end
+
+----------------------------------------------------------------
+-- Pages
+----------------------------------------------------------------
+local pgRarity = newPage("Rarity")
+local pgAlerts = newPage("Alerts")
+local pgDisplay = newPage("Display")
+local pgItems = newPage("Items")
+local pgSettings = newPage("Settings")
+
+-- Rarity
+section(pgRarity, "General")
+toggle(pgRarity, "ESP enabled", "enabled", {
+    color = Color3.fromRGB(52, 199, 140),
+    onChange = function(on) if not on then clearAll() end scan() end,
+})
+dropdown(pgRarity, "Minimum rarity", {
+    { "Common", 1 }, { "Uncommon", 2 }, { "Rare", 3 },
+    { "Epic", 4 }, { "Legendary", 5 }, { "Mythic", 6 },
+}, function() return CFG.minTier end, function(v) CFG.minTier = v scan() end)
+
+section(pgRarity, "Show rarities")
+for _, r in ipairs({ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" }) do
+    toggle(pgRarity, r, "show" .. r, { color = RARITY_COLORS[r], count = r, onChange = scan })
+end
+
+-- Alerts
+section(pgAlerts, "Notify on new spawn")
+for _, r in ipairs({ "Uncommon", "Rare", "Epic", "Legendary", "Mythic" }) do
+    toggle(pgAlerts, r, "alert" .. r, { color = RARITY_COLORS[r] })
+end
+section(pgAlerts, "Behaviour")
+toggle(pgAlerts, "Play sound", "alertSound")
+do
+    local opts = {}
+    for _, n in ipairs(ALERT_POS_NAMES) do table.insert(opts, { n, n }) end
+    dropdown(pgAlerts, "Position", opts, function() return CFG.alertPos end, function(v) CFG.alertPos = v end)
+end
+button(pgAlerts, "Preview alert", function()
+    table.insert(alertQueue, { rarity = "Mythic", name = "Test Mythic Item", tier = 6, category = "Test" })
+    runNextAlert()
+end)
+
+-- Display
+section(pgDisplay, "Labels")
+toggle(pgDisplay, "Item name", "showName", { onChange = scan })
+toggle(pgDisplay, "Rarity and tier", "showTier", { onChange = scan })
+toggle(pgDisplay, "Category", "showCategory", { onChange = scan })
+section(pgDisplay, "Range and style")
+slider(pgDisplay, "Max distance", "maxDistance", 50, 1000, 10,
+    function(v) return string.format("%d studs", v) end, function() scan() end)
+slider(pgDisplay, "Highlight fill", "fillTransparency", 0, 1, 0.05,
+    function(v) return string.format("%d%%", math.floor((1 - v) * 100 + 0.5)) end, function() scan() end)
+
+-- Items (live list)
+local itemsHeader = label(pgItems.frame, {
+    text = "Currently tracked", font = FONT_BOLD, size = 13, color = THEME.dim,
+    size2 = UDim2.new(1, 0, 0, 24), alignY = Enum.TextYAlignment.Bottom,
+})
+itemsHeader.LayoutOrder = nextOrder(pgItems)
+local itemsEmpty = note(pgItems, "Nothing matches your filters right now.")
+itemsEmpty.LayoutOrder = nextOrder(pgItems)
+
+local function refreshItems()
+    for _, c in ipairs(pgItems.frame:GetChildren()) do
+        if c.Name == "ItemRow" then c:Destroy() end
+    end
+    local arr = {}
+    for inst, t in pairs(tracked) do
+        if t.info then table.insert(arr, { inst = inst, info = t.info }) end
+    end
+    table.sort(arr, function(a, b)
+        if a.info.tier ~= b.info.tier then return a.info.tier > b.info.tier end
+        return a.info.name < b.info.name
+    end)
+    itemsEmpty.Visible = #arr == 0
+    local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    for i = 1, math.min(#arr, 80) do
+        local e = arr[i]
+        local row = Instance.new("Frame")
+        row.Name = "ItemRow"
+        row.Size = UDim2.new(1, 0, 0, 30)
+        row.BackgroundColor3 = THEME.row
+        row.LayoutOrder = 100 + i
+        row.Parent = pgItems.frame
+        corner(row, 5)
+        label(row, {
+            text = e.info.name, font = FONT_MED, size = 14, color = e.info.color,
+            size2 = UDim2.new(1, -170, 1, 0), pos = UDim2.fromOffset(10, 0),
+        })
+        local dist = ""
+        local pos = hrp and getPos(e.inst)
+        if pos then dist = string.format("  ·  %dm", math.floor((pos - hrp.Position).Magnitude)) end
+        label(row, {
+            text = string.format("T%d  ·  %s%s", e.info.tier, e.info.category ~= "" and e.info.category or "-", dist),
+            size = 12, color = THEME.dim, alignX = Enum.TextXAlignment.Right,
+            size2 = UDim2.new(0, 160, 1, 0), pos = UDim2.new(1, -170, 0, 0),
+        })
+    end
+end
+
+-- Settings
+section(pgSettings, "Interface")
+do
+    local keys = { "RightShift", "RightControl", "Insert", "Delete", "Home" }
+    local opts = {}
+    for _, k in ipairs(keys) do table.insert(opts, { k, k }) end
+    dropdown(pgSettings, "Show / hide key", opts, function() return CFG.uiKey end, function(v) CFG.uiKey = v end)
+end
+section(pgSettings, "Config")
+local cfgStatus = note(pgSettings, "")
+local function setStatus(msg) cfgStatus.Text = msg end
+cfgStatus.LayoutOrder = 9000
+
+local CFG_FILE = "ThriftESP.json"
+button(pgSettings, "Save settings", function()
+    local ok = pcall(function() writefile(CFG_FILE, HttpService:JSONEncode(CFG)) end)
+    setStatus(ok and "Settings saved." or "Saving isn't supported here.")
+end)
+button(pgSettings, "Load settings", function()
+    local ok, data = pcall(function() return HttpService:JSONDecode(readfile(CFG_FILE)) end)
+    if ok and type(data) == "table" then
+        for k, v in pairs(data) do
+            if DEFAULTS[k] ~= nil and type(v) == type(DEFAULTS[k]) then CFG[k] = v end
+        end
+        for _, f in ipairs(renderers) do f() end
+        clearAll() scan()
+        setStatus("Settings loaded.")
+    else
+        setStatus("No saved settings found.")
+    end
+end)
+button(pgSettings, "Reset to defaults", function()
+    for k, v in pairs(DEFAULTS) do CFG[k] = v end
+    for _, f in ipairs(renderers) do f() end
+    clearAll() scan()
+    setStatus("Defaults restored.")
+end)
+
+-- tab wiring
+for name, tb in pairs(tabButtons) do
+    tb.btn.MouseButton1Click:Connect(function() selectTab(name) end)
+    tb.btn.MouseEnter:Connect(function()
+        if currentTab ~= name then tb.lbl.TextColor3 = THEME.text end
+    end)
+    tb.btn.MouseLeave:Connect(function()
+        if currentTab ~= name then tb.lbl.TextColor3 = THEME.dim end
+    end)
+end
+selectTab("Rarity")
+
+----------------------------------------------------------------
+-- Window behaviour
+----------------------------------------------------------------
+local minimized = false
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    minBtn.Text = minimized and "+" or "–"
+    win.Size = UDim2.fromOffset(WIN_W, minimized and TITLE_H or WIN_H)
+    sidebar.Visible = not minimized
+    content.Visible = not minimized
+end)
+closeBtn.MouseButton1Click:Connect(function() win.Visible = false end)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.KeyCode.Name == CFG.uiKey then
+        win.Visible = not win.Visible
+    end
+end)
+
+do
+    local dragging, dragStart, startPos
+    titleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = win.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch) then
+            local d = input.Position - dragStart
+            win.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + d.X,
+                startPos.Y.Scale, startPos.Y.Offset + d.Y
+            )
+        end
+    end)
+end
+
+-- live counts / items list
+task.spawn(function()
+    local tick = 0
+    while gui.Parent do
+        local n = 0
+        local by = { Common = 0, Uncommon = 0, Rare = 0, Epic = 0, Legendary = 0, Mythic = 0 }
+        for _, t in pairs(tracked) do
+            n += 1
+            if t.info and by[t.info.rarity] ~= nil then by[t.info.rarity] += 1 end
+        end
+        if pgRarity.counts then
+            for r, l in pairs(pgRarity.counts) do l.Text = tostring(by[r]) end
+        end
+        footer.Text = string.format("%d item%s tracked", n, n == 1 and "" or "s")
+        if currentTab == "Items" and win.Visible and not minimized then refreshItems() end
+        task.wait(0.8)
+    end
+end)
+
+print("[Thrift ESP] full store scan enabled")
+scan()

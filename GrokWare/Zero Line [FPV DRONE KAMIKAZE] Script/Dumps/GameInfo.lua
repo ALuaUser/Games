@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "Pushpin Gaming",
+    CreatorType = "Group",
+    CurrentPlayers = 13,
+    Description = "ZERO LINE – FPV DRONE KAMIKAZE\n\nA drone war in first person: dive into enemy players, trucks and helicopters, and shoot enemy drones down with guns.\n\n- 3 drones\n- Upgrade batteries, propellers, antennas, night vision and thermal cameras\n- 55 levels \n- Unlock camo drone skins and outfits\n- Daily and weekly missions\n\nJoin the group for +20% cash!\n\nFound a bug or have an idea? Tap the gear (Settings) in the lobby, then FEEDBACK / BUG. It goes straight to the developer!\n\nPlay on PC, mobile, tablet",
+    GameId = 10772119043,
+    GeneratedAt = "2026-11-26 16:55:40",
+    IsStudio = false,
+    JobId = "f2b2dd53-052e-4a67-9bf4-427fcf50fa83",
+    MaxPlayers = 18,
+    Name = "Zero Line [FPV DRONE KAMIKAZE]",
+    PlaceId = 132631375778013,
+    PlaceVersion = 391,
+}

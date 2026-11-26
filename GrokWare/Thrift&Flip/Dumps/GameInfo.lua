@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "MEGANIUS STUDIOS (Fidrek&Opus5.5)",
+    CreatorType = "Group",
+    CurrentPlayers = 6,
+    Description = "🛍️ Find rare clothes. Sell for big profits. Build your empire\n\nSearch the thrift store for your next BIG find — rare sneakers, designer bags and legendary clothing. Will you spot something valuable before someone else buys it?\n🛍️ Find it. Clean it. Sell it.\nTurn overlooked items into profit and work your way from a shopping bag to your own retail empire.\n✨ Discover rare items — all the way up to MYTHIC\n📦 Bid on storage garages and uncover valuable finds\n🏪 Build your clothin",
+    GameId = 10764974981,
+    GeneratedAt = "2026-11-24 23:58:58",
+    IsStudio = false,
+    JobId = "d0549218-9abe-4a1a-8639-334d9afc2009",
+    MaxPlayers = 10,
+    Name = "Thrift&Flip: Resell Tycoon",
+    PlaceId = 94206080514907,
+    PlaceVersion = 1222,
+}

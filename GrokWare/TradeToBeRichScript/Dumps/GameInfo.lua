@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "TradingFinalBoss",
+    CreatorType = "Group",
+    CurrentPlayers = 4,
+    Description = "Trade up from a paperclip to become a millionaire!\n\n📦 Buy items off the conveyor\n🤝 Trade with NPCs for better items\n💵 Place items on your plot to make money\n💎 Keep trading for the rarest items\n🏆 Become the richest trader ever!\n\n👍 Like and ⭐ favorite for updates!",
+    GameId = 10773885180,
+    GeneratedAt = "2026-11-24 23:38:39",
+    IsStudio = false,
+    JobId = "ba2a4047-8385-4833-8661-7973e84105e6",
+    MaxPlayers = 6,
+    Name = "Trade To Be Rich",
+    PlaceId = 77588808128300,
+    PlaceVersion = 107,
+}

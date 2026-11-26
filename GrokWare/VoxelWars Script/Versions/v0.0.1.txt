@@ -1,0 +1,110 @@
+local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
+local lp, cam = Players.LocalPlayer, workspace.CurrentCamera
+
+local CFG = { fov = 160, hitChance = 85, headChance = 55, wallcheck = true, players = true, bots = true }
+
+local FIRE = {}
+for _, n in ipairs({ "FireRifle", "FireSMG", "FireLMG", "FirePistol", "FireDMR", "FireSniper", "FireShotgun" }) do
+	local r = RS.Voxel.Remotes:FindFirstChild(n)
+	if r then FIRE[r] = n end
+end
+local Ballistics = require(RS.Voxel.Ballistics)
+
+local params = RaycastParams.new()
+params.FilterType = Enum.RaycastFilterType.Exclude
+
+local function alive(model)
+	local hum = model:FindFirstChildOfClass("Humanoid")
+	return hum and hum.Health > 0 and model:GetAttribute("Alive") ~= false
+end
+
+local function pick()
+	local center, best, bestDist = cam.ViewportSize / 2, nil, CFG.fov
+	local myTeam = tostring(lp.Team)
+	local function consider(model)
+		local root = model:FindFirstChild("UpperTorso") or model:FindFirstChild("HumanoidRootPart")
+		if not root or not alive(model) then return end
+		local p, on = cam:WorldToViewportPoint(root.Position)
+		if not on then return end
+		local d = (Vector2.new(p.X, p.Y) - center).Magnitude
+		if d >= bestDist then return end
+		if CFG.wallcheck then
+			params.FilterDescendantsInstances = { lp.Character, model }
+			if workspace:Raycast(cam.CFrame.Position, root.Position - cam.CFrame.Position, params) then return end
+		end
+		best, bestDist = model, d
+	end
+	if CFG.players then
+		for _, pl in ipairs(Players:GetPlayers()) do
+			if pl ~= lp and pl.Character and (pl.Team == nil or pl.Team ~= lp.Team) then consider(pl.Character) end
+		end
+	end
+	local rigs = CFG.bots and workspace:FindFirstChild("BotRigs")
+	if rigs then
+		for _, m in ipairs(rigs:GetChildren()) do
+			if m:GetAttribute("Team") ~= myTeam then consider(m) end
+		end
+	end
+	return best
+end
+
+local function rewrite(name, a)
+	local muzzle = a[1]
+	if typeof(muzzle) ~= "Vector3" or typeof(a[2]) ~= "Vector3" then return end
+	if math.random(100) > CFG.hitChance then return end
+	local model = pick()
+	if not model then return end
+	local part = model:FindFirstChild(math.random(100) <= CFG.headChance and "Head" or "UpperTorso")
+	if not part then return end
+
+	local speed, arc = Ballistics.SPEED or 1700, nil
+	if name == "FireSniper" then
+		local tool = lp.Character and lp.Character:FindFirstChildOfClass("Tool")
+		speed = Ballistics.RIFLE_SPEED * ((tool and tonumber(tool:GetAttribute("GsVelocity"))) or 1)
+		arc = Ballistics.RIFLE_ARC
+	end
+
+	local point = part.Position + Vector3.new(math.random(-12, 12), math.random(-12, 12), math.random(-12, 12)) / 100
+	local root = model:FindFirstChild("HumanoidRootPart")
+	if root and root.AssemblyLinearVelocity.Magnitude > 0.5 then
+		local dist = (point - muzzle).Magnitude
+		local ok, t = pcall(Ballistics.flightTime, dist, speed, arc)
+		point += root.AssemblyLinearVelocity * (ok and t or dist / speed)
+	end
+
+	local plain = (point - muzzle).Unit
+	local aim = plain
+	if name == "FireSniper" then
+		local ok, v = pcall(Ballistics.launch, muzzle, point, speed, arc)
+		if ok and typeof(v) == "Vector3" and v.Magnitude > 0.5 then aim = v.Unit end
+	end
+
+	if name == "FireShotgun" then
+		for i = 3, #a do if typeof(a[i]) == "Vector3" then a[i] = plain end end
+	else
+		a[2] = aim
+		if typeof(a[4]) == "Vector3" then a[4] = plain end
+		if typeof(a[5]) == "number" then a[5] = 0 end
+	end
+end
+
+local old
+old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+	local method = getnamecallmethod()
+	local name = method == "FireServer" and FIRE[self]
+	if name then
+		local a, n = { ... }, select("#", ...)
+		pcall(rewrite, name, a)
+		setnamecallmethod(method)
+		return old(self, table.unpack(a, 1, n))
+	end
+	return old(self, ...)
+end))
+
+pcall(function()
+	game:GetService("StarterGui"):SetCore("SendNotification", {
+		Title = "Silent Aim",
+		Text = "Loaded",
+		Duration = 3,
+	})
+end)

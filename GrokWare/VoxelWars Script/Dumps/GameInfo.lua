@@ -1,0 +1,15 @@
+return {
+    CreatorId = 0,
+    CreatorName = "Voxel Front",
+    CreatorType = "Group",
+    CurrentPlayers = 26,
+    Description = "Welcome to VOXEL WARS, the war game where everything can be destroyed! Jump into 15v15 battles, blow through walls, and wipe out the enemy base block by block.\n\n💥 DESTROY walls, bunkers, towers and buildings\n🪖 FIGHT in tanks, helicopters and jeeps, or on foot\n🔥 EARN killstreaks like airstrikes and a gunship\n🔨 BUILD turrets and steel cover with your hammer\n\nVote for the next map and mode after every round, and level up to unlock new guns and gear.\n\nPlay on PC, phones, tablets and cont",
+    GameId = 10773416193,
+    GeneratedAt = "2026-11-25 18:54:21",
+    IsStudio = false,
+    JobId = "5b6b63c6-564e-41bd-84b3-866baa130b4e",
+    MaxPlayers = 30,
+    Name = "Voxel Wars",
+    PlaceId = 78884249003161,
+    PlaceVersion = 2814,
+}
