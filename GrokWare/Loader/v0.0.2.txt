@@ -1,0 +1,533 @@
+--[[
+    GrokWare Loader
+    Repo: https://github.com/ALuaUser/Games/tree/main/GrokWare
+
+    Detects the current PlaceId, lists Versions/ from that game folder,
+    lets you pick a version, then loadstrings it.
+]]
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+local REPO = "ALuaUser/Games"
+local BRANCH = "main"
+local ROOT = "GrokWare"
+
+-- PlaceId -> folder name under GrokWare/
+local GAMES = {
+    [135415094018012] = {
+        name = "Guess the Character Age",
+        folder = "Guess the Character Age Script",
+    },
+    [107430170196919] = {
+        name = "Crazy 8 Ball Pool",
+        folder = "Crazy 8 ball pool Script",
+    },
+    [114690486941238] = {
+        name = "R1 Battle Royale",
+        folder = "R1 Battle Royale Script",
+    },
+    [75942174630781] = {
+        name = "R1 Battle Royale",
+        folder = "R1 Battle Royale Script",
+    },
+}
+
+local placeId = game.PlaceId
+local entry = GAMES[placeId]
+
+----------------------------------------------------------------
+-- HTTP
+----------------------------------------------------------------
+local function httpGet(url)
+    local req = (syn and syn.request)
+        or (http and http.request)
+        or http_request
+        or request
+        or (fluxus and fluxus.request)
+
+    if req then
+        local ok, res = pcall(req, {
+            Url = url,
+            Method = "GET",
+        })
+        if ok and res then
+            local body = res.Body or res.body
+            local code = res.StatusCode or res.status_code or res.Status or 200
+            if body and (code == 200 or code == 0) then
+                return body
+            end
+            return nil, "HTTP " .. tostring(code)
+        end
+        return nil, tostring(res)
+    end
+
+    local ok, body = pcall(function()
+        return game:HttpGet(url)
+    end)
+    if ok and body and body ~= "" then
+        return body
+    end
+    return nil, tostring(body)
+end
+
+local function urlEncode(s)
+    local out = tostring(s):gsub("([^%w%-%.%_%~])", function(c)
+        return string.format("%%%02X", string.byte(c))
+    end)
+    return out
+end
+
+local function apiContents(path)
+    local parts = {}
+    for seg in string.gmatch(path, "[^/]+") do
+        parts[#parts + 1] = urlEncode(seg)
+    end
+    local url = ("https://api.github.com/repos/%s/contents/%s?ref=%s"):format(
+        REPO,
+        table.concat(parts, "/"),
+        BRANCH
+    )
+
+    local body, err = httpGet(url)
+    if not body then
+        return nil, err
+    end
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(body)
+    end)
+    if not ok or type(data) ~= "table" then
+        return nil, "bad JSON"
+    end
+    return data
+end
+
+local function listVersions(folder)
+    local data, err = apiContents(ROOT .. "/" .. folder .. "/Versions")
+    if not data then
+        return nil, err
+    end
+    local files = {}
+    for _, item in ipairs(data) do
+        if item.type == "file" and item.name then
+            local n = item.name
+            if n:match("%.lua$") or n:match("%.txt$") or n:match("%.luau$") then
+                local fallback = ("https://raw.githubusercontent.com/%s/%s/%s"):format(
+                    REPO,
+                    BRANCH,
+                    (item.path:gsub(" ", "%%20"))
+                )
+                files[#files + 1] = {
+                    name = n,
+                    path = item.path,
+                    download = item.download_url or fallback,
+                    size = item.size or 0,
+                }
+            end
+        end
+    end
+    table.sort(files, function(a, b)
+        return a.name > b.name -- newest-looking first (v0.0.4 > v0.0.1)
+    end)
+    return files
+end
+
+local function loadVersion(file)
+    local url = file.download
+    if not url then
+        return false, "no download url"
+    end
+    url = url:gsub(" ", "%%20")
+    local src, err = httpGet(url)
+    if not src or src == "" then
+        return false, err or "empty response"
+    end
+    local fn, cerr = loadstring(src)
+    if not fn then
+        return false, "compile: " .. tostring(cerr)
+    end
+    local ok, res = pcall(fn)
+    if not ok then
+        return false, "runtime: " .. tostring(res)
+    end
+    return true, res
+end
+
+----------------------------------------------------------------
+-- Theme
+----------------------------------------------------------------
+local C = {
+    bg = Color3.fromRGB(21, 21, 24),
+    surface = Color3.fromRGB(29, 29, 33),
+    hover = Color3.fromRGB(38, 38, 43),
+    line = Color3.fromRGB(44, 44, 50),
+    text = Color3.fromRGB(232, 232, 236),
+    muted = Color3.fromRGB(135, 135, 145),
+    ok = Color3.fromRGB(98, 190, 130),
+    err = Color3.fromRGB(224, 108, 96),
+    warn = Color3.fromRGB(220, 170, 90),
+    idle = Color3.fromRGB(135, 135, 145),
+}
+
+local FONT = Enum.Font.Gotham
+local FONT_MED = Enum.Font.GothamMedium
+local FONT_BOLD = Enum.Font.GothamBold
+
+local WIDTH, HEIGHT = 320, 380
+local HEADER_H, FOOTER_H = 58, 38
+
+local function corner(parent, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r)
+    c.Parent = parent
+    return c
+end
+
+local function tween(obj, props, t)
+    TweenService:Create(obj, TweenInfo.new(t or 0.12, Enum.EasingStyle.Quad), props):Play()
+end
+
+----------------------------------------------------------------
+-- UI
+----------------------------------------------------------------
+local old = PG:FindFirstChild("GrokWareLoader")
+if old then
+    old:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "GrokWareLoader"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 200
+gui.Parent = PG
+
+local card = Instance.new("Frame")
+card.Name = "Card"
+card.Size = UDim2.fromOffset(WIDTH, HEIGHT)
+card.Position = UDim2.new(0.5, -WIDTH / 2, 0.5, -HEIGHT / 2)
+card.BackgroundColor3 = C.bg
+card.BorderSizePixel = 0
+card.ClipsDescendants = true
+card.Parent = gui
+corner(card, 10)
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = C.line
+stroke.Thickness = 1
+stroke.Parent = card
+
+-- header (also the drag handle)
+local header = Instance.new("Frame")
+header.Name = "Header"
+header.Size = UDim2.new(1, 0, 0, HEADER_H)
+header.BackgroundTransparency = 1
+header.Active = true
+header.Parent = card
+
+local title = Instance.new("TextLabel")
+title.BackgroundTransparency = 1
+title.Position = UDim2.fromOffset(16, 11)
+title.Size = UDim2.new(1, -60, 0, 18)
+title.Font = FONT_BOLD
+title.TextSize = 15
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextColor3 = C.text
+title.Text = "GrokWare"
+title.Parent = header
+
+local sub = Instance.new("TextLabel")
+sub.BackgroundTransparency = 1
+sub.Position = UDim2.fromOffset(16, 31)
+sub.Size = UDim2.new(1, -60, 0, 16)
+sub.Font = FONT
+sub.TextSize = 12
+sub.TextXAlignment = Enum.TextXAlignment.Left
+sub.TextTruncate = Enum.TextTruncate.AtEnd
+sub.TextColor3 = C.muted
+sub.Text = "Detecting game"
+sub.Parent = header
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.fromOffset(26, 26)
+closeBtn.Position = UDim2.new(1, -38, 0, 12)
+closeBtn.BackgroundColor3 = C.surface
+closeBtn.BackgroundTransparency = 1
+closeBtn.AutoButtonColor = false
+closeBtn.Text = "×"
+closeBtn.TextColor3 = C.muted
+closeBtn.Font = FONT
+closeBtn.TextSize = 20
+closeBtn.Parent = header
+corner(closeBtn, 6)
+closeBtn.MouseEnter:Connect(function()
+    tween(closeBtn, { BackgroundTransparency = 0, TextColor3 = C.text })
+end)
+closeBtn.MouseLeave:Connect(function()
+    tween(closeBtn, { BackgroundTransparency = 1, TextColor3 = C.muted })
+end)
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+local function divider(y)
+    local d = Instance.new("Frame")
+    d.Size = UDim2.new(1, 0, 0, 1)
+    d.Position = UDim2.fromOffset(0, y)
+    d.BackgroundColor3 = C.line
+    d.BorderSizePixel = 0
+    d.Parent = card
+    return d
+end
+
+divider(HEADER_H)
+divider(HEIGHT - FOOTER_H - 1)
+
+-- version list
+local listFrame = Instance.new("ScrollingFrame")
+listFrame.Name = "Versions"
+listFrame.Position = UDim2.fromOffset(0, HEADER_H + 1)
+listFrame.Size = UDim2.new(1, 0, 1, -(HEADER_H + FOOTER_H + 2))
+listFrame.BackgroundTransparency = 1
+listFrame.BorderSizePixel = 0
+listFrame.ScrollBarThickness = 3
+listFrame.ScrollBarImageColor3 = C.line
+listFrame.CanvasSize = UDim2.new()
+listFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+listFrame.Parent = card
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 6)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = listFrame
+
+local pad = Instance.new("UIPadding")
+pad.PaddingTop = UDim.new(0, 10)
+pad.PaddingBottom = UDim.new(0, 10)
+pad.PaddingLeft = UDim.new(0, 12)
+pad.PaddingRight = UDim.new(0, 12)
+pad.Parent = listFrame
+
+-- footer: status dot + text, place id on the right
+local footer = Instance.new("Frame")
+footer.Size = UDim2.new(1, 0, 0, FOOTER_H)
+footer.Position = UDim2.new(0, 0, 1, -FOOTER_H)
+footer.BackgroundTransparency = 1
+footer.Parent = card
+
+local dot = Instance.new("Frame")
+dot.Size = UDim2.fromOffset(7, 7)
+dot.Position = UDim2.new(0, 16, 0.5, -3)
+dot.BackgroundColor3 = C.idle
+dot.BorderSizePixel = 0
+dot.Parent = footer
+corner(dot, 4)
+
+local status = Instance.new("TextLabel")
+status.BackgroundTransparency = 1
+status.Position = UDim2.fromOffset(31, 0)
+status.Size = UDim2.new(1, -140, 1, 0)
+status.Font = FONT
+status.TextSize = 12
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.TextTruncate = Enum.TextTruncate.AtEnd
+status.TextColor3 = C.muted
+status.Text = ""
+status.Parent = footer
+
+local idLabel = Instance.new("TextLabel")
+idLabel.BackgroundTransparency = 1
+idLabel.Position = UDim2.new(1, -116, 0, 0)
+idLabel.Size = UDim2.new(0, 100, 1, 0)
+idLabel.Font = FONT
+idLabel.TextSize = 11
+idLabel.TextXAlignment = Enum.TextXAlignment.Right
+idLabel.TextColor3 = C.muted
+idLabel.Text = tostring(placeId)
+idLabel.Parent = footer
+
+local function setStatus(text, kind)
+    local col = C[kind or "idle"] or C.idle
+    status.Text = text
+    status.TextColor3 = (kind == "idle" or not kind) and C.muted or col
+    tween(dot, { BackgroundColor3 = col }, 0.15)
+end
+
+-- drag (header only)
+do
+    local dragging, start, startPos
+    header.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            start = input.Position
+            startPos = card.Position
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch then
+            local d = input.Position - start
+            card.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + d.X,
+                startPos.Y.Scale, startPos.Y.Offset + d.Y
+            )
+        end
+    end)
+end
+
+local function clearList()
+    for _, c in ipairs(listFrame:GetChildren()) do
+        if c:IsA("TextButton") then
+            c:Destroy()
+        end
+    end
+end
+
+local order = 0
+local function addRow(name, meta, onClick)
+    order += 1
+    local btn = Instance.new("TextButton")
+    btn.LayoutOrder = order
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.BackgroundColor3 = C.surface
+    btn.AutoButtonColor = false
+    btn.Text = ""
+    btn.Parent = listFrame
+    corner(btn, 8)
+
+    local n = Instance.new("TextLabel")
+    n.BackgroundTransparency = 1
+    n.Position = UDim2.fromOffset(12, 0)
+    n.Size = UDim2.new(1, -90, 1, 0)
+    n.Font = FONT_MED
+    n.TextSize = 13
+    n.TextXAlignment = Enum.TextXAlignment.Left
+    n.TextTruncate = Enum.TextTruncate.AtEnd
+    n.TextColor3 = C.text
+    n.Text = name
+    n.Parent = btn
+
+    if meta then
+        local m = Instance.new("TextLabel")
+        m.BackgroundTransparency = 1
+        m.Position = UDim2.new(1, -76, 0, 0)
+        m.Size = UDim2.new(0, 64, 1, 0)
+        m.Font = FONT
+        m.TextSize = 11
+        m.TextXAlignment = Enum.TextXAlignment.Right
+        m.TextColor3 = C.muted
+        m.Text = meta
+        m.Parent = btn
+    end
+
+    btn.MouseEnter:Connect(function()
+        tween(btn, { BackgroundColor3 = C.hover })
+    end)
+    btn.MouseLeave:Connect(function()
+        tween(btn, { BackgroundColor3 = C.surface })
+    end)
+    if onClick then
+        btn.MouseButton1Click:Connect(onClick)
+    end
+    return btn
+end
+
+local loading = false
+
+local function showUnsupported()
+    sub.Text = "Game not supported"
+    setStatus("PlaceId is not mapped", "err")
+    clearList()
+    addRow("Copy PlaceId", nil, function()
+        if setclipboard then
+            setclipboard(tostring(placeId))
+            setStatus("PlaceId copied", "ok")
+        end
+    end)
+    addRow("Copy repo link", nil, function()
+        if setclipboard then
+            setclipboard("https://github.com/ALuaUser/Games/tree/main/GrokWare")
+            setStatus("Repo link copied", "ok")
+        end
+    end)
+end
+
+local function showVersions()
+    sub.Text = entry.name
+    setStatus("Fetching versions", "idle")
+    clearList()
+
+    task.spawn(function()
+        local files, err = listVersions(entry.folder)
+        if not files then
+            setStatus("Failed: " .. tostring(err), "err")
+            addRow("Retry", nil, showVersions)
+            return
+        end
+        if #files == 0 then
+            setStatus("No scripts in Versions/", "warn")
+            return
+        end
+        setStatus(("%d version%s available"):format(#files, #files == 1 and "" or "s"), "ok")
+
+        for _, file in ipairs(files) do
+            local meta = file.size > 0 and string.format("%.1f KB", file.size / 1024) or nil
+            addRow(file.name, meta, function()
+                if loading then
+                    return
+                end
+                loading = true
+                setStatus("Loading " .. file.name, "idle")
+                task.spawn(function()
+                    local ok, res = loadVersion(file)
+                    loading = false
+                    if ok then
+                        setStatus("Loaded " .. file.name, "ok")
+                        task.delay(0.8, function()
+                            if gui.Parent then
+                                gui:Destroy()
+                            end
+                        end)
+                    else
+                        setStatus(tostring(res), "err")
+                    end
+                end)
+            end)
+        end
+    end)
+end
+
+----------------------------------------------------------------
+-- boot
+----------------------------------------------------------------
+-- quick fade-in
+card.BackgroundTransparency = 1
+stroke.Transparency = 1
+tween(card, { BackgroundTransparency = 0 }, 0.2)
+tween(stroke, { Transparency = 0 }, 0.2)
+
+if not entry then
+    showUnsupported()
+else
+    showVersions()
+end
+
+print(("[GrokWare Loader] PlaceId=%s game=%s"):format(
+    tostring(placeId),
+    entry and entry.name or "unsupported"
+))
